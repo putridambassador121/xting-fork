@@ -137,7 +137,7 @@ class mainWindow(windowUI):
         self.sequenceRandomAction.toggled.connect(self.changeSequence)
 
         self.aboutQtAction.triggered.connect(self.aboutQt_)
-        self.quitAction.triggered.connect(self.close)
+        self.quitAction.triggered.connect(self.quit_)
 
 
     def loadPlaylist(self):
@@ -386,8 +386,7 @@ class mainWindow(windowUI):
     def aboutQt_(self):
         QMessageBox.aboutQt(self, self.tr("About Qt"))
 
-
-    def closeEvent(self, e):
+    def beforeClose(self):
         self.systemTray.hide()
 
         self.parameter.windowState = self.saveState()
@@ -400,4 +399,19 @@ class mainWindow(windowUI):
 
         self.parameter.save()
 
-        e.accept()
+
+    def quit_(self):
+        self.parameter.doQuit = self.parameter.closeNotQuit
+        self.close()
+
+    def closeEvent(self, e):
+        if self.parameter.doQuit:
+            self.beforeClose()
+            e.accept()
+        else:
+            if self.systemTray and self.parameter.closeNotQuit:
+                e.ignore()
+                self.hide()
+            else:
+                self.beforeClose()
+                e.accept()

@@ -12,11 +12,13 @@ class parameterData:
     def __init__(self):
         configPath = os.path.join(os.path.expanduser("~"), ".ting/ting.conf")
         self.iniFile = QSettings(configPath, QSettings.Format.IniFormat)
+        self.doQuit = False
 
     def read(self):
         self.collectionPath = self.iniFile.value("/player/collectionpath", os.path.expanduser("~"))
         self.trayIcon = self.stringToBool(self.iniFile.value("/player/trayicon", False))
         self.trayInfo = self.stringToBool(self.iniFile.value("/player/trayinfo", False))
+        self.closeNotQuit = self.stringToBool(self.iniFile.value("/player/closenotquit", False))
         self.loop = self.iniFile.value("/player/loop", "playlist")
         self.sequence = self.iniFile.value("/player/sequence", "order")
 
@@ -32,6 +34,7 @@ class parameterData:
         self.iniFile.setValue("player/collectionpath", self.collectionPath)
         self.iniFile.setValue("player/trayicon", self.trayIcon)
         self.iniFile.setValue("player/trayinfo", self.trayInfo)
+        self.iniFile.setValue("player/closenotquit", self.closeNotQuit)
         self.iniFile.setValue("player/loop", self.loop)
         self.iniFile.setValue("player/sequence", self.sequence)
 

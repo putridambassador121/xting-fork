@@ -33,6 +33,7 @@ class windowUI(QMainWindow):
         self.fileMenu = self.menuBar().addMenu(self.tr("File"))
         self.openFileAction = QAction(self.tr("Open..."))
         self.quitAction = QAction(self.tr("Quit"))
+        self.quitAction.setObjectName("quit")
         self.fileMenu.addAction(self.openFileAction)
         self.fileMenu.addSeparator()
         self.fileMenu.addAction(self.quitAction)
