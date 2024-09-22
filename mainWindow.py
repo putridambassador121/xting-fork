@@ -7,7 +7,7 @@ import os, sys, glob, json, mutagen, random
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
-from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput, QMediaMetaData
+from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput, QMediaMetaData, QMediaDevices
 
 from windowUI import windowUI
 from engine import engine
@@ -18,8 +18,8 @@ from track import track
 
 class mainWindow(windowUI):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, devices):
+        super().__init__(devices)
 
         self.setWindowTitle("Ting")
         self.setWindowIcon(QIcon("icon/logo.png"))
@@ -46,13 +46,20 @@ class mainWindow(windowUI):
         else:
             self.sequenceReverseOrderAction.setChecked(True)
 
-
         self.musicEngine = engine()
         self.playHistory = []
         self.currentTrack = None
         self.currentNo = -1
         self.schedule = True
         self.addToPlayHistory = True
+
+        k = 0
+        for de in self.devices:
+            if de.description() == self.musicEngine.audioOutput.device().description():
+                break
+            else:
+                k += 1
+        exec(f"self.device{k}Action.setChecked(True)")
 
         self.musicEngine.setVolume(0.8)
         self.centralWidget.volumeSlider.setValue(8)
@@ -73,6 +80,9 @@ class mainWindow(windowUI):
         self.centralWidget.repeatButton.clicked.connect(self.repeat_)
         self.scanAction.triggered.connect(self.scanAction_)
 
+        for q in self.deviceGroup.actions():
+            exec(f"q.triggered.connect(self.changeDevice)")
+
         self.timer.timeout.connect(self.progressForward)
 
         self.centralWidget.progressSlider.valueChanged.connect(self.adjustTrackPosition)
@@ -91,6 +101,7 @@ class mainWindow(windowUI):
         self.sequenceReverseOrderAction.toggled.connect(self.changeSequence)
         self.sequenceRandomAction.toggled.connect(self.changeSequence)
 
+        self.aboutQtAction.triggered.connect(self.aboutQt_)
         self.quitAction.triggered.connect(self.close)
 
 
@@ -340,12 +351,27 @@ class mainWindow(windowUI):
         if b:
             self.parameter.sequence = self.sender().iconText().lower()
 
+    def changeDevice(self):
+        deviceId = self.sender().objectName()
+        self.musicEngine.setDevice(self.devices[int(deviceId)])
+
+
     def formatTrackLength(self, t):
         m, s = divmod(t, 60)
         if s < 10:
-            return "{}:0{}".format(m, s)
+            return f"{m}:0{s}"
         else:
-            return "{}:{}".format(m, s)
+            return f"{m}:{s}"
+
+    def aboutQt_(self):
+        print(self.musicEngine.audioOutput.device().description())
+        print(self.musicEngine.audioOutput.device().id())
+        print(self.musicEngine.audioOutput.device().mode())
+        for i in QMediaDevices.audioOutputs():
+            print(i.description())
+            print(i.id())
+            print(i.mode())
+        QMessageBox.aboutQt(self, "About Qt")
 
 
     def closeEvent(self, e):

@@ -13,8 +13,8 @@ class engine:
 
     def __init__(self):
         self.musicEquipment = QMediaPlayer()
-        self.audioDevice = QAudioOutput()
-        self.musicEquipment.setAudioOutput(self.audioDevice)
+        self.audioOutput = QAudioOutput()
+        self.musicEquipment.setAudioOutput(self.audioOutput)
         self.musicEquipment.setLoops(1)
         self.musicFile = None
 
@@ -34,6 +34,13 @@ class engine:
     def stop(self):
         self.musicEquipment.stop()
 
+    def getDevice(self):
+        d = self.audioOutput.device()
+        return (d.id(), d.description())
+
+    def setDevice(self, d):
+        self.audioOutput.setDevice(d)
+
     def getPosition(self):
         return int(self.musicEquipment.position() / 1000)
 
@@ -41,10 +48,10 @@ class engine:
         self.musicEquipment.setPosition(p * 1000)
 
     def getVolume(self):
-        return self.audioDevice.volume()
+        return self.audioOutput.volume()
 
     def setVolume(self, v):
-        self.audioDevice.setVolume(v)
+        self.audioOutput.setVolume(v)
 
     def isPlaying(self):
         return self.musicEquipment.isPlaying()

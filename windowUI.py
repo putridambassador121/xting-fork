@@ -12,9 +12,10 @@ from dockWidgets import *
 
 class windowUI(QMainWindow):
 
-    def __init__(self):
+    def __init__(self, devices):
         super().__init__()
 
+        self.devices =devices
         self.initDockwidget()
         self.initCentralWidget()
         self.initMenuBar()
@@ -72,6 +73,19 @@ class windowUI(QMainWindow):
         self.sequenceMenu.addAction(self.sequenceOrderAction)
         self.sequenceMenu.addAction(self.sequenceReverseOrderAction)
         self.sequenceMenu.addAction(self.sequenceRandomAction)
+
+        self.audioMenu = self.menuBar().addMenu("Audio")
+        self.deviceMenu = self.audioMenu.addMenu("Device")
+        self.deviceGroup = QActionGroup(self)
+        n = 0
+        for d in self.devices:
+            exec(f"self.device{n}Action = QAction(d.description())")
+            exec(f"self.device{n}Action.setObjectName('{n}')")
+            exec(f"self.device{n}Action.setCheckable(True)")
+            exec(f"self.deviceGroup.addAction(self.device{n}Action)")
+            exec(f"self.deviceMenu.addAction(self.device{n}Action)")
+            n += 1
+
 
 
         self.toolsMenu = self.menuBar().addMenu("Tools")

@@ -3,6 +3,7 @@
 # filename: ting.py
 
 from PyQt6.QtWidgets import QApplication, QMessageBox
+from PyQt6.QtMultimedia import QMediaDevices
 from mainWindow import mainWindow
 import sys, os
 
@@ -14,7 +15,11 @@ if __name__ == "__main__":
     if not os.path.isdir(appdir):
         os.mkdir(appdir)
 
+
     app = QApplication(sys.argv)
-    w = mainWindow()
+
+    devices = QMediaDevices.audioOutputs()
+
+    w = mainWindow(devices)
     w.show()
     sys.exit(app.exec())
