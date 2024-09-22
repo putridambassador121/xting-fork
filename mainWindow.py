@@ -143,8 +143,8 @@ class mainWindow(windowUI):
             else:
                 self.addToPlayHistory = True
 
-            self.centralWidget.playorpauseButton.setText("Play")
-            self.playorpauseAction.setText("Play")
+            self.centralWidget.playorpauseButton.setText(self.tr("Play"))
+            self.playorpauseAction.setText(self.tr("Play"))
             self.centralWidget.stopButton.setEnabled(False)
             self.stopAction.setEnabled(False)
             self.centralWidget.progressSlider.setValue(0)
@@ -157,8 +157,8 @@ class mainWindow(windowUI):
             else:
                 self.schedule = True
         elif status.value == 1: # playing status
-            self.centralWidget.playorpauseButton.setText("Pause")
-            self.playorpauseAction.setText("Pause")
+            self.centralWidget.playorpauseButton.setText(self.tr("Pause"))
+            self.playorpauseAction.setText(self.tr("Pause"))
             self.centralWidget.stopButton.setEnabled(True)
             self.stopAction.setEnabled(True)
             self.nextAction.setEnabled(True)
@@ -166,8 +166,8 @@ class mainWindow(windowUI):
             self.repeatAction.setEnabled(True)
             self.centralWidget.repeatButton.setEnabled(True)
         elif status.value == 2: # paused status
-            self.centralWidget.playorpauseButton.setText("Play")
-            self.playorpauseAction.setText("Play")
+            self.centralWidget.playorpauseButton.setText(self.tr("Play"))
+            self.playorpauseAction.setText(self.tr("Play"))
 
     def scheduleNextTrack(self, callby = "auto"): # previous, playorpause, repeat or auto
         if self.playlistDock.playlistWidget.allTable.rowCount() == 0:
@@ -240,7 +240,7 @@ class mainWindow(windowUI):
                         self.stop_()
 
     def openFileAction_(self):
-        url, fil = QFileDialog.getOpenFileUrl(None, "choose a music file", QUrl.fromLocalFile(self.parameter.collectionPath), "music file(*.mp3 *.flac)")
+        url, fil = QFileDialog.getOpenFileUrl(None, self.tr("choose a music file"), QUrl.fromLocalFile(self.parameter.collectionPath), self.tr("music file(*.mp3 *.flac)"))
         if not url.isEmpty():
             self.musicEngine.add(url)
             self.currentTrack = track(url.toLocalFile())
@@ -364,14 +364,7 @@ class mainWindow(windowUI):
             return f"{m}:{s}"
 
     def aboutQt_(self):
-        print(self.musicEngine.audioOutput.device().description())
-        print(self.musicEngine.audioOutput.device().id())
-        print(self.musicEngine.audioOutput.device().mode())
-        for i in QMediaDevices.audioOutputs():
-            print(i.description())
-            print(i.id())
-            print(i.mode())
-        QMessageBox.aboutQt(self, "About Qt")
+        QMessageBox.aboutQt(self, self.tr("About Qt"))
 
 
     def closeEvent(self, e):

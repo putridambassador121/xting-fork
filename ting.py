@@ -4,6 +4,7 @@
 
 from PyQt6.QtWidgets import QApplication, QMessageBox
 from PyQt6.QtMultimedia import QMediaDevices
+from PyQt6.QtCore import QLocale, QTranslator
 from mainWindow import mainWindow
 import sys, os
 
@@ -19,6 +20,14 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     devices = QMediaDevices.audioOutputs()
+
+    locale = QLocale.system().name()
+    print(locale)
+    translator = QTranslator()
+    if translator.load(f'translations/{locale}/ting.qm'):
+        app.installTranslator(translator)
+    else:
+        print(f'No translation file found for {locale}')
 
     w = mainWindow(devices)
     w.show()

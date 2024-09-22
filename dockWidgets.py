@@ -18,10 +18,11 @@ class lrcShowDock(QDockWidget):
         self.setFloating(False)
 
 
-class lrcShowWidget(QFrame):
+class lrcShowWidget(QTextBrowser):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
+        self.setText("lrcShow is not available yet, temporarily serving as an easy guide. Modify the collection path in config file ($HOME/.ting/ting.conf), then click Tools-Scan collection, app will load your media files (mp3 and flac temporarily) in 'All tracks' tab in playlist dock, now you can listen music with ting app. It's a personal app, if you don't like it, forget it!")
 
 
 class playlistDock(QDockWidget):
@@ -39,7 +40,7 @@ class playlistWidget(QWidget):
         self.parent = parent
 
         searchLayout = QHBoxLayout(None)
-        self.searchLabel = QLabel("Search:")
+        self.searchLabel = QLabel(self.tr("Search:"))
         self.searchLine = QLineEdit(self)
         searchLayout.addWidget(self.searchLabel)
         searchLayout.addWidget(self.searchLine)
@@ -48,7 +49,7 @@ class playlistWidget(QWidget):
         self.allTable.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.allTable.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         #self.allTable.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
-        header = ["Title", "Artist", "Length", "Album", "Type", "Date", "Bit rate", "Sample rate", "File"]
+        header = [self.tr("Title"), self.tr("Artist"), self.tr("Length"), self.tr("Album"), self.tr("Type"), self.tr("Date"), self.tr("Bit rate"), self.tr("Sample rate"), self.tr("File")]
         self.allTable.setHorizontalHeaderLabels(header)
 
         self.customTable = QTableWidget(0, 9)
@@ -58,8 +59,8 @@ class playlistWidget(QWidget):
         self.customTable.setHorizontalHeaderLabels(header)
 
         self.tabArea = QTabWidget(self)
-        self.tabArea.addTab(self.allTable, "All tracks")
-        self.tabArea.addTab(self.customTable, "Playlist")
+        self.tabArea.addTab(self.allTable, self.tr("All tracks"))
+        self.tabArea.addTab(self.customTable, self.tr("Playlist"))
 
         mainLayout = QVBoxLayout(None)
         mainLayout.addLayout(searchLayout)

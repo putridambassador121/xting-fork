@@ -26,7 +26,7 @@ class engine:
         if self.musicFile != None:
             self.musicEquipment.play()
         else:
-            print("please add a track first")
+            print(self.tr("please add a track first"))
 
     def pause(self):
         self.musicEquipment.pause()
