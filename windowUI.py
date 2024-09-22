@@ -19,7 +19,11 @@ class windowUI(QMainWindow):
         self.initDockwidget()
         self.initCentralWidget()
         self.initMenuBar()
-        # self.initStatusBar()
+        self.initStatusBar()
+
+    def initStatusBar(self):
+        self.infoLabel = QLabel()
+        self.statusBar().addPermanentWidget(self.infoLabel)
 
     def initCentralWidget(self):
         self.centralWidget = controlWidget(self)
@@ -47,6 +51,7 @@ class windowUI(QMainWindow):
         self.playbackMenu.addAction(self.playorpauseAction)
         self.playbackMenu.addAction(self.stopAction)
         self.playbackMenu.addAction(self.nextAction)
+        self.playbackMenu.addAction(self.repeatAction)
 
         self.playlistMenu = self.menuBar().addMenu(self.tr("Playlist"))
         self.loopMenu = self.playlistMenu.addMenu(self.tr("Loop"))
@@ -74,6 +79,11 @@ class windowUI(QMainWindow):
         self.sequenceMenu.addAction(self.sequenceReverseOrderAction)
         self.sequenceMenu.addAction(self.sequenceRandomAction)
 
+        self.viewMenu = self.menuBar().addMenu(self.tr("View"))
+        self.viewMenu.addAction(self.lrcShowxDock.toggleViewAction())
+        self.viewMenu.addAction(self.playlistDock.toggleViewAction())
+        self.viewMenu.addAction(self.albumCoverDock.toggleViewAction())
+
         self.audioMenu = self.menuBar().addMenu(self.tr("Audio"))
         self.deviceMenu = self.audioMenu.addMenu(self.tr("Device"))
         self.deviceGroup = QActionGroup(self)
@@ -85,8 +95,6 @@ class windowUI(QMainWindow):
             exec(f"self.deviceGroup.addAction(self.device{n}Action)")
             exec(f"self.deviceMenu.addAction(self.device{n}Action)")
             n += 1
-
-
 
         self.toolsMenu = self.menuBar().addMenu(self.tr("Tools"))
         self.scanAction = QAction(self.tr("Scan collection"))
@@ -103,16 +111,22 @@ class windowUI(QMainWindow):
         self.helpMenu.addAction(self.aboutQtAction)
 
     def initDockwidget(self):
-        self.lrcShowDock = lrcShowDock(self.tr("lrcShow"), self)
-        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.lrcShowDock)
+        self.lrcShowxDock = lrcShowxDock(self.tr("lrcShow-X"), self)
+        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.lrcShowxDock)
+        self.lrcShowxDock.setObjectName("lrcShow-X")
 
-        self.playlistDock = playlistDock(self.tr("playlist"), self)
+        self.playlistDock = playlistDock(self.tr("Playlist"), self)
         self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, self.playlistDock)
+        self.playlistDock.setObjectName("Playlist")
+
+        self.albumCoverDock = albumCoverDock(self.tr("Album cover"), self)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.albumCoverDock)
+        self.albumCoverDock.setObjectName("Album cover")
 
         self.setCorner(Qt.Corner.TopLeftCorner, Qt.DockWidgetArea.LeftDockWidgetArea)
-
-
-
+        self.setCorner(Qt.Corner.TopRightCorner, Qt.DockWidgetArea.RightDockWidgetArea)
+        self.setCorner(Qt.Corner.BottomLeftCorner, Qt.DockWidgetArea.LeftDockWidgetArea)
+        self.setCorner(Qt.Corner.BottomRightCorner, Qt.DockWidgetArea.RightDockWidgetArea)
 
 
 
@@ -136,11 +150,13 @@ class controlWidget(QWidget):
         self.volumeSlider.setOrientation(Qt.Orientation.Horizontal)
         self.volumeSlider.setTracking(False)
         self.volumeSlider.setRange(0, 10)
+        buttonLayout.addStretch(0)
         buttonLayout.addWidget(self.previousButton)
         buttonLayout.addWidget(self.playorpauseButton)
         buttonLayout.addWidget(self.stopButton)
         buttonLayout.addWidget(self.nextButton)
         buttonLayout.addWidget(self.repeatButton)
+        buttonLayout.addStretch(0)
         buttonLayout.addWidget(self.volumeSlider)
 
         progressLayout = QHBoxLayout(None)
@@ -155,8 +171,11 @@ class controlWidget(QWidget):
         progressLayout.addWidget(self.lengthLabel)
 
         mainLayout = QVBoxLayout(None)
+        #mainLayout.setSizeConstraint(QLayout.SizeConstraint.SetNoConstraint)
+        mainLayout.addStretch(0)
         mainLayout.addLayout(buttonLayout)
         mainLayout.addLayout(progressLayout)
+        #mainLayout.addStretch(0)
         self.setLayout(mainLayout)
 
 

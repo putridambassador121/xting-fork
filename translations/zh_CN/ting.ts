@@ -34,7 +34,7 @@
     <message>
         <location filename="engine.py" line="29"/>
         <source>please add a track first</source>
-        <translation type="unfinished"></translation>
+        <translation>请添加一个音频文件</translation>
     </message>
 </context>
 <context>
@@ -45,23 +45,23 @@
         <location filename="mainWindow.py" line="147"/>
         <location filename="mainWindow.py" line="146"/>
         <source>Play</source>
-        <translation type="unfinished"></translation>
+        <translation>播放</translation>
     </message>
     <message>
         <location filename="mainWindow.py" line="161"/>
         <location filename="mainWindow.py" line="160"/>
         <source>Pause</source>
-        <translation type="unfinished"></translation>
+        <translation>暂停</translation>
     </message>
     <message>
         <location filename="mainWindow.py" line="243"/>
         <source>choose a music file</source>
-        <translation type="unfinished"></translation>
+        <translation>选择一个音乐文件</translation>
     </message>
     <message>
         <location filename="mainWindow.py" line="243"/>
         <source>music file(*.mp3 *.flac)</source>
-        <translation type="unfinished"></translation>
+        <translation>音乐文件（*.mp3 *.flac）</translation>
     </message>
     <message>
         <location filename="mainWindow.py" line="374"/>
@@ -79,7 +79,7 @@
     <message>
         <location filename="dockWidgets.py" line="52"/>
         <source>Title</source>
-        <translation>歌名</translation>
+        <translation>工具</translation>
     </message>
     <message>
         <location filename="dockWidgets.py" line="52"/>
@@ -193,7 +193,7 @@
     <message>
         <location filename="windowUI.py" line="53"/>
         <source>Track</source>
-        <translation>音轨</translation>
+        <translation>歌名</translation>
     </message>
     <message>
         <location filename="windowUI.py" line="62"/>

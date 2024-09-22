@@ -22,7 +22,6 @@ if __name__ == "__main__":
     devices = QMediaDevices.audioOutputs()
 
     locale = QLocale.system().name()
-    print(locale)
     translator = QTranslator()
     if translator.load(f'translations/{locale}/ting.qm'):
         app.installTranslator(translator)

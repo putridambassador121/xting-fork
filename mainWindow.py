@@ -29,6 +29,9 @@ class mainWindow(windowUI):
         self.parameter = parameterData()
         self.parameter.read()
 
+
+
+
         self.systemTray = QSystemTrayIcon(QIcon("icon/logo.png"), self)
         self.systemTray.setContextMenu(self.playbackMenu)
         if self.parameter.trayIcon:
@@ -82,6 +85,38 @@ class mainWindow(windowUI):
 
         for q in self.deviceGroup.actions():
             exec(f"q.triggered.connect(self.changeDevice)")
+
+
+        try:
+            self.lrcShowxDock.restoreGeometry(self.parameter.lrcShowxDockGeometry)
+        except:
+            pass
+        try:
+            self.playlistDock.restoreGeometry(self.parameter.lrcShowxDockGeometry)
+        except:
+            pass
+        try:
+            self.albumCoverDock.restoreGeometry(self.parameter.lrcShowxDockGeometry)
+        except:
+            pass
+
+        try:
+            self.restoreState(self.parameter.windowState)
+        except:
+            pass
+        try:
+            self.restoreGeometry(self.parameter.windowGeometry)
+        except:
+            pass
+
+        try:
+            self.playlistDock.playlistWidget.allTable.horizontalHeader().restoreState(self.parameter.playlistDockAllTableState)
+        except:
+            pass
+        try:
+            self.playlistDock.playlistWidget.customTable.horizontalHeader().restoreState(self.parameter.playlistDockCustomTableState)
+        except:
+            pass
 
         self.timer.timeout.connect(self.progressForward)
 
@@ -369,5 +404,15 @@ class mainWindow(windowUI):
 
     def closeEvent(self, e):
         self.systemTray.hide()
+
+        self.parameter.windowState = self.saveState()
+        self.parameter.windowGeometry = self.saveGeometry()
+        self.parameter.lrcShowxDockGeometry = self.lrcShowxDock.saveGeometry()
+        self.parameter.playlistDockGeometry = self.playlistDock.saveGeometry()
+        self.parameter.albumCoverDockGeometry = self.albumCoverDock.saveGeometry()
+        self.parameter.playlistDockAllTableState = self.playlistDock.playlistWidget.allTable.horizontalHeader().saveState()
+        self.parameter.playlistDockCustomTableState = self.playlistDock.playlistWidget.customTable.horizontalHeader().saveState()
+
         self.parameter.save()
+
         e.accept()
