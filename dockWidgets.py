@@ -4,6 +4,7 @@
 
 
 import os, sys
+from track import track
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
@@ -29,6 +30,7 @@ class playlistDock(QDockWidget):
 
     def __init__(self, title, parent = None):
         super().__init__(title)
+        self.parent = parent
         self.playlistWidget = playlistWidget(self)
         self.setWidget(self.playlistWidget)
         self.setFloating(False)
@@ -42,6 +44,10 @@ class playlistWidget(QWidget):
         searchLayout = QHBoxLayout(None)
         self.searchLabel = QLabel(self.tr("Search:"))
         self.searchLine = QLineEdit(self)
+        self.searchLine.setClearButtonEnabled(True)
+
+        self.searchLine.textChanged.connect(self.filtItems)
+
         searchLayout.addWidget(self.searchLabel)
         searchLayout.addWidget(self.searchLine)
 
@@ -67,6 +73,42 @@ class playlistWidget(QWidget):
         mainLayout.addWidget(self.tabArea)
         self.setLayout(mainLayout)
 
+    def filtItems(self, t):
+        if t == "":
+            self.loadItems(self.parent.parent.collectionListTmp)
+        else:
+            l = self.tabArea.currentWidget().findItems(t, Qt.MatchFlag.MatchContains)
+            rowList = list(set((map(lambda x: x.row(), l))))
+            self.tabArea.currentWidget().clear()
+            tl = []
+            for i in rowList:
+                tl.append(self.parent.parent.collectionListTmp[i])
+            self.loadItems(tl)
+
+    def loadItems(self, trackList, itemsFrom = "collection"):
+        self.allTable.setRowCount(len(trackList))
+        row = 0
+        for i in trackList:
+            au = track(i.strip())
+            self.allTable.setItem(row, 0, QTableWidgetItem(au.trackTitle))
+            self.allTable.setItem(row, 1, QTableWidgetItem(au.trackArtist))
+            self.allTable.setItem(row, 2, QTableWidgetItem(self.formatTrackLength(au.trackLength)))
+            self.allTable.setItem(row, 3, QTableWidgetItem(au.trackAlbum))
+            self.allTable.setItem(row, 4, QTableWidgetItem(au.trackType))
+            self.allTable.setItem(row, 5, QTableWidgetItem(au.trackDate))
+            self.allTable.setItem(row, 6, QTableWidgetItem(str(au.trackBitrate)))
+            self.allTable.setItem(row, 7, QTableWidgetItem(str(au.trackSamplerate)))
+            self.allTable.setItem(row, 8, QTableWidgetItem(au.trackFile))
+            row += 1
+
+    def formatTrackLength(self, t):
+        m, s = divmod(t, 60)
+        if s < 10:
+            return f"{m}:0{s}"
+        else:
+            return f"{m}:{s}"
+
+
 
 class albumCoverDock(QDockWidget):
 
@@ -76,13 +118,11 @@ class albumCoverDock(QDockWidget):
         self.setWidget(self.albumCoverWidget)
         self.setFloating(False)
 
-        try:
-            self.restorGeometry(parent.parameter.albumCoverDockGeometry)
-        except:
-            pass
-
 
 class albumCoverWidget(QLabel):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        pix = QPixmap("icon/blankAlbum.png").scaled(200, 200)
+        self.setPixmap(pix)

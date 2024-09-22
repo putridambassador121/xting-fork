@@ -3,7 +3,7 @@
 # filename: mainWindow.py
 
 
-import os, sys, glob, json, mutagen, random
+import os, sys, glob, mutagen, random
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
@@ -67,7 +67,7 @@ class mainWindow(windowUI):
         self.musicEngine.setVolume(0.8)
         self.centralWidget.volumeSlider.setValue(8)
 
-        if os.path.exists(os.path.expanduser("~/.ting/tracks.json")):
+        if os.path.exists(os.path.expanduser("~/.ting/collection.txt")):
             self.loadPlaylist()
 
         self.openFileAction.triggered.connect(self.openFileAction_)
@@ -141,22 +141,10 @@ class mainWindow(windowUI):
 
 
     def loadPlaylist(self):
-        with open(os.path.join(self.appPrivatePath, "tracks.json"), "r") as f:
-            lines = f.readlines()
-        self.playlistDock.playlistWidget.allTable.setRowCount(len(lines))
-        row = 0
-        for i in lines:
-            p = json.loads(i)
-            self.playlistDock.playlistWidget.allTable.setItem(row, 0, QTableWidgetItem(p['Title']))
-            self.playlistDock.playlistWidget.allTable.setItem(row, 1, QTableWidgetItem(p['Artist']))
-            self.playlistDock.playlistWidget.allTable.setItem(row, 2, QTableWidgetItem(p['Length']))
-            self.playlistDock.playlistWidget.allTable.setItem(row, 3, QTableWidgetItem(p['Album']))
-            self.playlistDock.playlistWidget.allTable.setItem(row, 4, QTableWidgetItem(p['Type']))
-            self.playlistDock.playlistWidget.allTable.setItem(row, 5, QTableWidgetItem(p['Date']))
-            self.playlistDock.playlistWidget.allTable.setItem(row, 6, QTableWidgetItem(p['Bitrate']))
-            self.playlistDock.playlistWidget.allTable.setItem(row, 7, QTableWidgetItem(p['Samplerate']))
-            self.playlistDock.playlistWidget.allTable.setItem(row, 8, QTableWidgetItem(p['File']))
-            row += 1
+        with open(os.path.join(self.appPrivatePath, "collection.txt"), "r") as f:
+            self.collectionListTmp = f.readlines()
+        self.playlistDock.playlistWidget.loadItems(self.collectionListTmp)
+
 
     def playbackStateChanged_(self, status):
         if len(self.playHistory) != 0:
@@ -186,6 +174,7 @@ class mainWindow(windowUI):
             self.centralWidget.progressSlider.setEnabled(False)
             self.centralWidget.lengthLabel.setText("--:--")
             self.centralWidget.timeLabel.setText("--:--")
+            self.timer.stop()
 
             if self.schedule:
                 self.scheduleNextTrack()
@@ -359,14 +348,10 @@ class mainWindow(windowUI):
         for i in musicList:
             if mutagen.File(i) == None:
                 continue
-            au = track(i)
+            i = i + "\n"
+            t += i
 
-            tmp = {"Title" : au.trackTitle, "Artist" : au.trackArtist, "Length" : self.formatTrackLength(au.trackLength), "Album" : au.trackAlbum, "Type" : au.trackType, "Date" : au.trackDate, "Bitrate" : str(au.trackBitrate), "Samplerate" : str(au.trackSamplerate), "File" : au.trackFile}
-
-            jst = json.dumps(tmp) + "\n"
-            t += jst
-
-        with open(os.path.join(self.appPrivatePath, "tracks.json"), "w") as f:
+        with open(os.path.join(self.appPrivatePath, "collection.txt"), "w") as f:
             f.write(t)
 
         self.loadPlaylist()

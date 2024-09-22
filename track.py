@@ -18,10 +18,10 @@ class track:
         if os.path.splitext(f)[1].lower() == ".mp3":
             self.trackType = "mp3"
             self.audio = MP3(f)
-            try:
-                self.trackTitle = str(self.audio["TIT2"].text[0])
-            except:
-                self.trackTitle = "unknow"
+            # try:
+            self.trackTitle = str(self.audio["TIT2"].text[0])
+            # except:
+            #     self.trackTitle = "unknow"
             try:
                 self.trackAlbum = str(self.audio["TALB"].text[0])
             except:
