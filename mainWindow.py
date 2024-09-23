@@ -269,9 +269,9 @@ class mainWindow(windowUI):
             self.musicEngine.add(url)
             self.currentTrack = track(url.toLocalFile())
 
-            self.currentNo = self.getNumberFromFile(self.currentTrack.trackFile)
-            if self.currentNo != -1:
-                self.playlistDock.playlistWidget.allTable.selectRow(self.currentNo)
+            # self.currentNo = self.getNumberFromFile(self.currentTrack.trackFile)
+            # if self.currentNo != -1:
+            #     self.playlistDock.playlistWidget.allTable.selectRow(self.currentNo)
             self.actualPlayOrPause()
 
     def getNumberFromFile(self, f):
