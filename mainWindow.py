@@ -21,9 +21,9 @@ class mainWindow(windowUI):
     def __init__(self, devices):
         super().__init__(devices)
 
-        self.setWindowTitle("Ting")
+        self.setWindowTitle("xting")
         self.setWindowIcon(QIcon("icon/logo.png"))
-        self.appPrivatePath = os.path.expanduser("~/.ting")
+        self.appPrivatePath = os.path.expanduser("~/.xting")
         self.timer = QTimer()
 
         self.parameter = parameterData()
@@ -67,7 +67,7 @@ class mainWindow(windowUI):
         self.musicEngine.setVolume(0.8)
         self.centralWidget.volumeSlider.setValue(8)
 
-        if os.path.exists(os.path.expanduser("~/.ting/collection.txt")):
+        if os.path.exists(os.path.expanduser("~/.xting/collection.txt")):
             self.loadPlaylist()
 
         self.openFileAction.triggered.connect(self.openFileAction_)
@@ -264,7 +264,7 @@ class mainWindow(windowUI):
                         self.stop_()
 
     def openFileAction_(self):
-        url, fil = QFileDialog.getOpenFileUrl(None, self.tr("choose a music file"), QUrl.fromLocalFile(self.parameter.collectionPath), self.tr("music file(*.mp3 *.flac)"))
+        url, fil = QFileDialog.getOpenFileUrl(None, self.tr("choose a music file"), QUrl.fromLocalFile(self.parameter.collectionPath), "music files (*.mp3 *.flac)")
         if not url.isEmpty():
             self.musicEngine.add(url)
             self.currentTrack = track(url.toLocalFile())

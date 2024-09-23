@@ -1,4 +1,4 @@
-# ting
+# xting
 ## It is a personal music player
 
 ### Dependency:
@@ -7,11 +7,11 @@
 * PyQt6 (python and Qt6 bindings)
 
 ### Run:
-* Navigate to source dir in console and type: `python ting.py` in console to run the application
-* or directly click `ting.py` to run
+* Navigate to source dir in console and type: `python xting.py` in console to run the application
+* or directly click `xting.py` to run
 
 ### Author:
 * sanfanling (xujia19@outlook.com)
 
 ### Note:
-* Please modify config file manually due to developing. The config file is $HOME/.ting/ting.conf
+* Please modify config file manually due to developing. The config file is $HOME/.xting/xting.conf

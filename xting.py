@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# filename: ting.py
+# filename: xting.py
 
 from PyQt6.QtWidgets import QApplication, QMessageBox
 from PyQt6.QtMultimedia import QMediaDevices
@@ -12,7 +12,7 @@ import sys, os
 
 if __name__ == "__main__":
 
-    appdir = os.path.join(os.path.expanduser("~"), ".ting")
+    appdir = os.path.join(os.path.expanduser("~"), ".xting")
     if not os.path.isdir(appdir):
         os.mkdir(appdir)
 
@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
     locale = QLocale.system().name()
     translator = QTranslator()
-    if translator.load(f'translations/{locale}/ting.qm'):
+    if translator.load(f'translations/{locale}/xting.qm'):
         app.installTranslator(translator)
     else:
         print(f'No translation file found for {locale}')

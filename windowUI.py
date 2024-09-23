@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # filename: windowUI.py
 
-
 import os, sys
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
@@ -106,7 +105,7 @@ class windowUI(QMainWindow):
         self.settingMenu.addAction(self.configurateAction)
 
         self.helpMenu = self.menuBar().addMenu(self.tr("Help"))
-        self.aboutAppAction = QAction(self.tr("About ting..."))
+        self.aboutAppAction = QAction(self.tr("About xting..."))
         self.aboutQtAction = QAction(self.tr("About Qt..."))
         self.helpMenu.addAction(self.aboutAppAction)
         self.helpMenu.addAction(self.aboutQtAction)

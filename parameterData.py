@@ -10,7 +10,7 @@ import os.path
 class parameterData:
 
     def __init__(self):
-        configPath = os.path.join(os.path.expanduser("~"), ".ting/ting.conf")
+        configPath = os.path.join(os.path.expanduser("~"), ".xting/xting.conf")
         self.iniFile = QSettings(configPath, QSettings.Format.IniFormat)
         self.doQuit = False
 
