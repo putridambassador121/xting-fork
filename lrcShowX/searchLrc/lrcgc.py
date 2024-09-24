@@ -8,13 +8,11 @@ from urllib.parse import quote
 import requests
 
 class lrcgc:
-    def __init__(self, title, artist):
-        self.baseUrl = "https://so.lrcgc.com/?q="
+    def __init__(self):
+        self.baseurl = "https://so.lrcgc.com/?q="
 
-        self.url = self.baseUrl + quote(title) + "+" + quote(artist)
-        print(self.url)
-
-    def search(self):
+    def search(self, title, artist):
+        url = self.baseurl + quote(title) + "+" + quote(artist)
         try:
             res = requests.get(self.url)
             html = res.text
@@ -47,8 +45,8 @@ class lrcgc:
 
 
 if __name__ == "__main__":
-    a = lrcgc("陈奕迅", "十年")
-    r = a.search()
+    a = lrcgc()
+    r = a.search("陈奕迅", "十年")
     print(r)
     l = a.getLrcUrl(r[0][0])
     print(l)

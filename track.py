@@ -18,10 +18,10 @@ class track:
         if os.path.splitext(f)[1].lower() == ".mp3":
             self.trackType = "mp3"
             self.audio = MP3(f)
-            # try:
-            self.trackTitle = str(self.audio["TIT2"].text[0])
-            # except:
-            #     self.trackTitle = "unknow"
+            try:
+                self.trackTitle = str(self.audio["TIT2"].text[0])
+            except:
+                 self.trackTitle = "unknow"
             try:
                 self.trackAlbum = str(self.audio["TALB"].text[0])
             except:
@@ -34,9 +34,18 @@ class track:
                 self.trackDate = str(self.audio["TDRC"].text[0])
             except:
                 self.trackDate = "unknow"
-            self.trackBitrate = int(self.audio.info.bitrate)
-            self.trackSamplerate = int(self.audio.info.sample_rate)
-            self.trackLength = int(self.audio.info.length)
+            try:
+                self.trackBitrate = int(self.audio.info.bitrate)
+            except:
+                self.trackBitrate = 0
+            try:
+                self.trackSamplerate = int(self.audio.info.sample_rate)
+            except:
+                self.trackSamplerate = 0
+            try:
+                self.trackLength = int(self.audio.info.length)
+            except:
+                self.trackLength = 0
 
         elif os.path.splitext(f)[1].lower() == ".flac":
             self.trackType = "flac"
@@ -57,9 +66,18 @@ class track:
                 self.trackDate = self.audio["date"][0]
             except:
                 self.trackDate = "unknow"
-            self.trackBitrate = int(self.audio.info.bitrate)
-            self.trackSamplerate = int(self.audio.info.sample_rate)
-            self.trackLength = int(self.audio.info.length)
+            try:
+                self.trackBitrate = int(self.audio.info.bitrate)
+            except:
+                self.trackBitrate = 0
+            try:
+                self.trackSamplerate = int(self.audio.info.sample_rate)
+            except:
+                self.trackSamplerate = 0
+            try:
+                self.trackLength = int(self.audio.info.length)
+            except:
+                self.trackLength = 0
         else:
             self.trackType = "unknow"
             self.audio = None
