@@ -30,6 +30,10 @@ class parameterData:
         self.playlistDockAllTableState = self.iniFile.value("/session/playlistdockalltablestate", "")
         self.playlistDockCustomTableState = self.iniFile.value("/session/playlistdockcustomtablestate", "")
 
+        self.lineMargin = self.iniFile.value("/lrcshowx/linemargin", 5)
+        self.topMarginLines = self.iniFile.value("/lrcshowx/topmarginlines", 5)
+
+
     def save(self):
         self.iniFile.setValue("player/collectionpath", self.collectionPath)
         self.iniFile.setValue("player/trayicon", self.trayIcon)

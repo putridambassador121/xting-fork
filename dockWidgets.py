@@ -15,7 +15,8 @@ class lrcShowxDock(QDockWidget):
 
     def __init__(self, title, parent = None):
         super().__init__(title)
-        self.lrcShowxWidget = lrcShowX(parent)
+        self.parent = parent
+        self.lrcShowxWidget = lrcShowX(self)
         self.setWidget(self.lrcShowxWidget)
         self.setFloating(False)
 

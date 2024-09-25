@@ -11,7 +11,7 @@ from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput, QMediaMetaData, QMedi
 
 from windowUI import windowUI
 from engine import engine
-from parameterData import parameterData
+
 from track import track
 
 
@@ -26,11 +26,18 @@ class mainWindow(windowUI):
         self.appPrivatePath = os.path.expanduser("~/.xting")
         self.timer = QTimer()
 
-        self.parameter = parameterData()
-        self.parameter.read()
 
+        self.musicEngine = engine()
+        self.playHistory = []
+        self.currentTrack = None
+        self.currentNo = -1
+        self.schedule = True
+        self.addToPlayHistory = True
 
-
+        self.initDockwidget()
+        self.initCentralWidget()
+        self.initMenuBar()
+        self.initStatusBar()
 
         self.systemTray = QSystemTrayIcon(QIcon("icon/logo.png"), self)
         self.systemTray.setContextMenu(self.playbackMenu)
@@ -49,12 +56,7 @@ class mainWindow(windowUI):
         else:
             self.sequenceReverseOrderAction.setChecked(True)
 
-        self.musicEngine = engine()
-        self.playHistory = []
-        self.currentTrack = None
-        self.currentNo = -1
-        self.schedule = True
-        self.addToPlayHistory = True
+
 
         k = 0
         for de in self.devices:

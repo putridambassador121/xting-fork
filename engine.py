@@ -44,6 +44,9 @@ class engine:
     def getPosition(self):
         return int(self.musicEquipment.position() / 1000)
 
+    def getPositionInms(self):
+        return self.musicEquipment.position()
+
     def setPosition(self, p):
         self.musicEquipment.setPosition(p * 1000)
 

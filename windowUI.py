@@ -8,17 +8,21 @@ from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 
 from dockWidgets import *
+from parameterData import parameterData
 
 class windowUI(QMainWindow):
 
     def __init__(self, devices):
         super().__init__()
 
-        self.devices =devices
-        self.initDockwidget()
-        self.initCentralWidget()
-        self.initMenuBar()
-        self.initStatusBar()
+        self.parameter = parameterData()
+        self.parameter.read()
+
+        self.devices = devices
+        # self.initDockwidget()
+        # self.initCentralWidget()
+        # self.initMenuBar()
+        # self.initStatusBar()
 
     def initStatusBar(self):
         self.infoLabel = QLabel()
