@@ -30,9 +30,13 @@ class parameterData:
         self.playlistDockAllTableState = self.iniFile.value("/session/playlistdockalltablestate", "")
         self.playlistDockCustomTableState = self.iniFile.value("/session/playlistdockcustomtablestate", "")
 
-        self.lineMargin = self.iniFile.value("/lrcshowx/linemargin", 5)
-        self.topMarginLines = self.iniFile.value("/lrcshowx/topmarginlines", 5)
-
+        self.lineMargin = int(self.iniFile.value("/lrcshowx/linemargin", 5))
+        self.topMarginLines = int(self.iniFile.value("/lrcshowx/topmarginlines", 5))
+        self.backGroundColor = self.iniFile.value("/lrcshowx/backgroundcolor", "#5d8bb6")
+        self.foreGroundColor = self.iniFile.value("/lrcshowx/foregroundcolor", "#ffffff")
+        self.highLightColor = self.iniFile.value("/lrcshowx/highlightcolor", "#b4c8ff")
+        self.lrcLocalSearchPath = self.iniFile.value("/lrcshowx/lrclocalsearchpath", os.path.expanduser("~/.xting/lrc"))
+        self.lrcLocalSavePath = self.iniFile.value("/lrcshowx/lrclocalsavepath", os.path.expanduser("~/.xting/lrc"))
 
     def save(self):
         self.iniFile.setValue("player/collectionpath", self.collectionPath)
@@ -49,6 +53,14 @@ class parameterData:
         self.iniFile.setValue("/session/albumcoverdockgeometry", self.albumCoverDockGeometry)
         self.iniFile.setValue("/session/playlistdockalltablestate", self.playlistDockAllTableState)
         self.iniFile.setValue("/session/playlistdockcustomtablestate", self.playlistDockCustomTableState)
+
+        self.iniFile.setValue("/lrcshowx/linemargin", self.lineMargin)
+        self.iniFile.setValue("/lrcshowx/topmarginlines", self.topMarginLines)
+        self.iniFile.setValue("/lrcshowx/backgroundcolor", self.backGroundColor)
+        self.iniFile.setValue("/lrcshowx/foregroundcolor", self.foreGroundColor)
+        self.iniFile.setValue("/lrcshowx/highlightcolor", self.highLightColor)
+        self.iniFile.setValue("/lrcshowx/lrclocalsearchpath", self.lrcLocalSearchPath)
+        self.iniFile.setValue("/lrcshowx/lrclocalsavepath", self.lrcLocalSavePath)
 
     def stringToBool(self, s):
         if type(s) == bool:

@@ -13,10 +13,15 @@ class lrcShowX(QTextBrowser):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setWordWrapMode(QTextOption.WrapMode.NoWrap)
+
         self.timer = QTimer()
 
         self.readParameters()
+
+        self.initColor()
 
         self.margin = QFontMetrics(self.font()).height() + self.lineMargin
         self.nullNum = int(self.viewport().height() / self.margin)
@@ -63,6 +68,9 @@ class lrcShowX(QTextBrowser):
     def scrolLToCurrent(self):
         duaration = self.lrcScheduleList[self.currentTag][2]
         self.verticalScrollBar().setValue(self.currentTag * self.margin)
+        for count in range(0, self.topMarginLines + self.currentTag - 1):
+            self.moveCursor(QTextCursor.MoveOperation.Down)
+        self.highLightCurrentLine()
         if duaration > self.offset:
             self.timer.start(duaration - self.offset)
         else:
@@ -77,11 +85,21 @@ class lrcShowX(QTextBrowser):
             self.verticalScrollBar().setValue(self.currentTag * self.margin)
             self.timer.start(duaration)
             self.currentTag += 1
+            self.highLightCurrentLine()
+
+    def highLightCurrentLine(self):
+        self.moveCursor(QTextCursor.MoveOperation.StartOfLine)
+        self.moveCursor(QTextCursor.MoveOperation.NextBlock, QTextCursor.MoveMode.KeepAnchor)
 
 
     def readParameters(self):
         self.lineMargin = self.parent.parent.parameter.lineMargin
         self.topMarginLines = self.parent.parent.parameter.topMarginLines
+        self.backGroundColor = QColor(self.parent.parent.parameter.backGroundColor)
+        self.foreGroundColor = QColor(self.parent.parent.parameter.foreGroundColor)
+        self.highLightColor = QColor(self.parent.parent.parameter.highLightColor)
+        self.lrcLocalSearchPath = self.parent.parent.parameter.lrcLocalSearchPath
+        self.lrcLocalSavePath = self.parent.parent.parameter.lrcLocalSavePath
 
     def getMargin(self):
         self.margin = self.fontMetrics().height() + self.lineMargin
@@ -118,6 +136,16 @@ class lrcShowX(QTextBrowser):
                 context += t
             co = nullLines + context + 50 * j + '<p align="center">&nbsp;</p>'
             return co
+
+    def initColor(self):
+        pl = QPalette()
+        pl.setColor(QPalette.ColorRole.Window, self.backGroundColor)
+        pl.setColor(QPalette.ColorRole.Base, self.backGroundColor)
+        pl.setColor(QPalette.ColorRole.Text, self.foreGroundColor)
+        pl.setColor(QPalette.ColorRole.Highlight, self.backGroundColor)
+        pl.setColor(QPalette.ColorRole.HighlightedText, self.highLightColor)
+        self.setPalette(pl)
+        self.update()
 
     # def resizeEvent(self, e):
     #     self.nullNum = self.height() / self.margin

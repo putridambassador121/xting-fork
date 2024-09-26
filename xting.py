@@ -25,8 +25,8 @@ if __name__ == "__main__":
     translator = QTranslator()
     if translator.load(f'translations/{locale}/xting.qm'):
         app.installTranslator(translator)
-    else:
-        print(f'No translation file found for {locale}')
+    # else:
+    #     print(f'No translation file found for {locale}')
 
     w = mainWindow(devices)
     w.show()
