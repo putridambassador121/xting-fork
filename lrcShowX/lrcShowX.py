@@ -27,40 +27,45 @@ class lrcShowX(QTextBrowser):
         self.timer.timeout.connect(self.scroll)
 
     def playbackStateChanged_(self, state):
-        if state.value == 0: # stoped state
+        sv = state.value
+        if sv == 0: # stoped state
             if self.timer.isActive():
                 self.timer.stop()
             self.showInfo("No music is playing")
-        elif state.value == 1: # playing state
-
+        elif sv == 1: # playing state
             # search local
             # seach engines
+
             p = lrcParser("lrcShowX/b.lrc")
             self.lrcScheduleList = p.parse()
             self.showLrc()
+
+            self.locateCurrentTag()
+            self.scrolLToCurrent()
+        else:  # paused state
+            self.locateCurrentTag()
             self.scrolLToCurrent()
 
-        else:
-            pass
-            # self.trackPos = self.parent.parent.musicEngine.getPositionInms()
-            # n = 0
-            # for i in self.lrcScheduleList:
-            #     if self.trackPos < i[0] - 50:
-            #         break
-            #     elif i[0] - 50 <= self.trackPos <= i[0]:
-            #         n += 1
-            #         break
-            #     else:
-            #         n += 1
-            # self.currentTag = n -1
-            # self.scrolLToCurrent()
+    def locateCurrentTag(self):
+        self.trackPos = self.parent.parent.musicEngine.getPositionInms()
+        print(f"current position is: {self.trackPos}")
+        n = 0
+        for i in self.lrcScheduleList:
+            if self.trackPos < i[0]:
+                break
+            elif self.trackPos == i[0]:
+                n += 1
+                break
+            else:
+                n += 1
+        self.currentTag = n
+        print(n)
+
 
     def scrolLToCurrent(self):
-        duaration = self.lrcScheduleList[0][0]
-        self.verticalScrollBar().setValue(0)
+        duaration = self.lrcScheduleList[self.currentTag][2]
+        self.verticalScrollBar().setValue(self.currentTag * self.margin)
         self.timer.start(duaration)
-        print(duaration)
-        self.currentTag = 0
 
     def scroll(self):
         duaration = self.lrcScheduleList[self.currentTag][2]
@@ -69,10 +74,7 @@ class lrcShowX(QTextBrowser):
         else:
             self.verticalScrollBar().setValue(self.currentTag * self.margin)
             self.timer.start(duaration)
-            print(duaration)
             self.currentTag += 1
-
-
 
 
     def readParameters(self):
