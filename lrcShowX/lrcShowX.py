@@ -18,6 +18,7 @@ class lrcShowX(QTextBrowser):
         self.setWordWrapMode(QTextOption.WrapMode.NoWrap)
 
         self.timer = QTimer()
+        self.animateTimer = QTimer()
 
         self.readParameters()
 
@@ -30,12 +31,15 @@ class lrcShowX(QTextBrowser):
 
         self.parent.parent.musicEngine.musicEquipment.playbackStateChanged.connect(self.playbackStateChanged_)
         self.timer.timeout.connect(self.scroll)
+        self.animateTimer.timeout.connect(self.animate)
 
     def playbackStateChanged_(self, state):
         sv = state.value
         if sv == 0: # stoped state
             if self.timer.isActive():
                 self.timer.stop()
+            if self.animateTimer.isActive():
+                self.animateTimer.stop()
             self.showInfo("No music is playing")
         elif sv == 1: # playing state
             # search local
@@ -82,10 +86,27 @@ class lrcShowX(QTextBrowser):
         if duaration < 0:
             pass
         else:
-            self.verticalScrollBar().setValue(self.currentTag * self.margin)
+            if duaration < 700:
+                self.verticalScrollBar().setValue(self.currentTag * self.margin)
+            else:
+                self.animateStartTag = self.currentTag
+                self.animate()
             self.timer.start(duaration)
             self.currentTag += 1
             self.highLightCurrentLine()
+
+    def animate(self):
+        dis = int(self.margin / 5)
+        pos = self.verticalScrollBar().value()
+        if pos + dis < self.animateStartTag * self.margin:
+            self.verticalScrollBar().setValue(pos + dis)
+            self.animateTimer.start(100)
+        else:
+            self.verticalScrollBar().setValue(self.animateStartTag * self.margin)
+
+
+
+
 
     def highLightCurrentLine(self):
         self.moveCursor(QTextCursor.MoveOperation.StartOfLine)
