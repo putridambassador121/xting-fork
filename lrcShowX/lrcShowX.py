@@ -37,7 +37,7 @@ class lrcShowX(QTextBrowser):
             # seach engines
 
             p = lrcParser("lrcShowX/b.lrc")
-            self.lrcScheduleList = p.parse()
+            self.lrcScheduleList, self.offset = p.parse()
             self.showLrc()
 
             self.locateCurrentTag()
@@ -48,7 +48,6 @@ class lrcShowX(QTextBrowser):
 
     def locateCurrentTag(self):
         self.trackPos = self.parent.parent.musicEngine.getPositionInms()
-        print(f"current position is: {self.trackPos}")
         n = 0
         for i in self.lrcScheduleList:
             if self.trackPos < i[0]:
@@ -59,13 +58,16 @@ class lrcShowX(QTextBrowser):
             else:
                 n += 1
         self.currentTag = n
-        print(n)
 
 
     def scrolLToCurrent(self):
         duaration = self.lrcScheduleList[self.currentTag][2]
         self.verticalScrollBar().setValue(self.currentTag * self.margin)
-        self.timer.start(duaration)
+        if duaration > self.offset:
+            self.timer.start(duaration - self.offset)
+        else:
+            print("invalid offset, ignore!")
+            self.timer.start(duaration)
 
     def scroll(self):
         duaration = self.lrcScheduleList[self.currentTag][2]

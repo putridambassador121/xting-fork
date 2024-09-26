@@ -15,6 +15,13 @@ class lrcParser:
         with open(self.lrcfile, "r") as f:
             lineList = f.readlines()
 
+        offset = 0
+        for y in lineList:
+            offsetTag = re.search(r'\[offset:(.*?)\]', y)
+            if offsetTag:
+                offset = int(offsetTag.group(1).strip())
+                break
+
         td = dict()
         for i in lineList:
             tags = re.findall(r"\[\d\d:\d\d.*?\]", i)
@@ -36,7 +43,7 @@ class lrcParser:
             lyrics.append([k, td[k], dl[o]])
             o += 1
         readyLine = [[0, "", lyrics[0][0]]]
-        return readyLine + lyrics   # [[tag1, lyrics1, duaration1], [tag2, lyrics2, duaration2], .......]
+        return readyLine + lyrics, offset   # [[tag1, lyrics1, duaration1], [tag2, lyrics2, duaration2], .......]
 
 
     def tagToms(self, tag):
