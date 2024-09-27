@@ -313,7 +313,7 @@ class mainWindow(windowUI):
             self.centralWidget.progressSlider.setRange(0, t * 1000)
             self.timer.start(1000)
             self.centralWidget.lengthLabel.setText(self.formatTrackLength(t))
-            self.centralWidget.progressSlider.setValue(self.musicEngine.getPositionInms())
+            self.centralWidget.progressSlider.setValue(self.musicEngine.getPosition())
             self.centralWidget.timeLabel.setText(self.formatTrackLength(self.musicEngine.getPosition()))
             self.musicEngine.play()
 
@@ -335,7 +335,7 @@ class mainWindow(windowUI):
         self.centralWidget.timeLabel.setText(self.formatTrackLength(int(v / 1000)))
 
     def adjustTrackPosition(self, v):
-        if abs(v - self.musicEngine.getPositionInms()) < 1000:
+        if abs(v - self.musicEngine.getPosition()) < 1000:
             pass
         else:
             self.timer.stop()
