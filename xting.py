@@ -15,6 +15,8 @@ if __name__ == "__main__":
     appdir = os.path.join(os.path.expanduser("~"), ".xting")
     if not os.path.isdir(appdir):
         os.mkdir(appdir)
+    if not os.path.isdir(os.path.join(appdir, "lrc")):
+        os.mkdir(os.path.join(appdir, "lrc"))
 
 
     app = QApplication(sys.argv)

@@ -130,8 +130,7 @@ class lrcShowX(QTextBrowser):
         self.backGroundColor = QColor(self.parent.parent.parameter.backGroundColor)
         self.foreGroundColor = QColor(self.parent.parent.parameter.foreGroundColor)
         self.highLightColor = QColor(self.parent.parent.parameter.highLightColor)
-        self.lrcLocalSearchPath = self.parent.parent.parameter.lrcLocalSearchPath
-        self.lrcLocalSavePath = self.parent.parent.parameter.lrcLocalSavePath
+        self.lrcLocalPath = self.parent.parent.parameter.lrcLocalPath
 
     def getMargin(self):
         self.margin = self.fontMetrics().height() + self.lineMargin

@@ -9,6 +9,7 @@ from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput, QMediaMetaData, QMediaDevices
 
+from configuration import configuration
 from windowUI import windowUI
 from engine import engine
 
@@ -84,6 +85,7 @@ class mainWindow(windowUI):
         self.repeatAction.triggered.connect(self.repeat_)
         self.centralWidget.repeatButton.clicked.connect(self.repeat_)
         self.scanAction.triggered.connect(self.scanAction_)
+        self.configurationAction.triggered.connect(self.configurationAction_)
 
         for q in self.deviceGroup.actions():
             exec(f"q.triggered.connect(self.changeDevice)")
@@ -388,6 +390,13 @@ class mainWindow(windowUI):
 
     def aboutQt_(self):
         QMessageBox.aboutQt(self, self.tr("About Qt"))
+
+    def configurationAction_(self):
+        settingDialog = configuration(self)
+        settingDialog.exec()
+
+
+        self.parameter.configurationSplitterState = settingDialog.splitter.saveState()
 
     def beforeClose(self):
         self.systemTray.hide()

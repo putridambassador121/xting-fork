@@ -106,8 +106,8 @@ class windowUI(QMainWindow):
         self.toolsMenu.addAction(self.scanAction)
 
         self.settingMenu = self.menuBar().addMenu(self.tr("Setting"))
-        self.configurateAction = QAction(self.tr("Configurate..."))
-        self.settingMenu.addAction(self.configurateAction)
+        self.configurationAction = QAction(self.tr("Configurate..."))
+        self.settingMenu.addAction(self.configurationAction)
 
         self.helpMenu = self.menuBar().addMenu(self.tr("Help"))
         self.aboutAppAction = QAction(self.tr("About xting..."))
