@@ -34,8 +34,8 @@ class mainWindow(windowUI):
         self.schedule = True
         self.addToPlayHistory = True
 
-        self.initDockwidget()
         self.initCentralWidget()
+        self.initDockwidget()
         self.initMenuBar()
         self.initStatusBar()
 
@@ -310,10 +310,10 @@ class mainWindow(windowUI):
         else:
             t = self.currentTrack.trackLength
             self.centralWidget.progressSlider.setEnabled(True)
-            self.centralWidget.progressSlider.setRange(0, t)
+            self.centralWidget.progressSlider.setRange(0, t * 1000)
             self.timer.start(1000)
             self.centralWidget.lengthLabel.setText(self.formatTrackLength(t))
-            self.centralWidget.progressSlider.setValue(self.musicEngine.getPosition())
+            self.centralWidget.progressSlider.setValue(self.musicEngine.getPositionInms())
             self.centralWidget.timeLabel.setText(self.formatTrackLength(self.musicEngine.getPosition()))
             self.musicEngine.play()
 
@@ -331,17 +331,18 @@ class mainWindow(windowUI):
 
     def progressForward(self):
         v = self.centralWidget.progressSlider.value()
-        self.centralWidget.progressSlider.setValue(v + 1)
-        self.centralWidget.timeLabel.setText(self.formatTrackLength(v))
+        self.centralWidget.progressSlider.setValue(v + 1000)
+        self.centralWidget.timeLabel.setText(self.formatTrackLength(int(v / 1000)))
 
     def adjustTrackPosition(self, v):
-        if abs(v - int(self.musicEngine.getPosition())) < 2:
+        if abs(v - self.musicEngine.getPositionInms()) < 1000:
             pass
         else:
             self.timer.stop()
             v = self.centralWidget.progressSlider.value()
             self.musicEngine.setPosition(v)
             self.timer.start(1000)
+            self.positionChanged.emit()
 
     def scanAction_(self, recursive = False):
         musicList = glob.glob(os.path.join(self.parameter.collectionPath, "*.*"))

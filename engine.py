@@ -42,13 +42,10 @@ class engine:
         self.audioOutput.setDevice(d)
 
     def getPosition(self):
-        return int(self.musicEquipment.position() / 1000)
-
-    def getPositionInms(self):
         return self.musicEquipment.position()
 
     def setPosition(self, p):
-        self.musicEquipment.setPosition(p * 1000)
+        self.musicEquipment.setPosition(p)
 
     def getVolume(self):
         return self.audioOutput.volume()

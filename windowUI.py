@@ -12,9 +12,10 @@ from parameterData import parameterData
 
 class windowUI(QMainWindow):
 
+    positionChanged = pyqtSignal()
+
     def __init__(self, devices):
         super().__init__()
-
         self.parameter = parameterData()
         self.parameter.read()
 

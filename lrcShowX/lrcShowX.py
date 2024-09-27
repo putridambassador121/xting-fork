@@ -30,6 +30,7 @@ class lrcShowX(QTextBrowser):
         self.showInfo("No music is playing")
 
         self.parent.parent.musicEngine.musicEquipment.playbackStateChanged.connect(self.playbackStateChanged_)
+        self.parent.parent.positionChanged.connect(self.trackPositionChanged)
         self.timer.timeout.connect(self.scroll)
         self.animateTimer.timeout.connect(self.animate)
 
@@ -40,13 +41,15 @@ class lrcShowX(QTextBrowser):
                 self.timer.stop()
             if self.animateTimer.isActive():
                 self.animateTimer.stop()
+            self.lrcScheduleList = None
+            self.currentTag = None
             self.showInfo("No music is playing")
         elif sv == 1: # playing state
             # search local
             # seach engines
 
             p = lrcParser("lrcShowX/b.lrc")
-            self.lrcScheduleList, self.offset = p.parse()
+            self.lrcScheduleList = p.parse()
             self.showLrc()
 
             self.locateCurrentTag()
@@ -55,8 +58,20 @@ class lrcShowX(QTextBrowser):
             self.locateCurrentTag()
             self.scrolLToCurrent()
 
+    def trackPositionChanged(self):
+        if not self.lrcScheduleList:
+            return
+
+        if self.timer.isActive():
+            self.timer.stop()
+        if self.animateTimer.isActive():
+            self.animateTimer.stop()
+        self.showLrc()
+        self.locateCurrentTag()
+        self.scrolLToCurrent()
+
     def locateCurrentTag(self):
-        self.trackPos = self.parent.parent.musicEngine.getPositionInms()
+        self.trackPos = self.parent.parent.musicEngine.getPosition()
         n = 0
         for i in self.lrcScheduleList:
             if self.trackPos < i[0]:
@@ -70,16 +85,12 @@ class lrcShowX(QTextBrowser):
 
 
     def scrolLToCurrent(self):
-        duaration = self.lrcScheduleList[self.currentTag][2]
-        self.verticalScrollBar().setValue(self.currentTag * self.margin)
         for count in range(0, self.topMarginLines + self.currentTag - 1):
             self.moveCursor(QTextCursor.MoveOperation.Down)
         self.highLightCurrentLine()
-        if duaration > self.offset:
-            self.timer.start(duaration - self.offset)
-        else:
-            print("invalid offset, ignore!")
-            self.timer.start(duaration)
+        duaration = self.lrcScheduleList[self.currentTag][0] - self.trackPos
+        self.verticalScrollBar().setValue((self.currentTag - 1) * self.margin)
+        self.timer.start(duaration)
 
     def scroll(self):
         duaration = self.lrcScheduleList[self.currentTag][2]
