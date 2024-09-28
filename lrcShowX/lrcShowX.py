@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from lrcShowX.lrcParser import lrcParser
+from lrcShowX.lrc99 import lrc99 as searchEngine
 
 
 class lrcShowX(QTextBrowser):
@@ -49,21 +50,40 @@ class lrcShowX(QTextBrowser):
         elif sv == 1: # playing state
             fi = self.searchLocal()
             if fi:
-                p = lrcParser(fi)
+                p = lrcParser(fi, True)
                 self.lrcScheduleList = p.parse()
                 self.showLrc()
                 self.locateCurrentTag()
                 self.scrolLToCurrent()
             else:
-                self.lrcScheduleList = None
-                self.currentTag = None
-                self.showInfo("No local lrc file found")
-                # seach engines
-
+                ll = self.searchOnline()
+                if ll:
+                    p = lrcParser(ll, False)
+                    self.lrcScheduleList = p.parse()
+                    self.showLrc()
+                    self.locateCurrentTag()
+                    self.scrolLToCurrent()
+                    if self.autoSaveLrc:
+                        with open(os.path.join(self.lrcLocalPath, f"{self.parent.parent.currentTrack.trackTitle} - {self.parent.parent.currentTrack.trackArtist}.lrc"), "w") as ff:
+                            ff.write(ll)
+                else:
+                    self.lrcScheduleList = None
+                    self.currentTag = None
+                    self.showInfo("No lrc found")
 
         else:  # paused state
             self.locateCurrentTag()
             self.scrolLToCurrent()
+
+    def searchOnline(self):
+        title = self.parent.parent.currentTrack.trackTitle
+        artist = self.parent.parent.currentTrack.trackArtist
+        e = searchEngine()
+        l = e.search(title, artist)
+        if l:
+            return l
+        else:
+            return False
 
     def searchLocal(self):
         title = self.parent.parent.currentTrack.trackTitle
@@ -158,6 +178,7 @@ class lrcShowX(QTextBrowser):
         self.foreGroundColor = self.parent.parent.parameter.foreGroundColor
         self.highLightColor = self.parent.parent.parameter.highLightColor
         self.lrcLocalPath = self.parent.parent.parameter.lrcLocalPath
+        self.autoSaveLrc = self.parent.parent.parameter.autoSaveLrc
 
     def getMargin(self):
         self.margin = self.fontMetrics().height() + self.lineMargin

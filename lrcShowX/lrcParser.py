@@ -7,13 +7,18 @@ import os, re
 
 class lrcParser:
 
-    def __init__(self, lrcfile):
+    def __init__(self, lrcfile, isFile = True):
+        self.ifFile = isFile
+
         self.lrcfile = lrcfile
 
 
     def parse(self):
-        with open(self.lrcfile, "r") as f:
-            lineList = f.readlines()
+        if not self.ifFile:
+            lineList = self.lrcfile.split("\n")
+        else:
+            with open(self.lrcfile, "r") as f:
+                lineList = f.readlines()
 
         offset = 0
         for y in lineList:
@@ -27,7 +32,7 @@ class lrcParser:
             tags = re.findall(r"\[\d\d:\d\d.*?\]", i)
             if not tags:
                 continue
-            text = i.split("]")[-1].strip()
+            text = i.split("]")[-1].strip().replace("<br />", "")
             for j in tags:
                 j = self.tagToms(j) - offset
                 td[j] = text

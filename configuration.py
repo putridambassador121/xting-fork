@@ -166,6 +166,9 @@ class lrcPathBox(QGroupBox):
         mainLayout.addWidget(self.llLine, 0, 1)
         mainLayout.addWidget(self.llButton, 0, 2)
 
+        self.auto = QCheckBox(self.tr("Auto save lrc from net"), self)
+        mainLayout.addWidget(self.auto, 1, 0)
+
         self.setLayout(mainLayout)
 
         self.llButton.clicked.connect(self.getLocalPath)

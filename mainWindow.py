@@ -406,6 +406,7 @@ class mainWindow(windowUI):
         settingDialog.lrcShowxConfig.appearenceBox.hlEffectLabel.setStyleSheet("QLabel { background-color: " + self.parameter.highLightColor + "; color: white; }")
 
         settingDialog.lrcShowxConfig.lrcPathBox.llLine.setText(self.parameter.lrcLocalPath)
+        settingDialog.lrcShowxConfig.lrcPathBox.auto.setChecked(self.parameter.autoSaveLrc)
         r = settingDialog.exec()
         if r == 1:  # accepted
             self.parameter.collectionPath = settingDialog.playerConfig.playerPathBox.cpLine.text()
@@ -415,6 +416,7 @@ class mainWindow(windowUI):
             self.parameter.trayInfo = settingDialog.playerConfig.playerTrayBox.trayInfo.isChecked()
 
             self.parameter.lrcLocalPath = self.lrcShowxDock.lrcShowxWidget.lrcLocalPath = settingDialog.lrcShowxConfig.lrcPathBox.llLine.text()
+            self.parameter.autoSaveLrc = self.lrcShowxDock.lrcShowxWidget.autoSaveLrc = settingDialog.lrcShowxConfig.lrcPathBox.auto.isChecked()
 
             if self.parameter.topMarginLines != settingDialog.lrcShowxConfig.appearenceBox.tlLine.value() or self.parameter.lineMargin != settingDialog.lrcShowxConfig.appearenceBox.lmLine.value():
                 self.parameter.topMarginLines = self.lrcShowxDock.lrcShowxWidget.topMarginLines = settingDialog.lrcShowxConfig.appearenceBox.tlLine.value()

@@ -38,6 +38,7 @@ class parameterData:
         self.foreGroundColor = self.iniFile.value("/lrcshowx/foregroundcolor", "#ffffff")
         self.highLightColor = self.iniFile.value("/lrcshowx/highlightcolor", "#b4c8ff")
         self.lrcLocalPath = self.iniFile.value("/lrcshowx/lrclocalpath", os.path.join(self.privatePath, "lrc"))
+        self.autoSaveLrc = self.stringToBool(self.iniFile.value("/lrcshowx/autosavelrc", False))
 
     def save(self):
         self.iniFile.setValue("player/collectionpath", self.collectionPath)
@@ -62,6 +63,7 @@ class parameterData:
         self.iniFile.setValue("/lrcshowx/foregroundcolor", self.foreGroundColor)
         self.iniFile.setValue("/lrcshowx/highlightcolor", self.highLightColor)
         self.iniFile.setValue("/lrcshowx/lrclocalpath", self.lrcLocalPath)
+        self.iniFile.setValue("/lrcshowx/autosavelrc", self.autoSaveLrc)
 
     def stringToBool(self, s):
         if type(s) == bool:
