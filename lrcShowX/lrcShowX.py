@@ -153,9 +153,9 @@ class lrcShowX(QTextBrowser):
     def readParameters(self):
         self.lineMargin = self.parent.parent.parameter.lineMargin
         self.topMarginLines = self.parent.parent.parameter.topMarginLines
-        self.backGroundColor = QColor(self.parent.parent.parameter.backGroundColor)
-        self.foreGroundColor = QColor(self.parent.parent.parameter.foreGroundColor)
-        self.highLightColor = QColor(self.parent.parent.parameter.highLightColor)
+        self.backGroundColor = self.parent.parent.parameter.backGroundColor
+        self.foreGroundColor = self.parent.parent.parameter.foreGroundColor
+        self.highLightColor = self.parent.parent.parameter.highLightColor
         self.lrcLocalPath = self.parent.parent.parameter.lrcLocalPath
 
     def getMargin(self):
@@ -196,11 +196,11 @@ class lrcShowX(QTextBrowser):
 
     def initColor(self):
         pl = QPalette()
-        pl.setColor(QPalette.ColorRole.Window, self.backGroundColor)
-        pl.setColor(QPalette.ColorRole.Base, self.backGroundColor)
-        pl.setColor(QPalette.ColorRole.Text, self.foreGroundColor)
-        pl.setColor(QPalette.ColorRole.Highlight, self.backGroundColor)
-        pl.setColor(QPalette.ColorRole.HighlightedText, self.highLightColor)
+        pl.setColor(QPalette.ColorRole.Window, QColor(self.backGroundColor))
+        pl.setColor(QPalette.ColorRole.Base, QColor(self.backGroundColor))
+        pl.setColor(QPalette.ColorRole.Text, QColor(self.foreGroundColor))
+        pl.setColor(QPalette.ColorRole.Highlight, QColor(self.backGroundColor))
+        pl.setColor(QPalette.ColorRole.HighlightedText, QColor(self.highLightColor))
         self.setPalette(pl)
         self.update()
 

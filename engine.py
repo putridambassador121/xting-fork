@@ -18,6 +18,9 @@ class engine:
         self.musicEquipment.setLoops(1)
         self.musicFile = None
 
+    def getPlaybackState(self):
+        return self.musicEquipment.playbackState()
+
     def add(self, f):
         self.musicFile = f
         self.musicEquipment.setSource(QUrl(self.musicFile))

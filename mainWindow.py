@@ -398,6 +398,13 @@ class mainWindow(windowUI):
         settingDialog.playerConfig.playerTrayBox.closeNotQuit.setChecked(self.parameter.closeNotQuit)
         settingDialog.playerConfig.playerTrayBox.trayInfo.setChecked(self.parameter.trayInfo)
 
+        settingDialog.lrcShowxConfig.appearenceBox.tlLine.setValue(self.parameter.topMarginLines)
+        settingDialog.lrcShowxConfig.appearenceBox.lmLine.setValue(self.parameter.lineMargin)
+
+        settingDialog.lrcShowxConfig.appearenceBox.bgEffectLabel.setStyleSheet("QLabel { background-color: " + self.parameter.backGroundColor + "; color: white; }")
+        settingDialog.lrcShowxConfig.appearenceBox.fgEffectLabel.setStyleSheet("QLabel { background-color: " + self.parameter.foreGroundColor + "; color: white; }")
+        settingDialog.lrcShowxConfig.appearenceBox.hlEffectLabel.setStyleSheet("QLabel { background-color: " + self.parameter.highLightColor + "; color: white; }")
+
         settingDialog.lrcShowxConfig.lrcPathBox.llLine.setText(self.parameter.lrcLocalPath)
         r = settingDialog.exec()
         if r == 1:  # accepted
@@ -407,7 +414,18 @@ class mainWindow(windowUI):
             self.parameter.closeNotQuit = settingDialog.playerConfig.playerTrayBox.closeNotQuit.isChecked()
             self.parameter.trayInfo = settingDialog.playerConfig.playerTrayBox.trayInfo.isChecked()
 
-            self.parameter.lrcLocalPath  = settingDialog.lrcShowxConfig.lrcPathBox.llLine.text()
+            self.parameter.lrcLocalPath = self.lrcShowxDock.lrcShowxWidget.lrcLocalPath = settingDialog.lrcShowxConfig.lrcPathBox.llLine.text()
+
+            if self.parameter.topMarginLines != settingDialog.lrcShowxConfig.appearenceBox.tlLine.value() or self.parameter.lineMargin != settingDialog.lrcShowxConfig.appearenceBox.lmLine.value():
+                self.parameter.topMarginLines = self.lrcShowxDock.lrcShowxWidget.topMarginLines = settingDialog.lrcShowxConfig.appearenceBox.tlLine.value()
+                self.parameter.lineMargin = self.lrcShowxDock.lrcShowxWidget.lineMargin = settingDialog.lrcShowxConfig.appearenceBox.lmLine.value()
+                self.lrcShowxDock.lrcShowxWidget.playbackStateChanged_(self.musicEngine.getPlaybackState())
+
+            if self.parameter.backGroundColor != settingDialog.lrcShowxConfig.appearenceBox.backGroundColor or self.parameter.foreGroundColor != settingDialog.lrcShowxConfig.appearenceBox.foreGroundColor or self.parameter.highLightColor != settingDialog.lrcShowxConfig.appearenceBox.highLightColor:
+                self.parameter.backGroundColor = self.lrcShowxDock.lrcShowxWidget.backGroundColor = settingDialog.lrcShowxConfig.appearenceBox.backGroundColor
+                self.parameter.foreGroundColor = self.lrcShowxDock.lrcShowxWidget.foreGroundColor = settingDialog.lrcShowxConfig.appearenceBox.foreGroundColor
+                self.parameter.highLightColor = self.lrcShowxDock.lrcShowxWidget.highLightColor = settingDialog.lrcShowxConfig.appearenceBox.highLightColor
+                self.lrcShowxDock.lrcShowxWidget.initColor()
 
         self.parameter.configurationSplitterState = settingDialog.splitter.saveState()
 
