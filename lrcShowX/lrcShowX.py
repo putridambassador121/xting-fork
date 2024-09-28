@@ -16,6 +16,7 @@ class lrcShowX(QTextBrowser):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setWordWrapMode(QTextOption.WrapMode.NoWrap)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
 
         self.timer = QTimer()
         self.animateTimer = QTimer()
@@ -67,8 +68,8 @@ class lrcShowX(QTextBrowser):
     def searchLocal(self):
         title = self.parent.parent.currentTrack.trackTitle
         artist = self.parent.parent.currentTrack.trackArtist
-        if title == "unknow":
-            title = ""
+        if title == "unknow" or (not title):
+            return False
         else:
             title = title.lower()
         if artist == "unknow":
@@ -203,6 +204,19 @@ class lrcShowX(QTextBrowser):
         pl.setColor(QPalette.ColorRole.HighlightedText, QColor(self.highLightColor))
         self.setPalette(pl)
         self.update()
+
+    def mouseDoubleClickEvent(self, e):
+        e.ignore()
+
+    def mouseClickEvent(self, e):
+        e.ignore()
+
+    def mousePressEvent(self, e):
+        e.ignore()
+
+    def mouseReleaseEvent(self, e):
+        e.ignore()
+
 
     # def resizeEvent(self, e):
     #     self.nullNum = self.height() / self.margin
