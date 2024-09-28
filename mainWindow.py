@@ -411,9 +411,6 @@ class mainWindow(windowUI):
 
         self.parameter.configurationSplitterState = settingDialog.splitter.saveState()
 
-        print(self.parameter.trayIcon)
-        print(self.parameter.closeNotQuit)
-
     def beforeClose(self):
         self.systemTray.hide()
 

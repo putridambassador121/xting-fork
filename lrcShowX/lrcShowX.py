@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # filename: lrcShow-X.py
 
-import os
+import os, glob
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
@@ -44,19 +44,45 @@ class lrcShowX(QTextBrowser):
             self.lrcScheduleList = None
             self.currentTag = None
             self.showInfo("No music is playing")
+
         elif sv == 1: # playing state
-            # search local
-            # seach engines
+            fi = self.searchLocal()
+            if fi:
+                p = lrcParser(fi)
+                self.lrcScheduleList = p.parse()
+                self.showLrc()
+                self.locateCurrentTag()
+                self.scrolLToCurrent()
+            else:
+                self.lrcScheduleList = None
+                self.currentTag = None
+                self.showInfo("No local lrc file found")
+                # seach engines
 
-            p = lrcParser("lrcShowX/b.lrc")
-            self.lrcScheduleList = p.parse()
-            self.showLrc()
 
-            self.locateCurrentTag()
-            self.scrolLToCurrent()
         else:  # paused state
             self.locateCurrentTag()
             self.scrolLToCurrent()
+
+    def searchLocal(self):
+        title = self.parent.parent.currentTrack.trackTitle
+        artist = self.parent.parent.currentTrack.trackArtist
+        if title == "unknow":
+            title = ""
+        else:
+            title = title.lower()
+        if artist == "unknow":
+            artist == ""
+        else:
+            artist = artist.lower()
+        if (not title) and (not artist):
+            return False
+
+        for i in glob.glob(os.path.join(self.lrcLocalPath, "*.lrc")):
+            if title in i.lower() and artist in i.lower():
+                return i
+        return False
+
 
     def trackPositionChanged(self):
         if not self.lrcScheduleList:
