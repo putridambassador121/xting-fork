@@ -126,6 +126,12 @@ class playerTrayBox(QGroupBox):
 
         self.setLayout(mainLayout)
 
+        self.trayIcon.toggled.connect(self.trayIcon_)
+
+    def trayIcon_(self, b):
+        self.closeNotQuit.setEnabled(b)
+        self.trayInfo.setEnabled(b)
+
 ##########################################################
 class lrcShowxConfig(QWidget):
 

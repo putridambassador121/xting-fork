@@ -42,8 +42,7 @@ class mainWindow(windowUI):
 
         self.systemTray = QSystemTrayIcon(QIcon("icon/logo.png"), self)
         self.systemTray.setContextMenu(self.playbackMenu)
-        if self.parameter.trayIcon:
-            self.systemTray.show()
+        self.systemTray.setVisible(self.parameter.trayIcon)
 
         if self.parameter.loop == "playlist":
             self.loopPlaylistAction.setChecked(True)
@@ -393,10 +392,27 @@ class mainWindow(windowUI):
 
     def configurationAction_(self):
         settingDialog = configuration(self)
-        settingDialog.exec()
+        settingDialog.playerConfig.playerPathBox.cpLine.setText(self.parameter.collectionPath)
+        settingDialog.playerConfig.playerTrayBox.trayIcon.setChecked(self.parameter.trayIcon)
+        settingDialog.playerConfig.playerTrayBox.trayIcon_(self.parameter.trayIcon)
+        settingDialog.playerConfig.playerTrayBox.closeNotQuit.setChecked(self.parameter.closeNotQuit)
+        settingDialog.playerConfig.playerTrayBox.trayInfo.setChecked(self.parameter.trayInfo)
 
+        settingDialog.lrcShowxConfig.lrcPathBox.llLine.setText(self.parameter.lrcLocalPath)
+        r = settingDialog.exec()
+        if r == 1:  # accepted
+            self.parameter.collectionPath = settingDialog.playerConfig.playerPathBox.cpLine.text()
+            self.parameter.trayIcon = settingDialog.playerConfig.playerTrayBox.trayIcon.isChecked()
+            self.systemTray.setVisible(self.parameter.trayIcon)
+            self.parameter.closeNotQuit = settingDialog.playerConfig.playerTrayBox.closeNotQuit.isChecked()
+            self.parameter.trayInfo = settingDialog.playerConfig.playerTrayBox.trayInfo.isChecked()
+
+            self.parameter.lrcLocalPath  = settingDialog.lrcShowxConfig.lrcPathBox.llLine.text()
 
         self.parameter.configurationSplitterState = settingDialog.splitter.saveState()
+
+        print(self.parameter.trayIcon)
+        print(self.parameter.closeNotQuit)
 
     def beforeClose(self):
         self.systemTray.hide()
@@ -421,7 +437,7 @@ class mainWindow(windowUI):
             self.beforeClose()
             e.accept()
         else:
-            if self.systemTray and self.parameter.closeNotQuit:
+            if self.parameter.trayIcon and self.parameter.closeNotQuit:
                 e.ignore()
                 self.hide()
             else:
