@@ -105,7 +105,10 @@ class mainWindow(windowUI):
             self.albumCoverDock.restoreGeometry(self.parameter.lrcShowxDockGeometry)
         except:
             pass
-
+        try:
+            self.lrcEditorDock.restoreGeometry(self.parameter.lrcEditorDockGeometry)
+        except:
+            pass
         try:
             self.restoreState(self.parameter.windowState)
         except:
@@ -114,7 +117,6 @@ class mainWindow(windowUI):
             self.restoreGeometry(self.parameter.windowGeometry)
         except:
             pass
-
         try:
             self.playlistDock.playlistWidget.allTable.horizontalHeader().restoreState(self.parameter.playlistDockAllTableState)
         except:
@@ -454,8 +456,10 @@ class mainWindow(windowUI):
         self.parameter.lrcShowxDockGeometry = self.lrcShowxDock.saveGeometry()
         self.parameter.playlistDockGeometry = self.playlistDock.saveGeometry()
         self.parameter.albumCoverDockGeometry = self.albumCoverDock.saveGeometry()
+        self.parameter.lrcEditorDockGeometry = self.lrcEditorDock.saveGeometry()
         self.parameter.playlistDockAllTableState = self.playlistDock.playlistWidget.allTable.horizontalHeader().saveState()
         self.parameter.playlistDockCustomTableState = self.playlistDock.playlistWidget.customTable.horizontalHeader().saveState()
+
 
         self.parameter.save()
 

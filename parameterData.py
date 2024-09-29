@@ -31,6 +31,7 @@ class parameterData:
         self.playlistDockAllTableState = self.iniFile.value("/session/playlistdockalltablestate", "")
         self.playlistDockCustomTableState = self.iniFile.value("/session/playlistdockcustomtablestate", "")
         self.configurationSplitterState = self.iniFile.value("/session/configurationsplitterstate", "")
+        self.lrcEditorDockGeometry = self.iniFile.value("/session/lrceditordockgeometry", "")
 
         self.lineMargin = int(self.iniFile.value("/lrcshowx/linemargin", 5))
         self.topMarginLines = int(self.iniFile.value("/lrcshowx/topmarginlines", 5))
@@ -58,6 +59,7 @@ class parameterData:
         self.iniFile.setValue("/session/playlistdockalltablestate", self.playlistDockAllTableState)
         self.iniFile.setValue("/session/playlistdockcustomtablestate", self.playlistDockCustomTableState)
         self.iniFile.setValue("/session/configurationsplitterstate", self.configurationSplitterState)
+        self.iniFile.setValue("/session/lrceditordockgeometry", self.lrcEditorDockGeometry)
 
         self.iniFile.setValue("/lrcshowx/linemargin", self.lineMargin)
         self.iniFile.setValue("/lrcshowx/topmarginlines", self.topMarginLines)

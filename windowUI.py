@@ -86,6 +86,7 @@ class windowUI(QMainWindow):
 
         self.viewMenu = self.menuBar().addMenu(self.tr("View"))
         self.viewMenu.addAction(self.lrcShowxDock.toggleViewAction())
+        self.viewMenu.addAction(self.lrcEditorDock.toggleViewAction())
         self.viewMenu.addAction(self.playlistDock.toggleViewAction())
         self.viewMenu.addAction(self.albumCoverDock.toggleViewAction())
 
@@ -119,6 +120,10 @@ class windowUI(QMainWindow):
         self.lrcShowxDock = lrcShowxDock(self.tr("lrcShow-X"), self)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.lrcShowxDock)
         self.lrcShowxDock.setObjectName("lrcShow-X")
+
+        self.lrcEditorDock = lrcEditorDock(self.tr("Lrc editor"), self)
+        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.lrcEditorDock)
+        self.lrcEditorDock.setObjectName("Lrc editor")
 
         self.playlistDock = playlistDock(self.tr("Playlist"), self)
         self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, self.playlistDock)

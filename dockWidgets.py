@@ -121,3 +121,18 @@ class albumCoverWidget(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         pix = QPixmap("icon/blankAlbum.png").scaled(200, 200)
         self.setPixmap(pix)
+
+class lrcEditorDock(QDockWidget):
+
+    def __init__(self, title, parent = None):
+        super().__init__(title)
+        self.setWindowTitle = title
+        self.lrcEditorWidget = lrcEditorWidget(self)
+        self.setWidget(self.lrcEditorWidget)
+        self.setFloating(False)
+
+class lrcEditorWidget(QTextEdit):
+
+    def __init__(self, parent = None):
+        super().__init__()
+        self.parent = parent
