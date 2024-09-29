@@ -7,7 +7,10 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from lrcShowX.lrcParser import lrcParser
-from lrcShowX.lrc99 import lrc99 as searchEngine
+
+from lrcShowX.lrclib import LrcLibAPI
+from lrcShowX.lrclibThread import lrclibSearchThread, lrclibGetThread
+from lrcShowX.resultDisplay import resultDisplay
 
 
 class lrcShowX(QTextBrowser):
@@ -18,6 +21,10 @@ class lrcShowX(QTextBrowser):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setWordWrapMode(QTextOption.WrapMode.NoWrap)
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
+
+        self.lrclibApi = LrcLibAPI(user_agent="xting")
+        self.lrclibSearchThread = lrclibSearchThread(self.lrclibApi)
+        self.lrclibGetThread = lrclibGetThread(self.lrclibApi)
 
         self.timer = QTimer()
         self.animateTimer = QTimer()
@@ -36,6 +43,10 @@ class lrcShowX(QTextBrowser):
         self.timer.timeout.connect(self.scroll)
         self.animateTimer.timeout.connect(self.animate)
 
+        self.lrclibSearchThread.lrcSearched.connect(self.lrclibSearchResult)
+        self.lrclibGetThread.lrcGot.connect(self.lrclibGotLrc)
+
+
     def playbackStateChanged_(self, state):
         sv = state.value
         if sv == 0: # stoped state
@@ -48,6 +59,7 @@ class lrcShowX(QTextBrowser):
             self.showInfo("No music is playing")
 
         elif sv == 1: # playing state
+            self.showInfo("Searching lrc...")
             fi = self.searchLocal()
             if fi:
                 p = lrcParser(fi, True)
@@ -56,24 +68,78 @@ class lrcShowX(QTextBrowser):
                 self.locateCurrentTag()
                 self.scrolLToCurrent()
             else:
-                ll = self.searchOnline()
-                if ll:
-                    p = lrcParser(ll, False)
-                    self.lrcScheduleList = p.parse()
-                    self.showLrc()
-                    self.locateCurrentTag()
-                    self.scrolLToCurrent()
-                    if self.autoSaveLrc:
-                        with open(os.path.join(self.lrcLocalPath, f"{self.parent.parent.currentTrack.trackTitle} - {self.parent.parent.currentTrack.trackArtist}.lrc"), "w") as ff:
-                            ff.write(ll)
-                else:
-                    self.lrcScheduleList = None
-                    self.currentTag = None
-                    self.showInfo("No lrc found")
+                self.searchLrclib()
+
+                # ll = self.searchOnline()
+                # if ll:
+                #     p = lrcParser(ll, False)
+                #     self.lrcScheduleList = p.parse()
+                #     self.showLrc()
+                #     self.locateCurrentTag()
+                #     self.scrolLToCurrent()
+                #     if self.autoSaveLrc:
+                #         with open(os.path.join(self.lrcLocalPath, f"{self.parent.parent.currentTrack.trackTitle} - {self.parent.parent.currentTrack.trackArtist}.lrc"), "w") as ff:
+                #             ff.write(ll)
+                # else:
+                #     self.lrcScheduleList = None
+                #     self.currentTag = None
+                #     self.showInfo("No lrc found")
 
         else:  # paused state
             self.locateCurrentTag()
             self.scrolLToCurrent()
+
+    def searchLrclib(self):
+        self.lrclibSearchThread.title = self.parent.parent.currentTrack.trackTitle
+        self.lrclibSearchThread.artist = self.parent.parent.currentTrack.trackArtist
+        self.lrclibSearchThread.start()
+
+    def lrclibSearchResult(self, l):
+        if not l:
+            self.lrcScheduleList = None
+            self.currentTag = None
+            self.showInfo("No lrc found")
+            return
+
+        if self.parent.parent.parameter.autoChooseTheFirst or len(l) == 1:
+            self.lrclibGetThread.idd = l[0].id
+            self.lrclibGetThread.start()
+        else:
+            dis = resultDisplay(self)
+            dis.table.setRowCount(len(l))
+            row = 0
+            for i in l:
+                dis.table.setItem(row, 0, QTableWidgetItem(i.track_name))
+                dis.table.setItem(row, 1, QTableWidgetItem(i.artist_name))
+                dis.table.setItem(row, 2, QTableWidgetItem(i.album_name))
+                dis.table.setItem(row, 3, QTableWidgetItem(str(i.duration)))
+                row += 1
+
+            r = dis.exec()
+
+            if r == 1:
+                self.lrclibGetThread.idd = l[dis.currentRow].id
+                self.lrclibGetThread.start()
+            else:
+                self.lrcScheduleList = None
+                self.currentTag = None
+                self.showInfo("Cancel getting lrc by user")
+
+
+    def lrclibGotLrc(self, lrc):
+        if lrc:
+            p = lrcParser(lrc, False)
+            self.lrcScheduleList = p.parse()
+            self.showLrc()
+            self.locateCurrentTag()
+            self.scrolLToCurrent()
+            if self.autoSaveLrc:
+                with open(os.path.join(self.lrcLocalPath, f"{self.parent.parent.currentTrack.trackTitle} - {self.parent.parent.currentTrack.trackArtist}.lrc"), "w") as ff:
+                    ff.write(lrc)
+        else:
+            self.lrcScheduleList = None
+            self.currentTag = None
+            self.showInfo("lrc error")
 
     def searchOnline(self):
         title = self.parent.parent.currentTrack.trackTitle
@@ -236,6 +302,9 @@ class lrcShowX(QTextBrowser):
         e.ignore()
 
     def mouseReleaseEvent(self, e):
+        e.ignore()
+
+    def wheelEvent(self, e):
         e.ignore()
 
 

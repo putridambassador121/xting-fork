@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# filename: resultDisplay.py
+
+import sys
+from PyQt6.QtWidgets import *
+from PyQt6.QtCore import *
+from PyQt6.QtGui import *
+
+
+
+class resultDisplay(QDialog):
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.parent = parent
+        self.setWindowTitle(self.tr("Results from lrclib"))
+        self.currentRow = 0
+
+        self.table = QTableWidget(0, 4)
+        self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        header = [self.tr("Title"), self.tr("Artist"), self.tr("Album"), self.tr("Length")]
+        self.table.setHorizontalHeaderLabels(header)
+
+        buttonBox = QDialogButtonBox(self)
+        cancelButton = QPushButton(self.tr("Cancel"))
+        okButton = QPushButton(self.tr("OK"))
+        buttonBox.addButton(cancelButton, QDialogButtonBox.ButtonRole.RejectRole)
+        buttonBox.addButton(okButton, QDialogButtonBox.ButtonRole.AcceptRole)
+
+        mainLayout = QVBoxLayout(None)
+        mainLayout.addWidget(self.table)
+        mainLayout.addWidget(buttonBox)
+        self.setLayout(mainLayout)
+
+
+        buttonBox.accepted.connect(self.accept)
+        buttonBox.rejected.connect(self.reject)
+        self.table.cellDoubleClicked.connect(self.finishChoose)
+        self.table.cellActivated.connect(self.chooseOne)
+
+    def chooseOne(self, row, col):
+        self.currentRow = row
+
+    def finishChoose(self, row, col):
+        self.currentRow = row
+        self.accept()
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    w = resultDisplay(None)
+    w.show()
+
+    sys.exit(app.exec())
