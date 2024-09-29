@@ -11,6 +11,7 @@ from lrcShowX.lrcParser import lrcParser
 from lrcShowX.lrclib import LrcLibAPI
 from lrcShowX.lrclibThread import lrclibSearchThread, lrclibGetThread
 from lrcShowX.resultDisplay import resultDisplay
+from lrcShowX.t2s import t2s
 
 
 class lrcShowX(QTextBrowser):
@@ -25,6 +26,8 @@ class lrcShowX(QTextBrowser):
         self.lrclibApi = LrcLibAPI(user_agent="xting")
         self.lrclibSearchThread = lrclibSearchThread(self.lrclibApi)
         self.lrclibGetThread = lrclibGetThread(self.lrclibApi)
+
+        self.transferTool = t2s()
 
         self.timer = QTimer()
         self.animateTimer = QTimer()
@@ -128,6 +131,8 @@ class lrcShowX(QTextBrowser):
 
     def lrclibGotLrc(self, lrc):
         if lrc:
+            if self.parent.parent.parameter.autoT2S:
+                lrc = self.transferTool.transfer(lrc)
             p = lrcParser(lrc, False)
             self.lrcScheduleList = p.parse()
             self.showLrc()

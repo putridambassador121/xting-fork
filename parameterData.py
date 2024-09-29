@@ -40,6 +40,7 @@ class parameterData:
         self.lrcLocalPath = self.iniFile.value("/lrcshowx/lrclocalpath", os.path.join(self.privatePath, "lrc"))
         self.autoSaveLrc = self.stringToBool(self.iniFile.value("/lrcshowx/autosavelrc", False))
         self.autoChooseTheFirst = self.stringToBool(self.iniFile.value("/lrcshowx/autochoosethefirst", False))
+        self.autoT2S = self.stringToBool(self.iniFile.value("/lrcshowx/autot2s", False))
 
     def save(self):
         self.iniFile.setValue("player/collectionpath", self.collectionPath)
@@ -66,6 +67,7 @@ class parameterData:
         self.iniFile.setValue("/lrcshowx/lrclocalpath", self.lrcLocalPath)
         self.iniFile.setValue("/lrcshowx/autosavelrc", self.autoSaveLrc)
         self.iniFile.setValue("/lrcshowx/autochoosethefirst", self.autoChooseTheFirst)
+        self.iniFile.setValue("/lrcshowx/autot2s", self.autoT2S)
 
     def stringToBool(self, s):
         if type(s) == bool:
