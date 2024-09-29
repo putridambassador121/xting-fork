@@ -41,7 +41,10 @@ class mainWindow(windowUI):
         self.initStatusBar()
 
         self.systemTray = QSystemTrayIcon(QIcon("icon/logo.png"), self)
-        self.systemTray.setContextMenu(self.playbackMenu)
+        trayMenu = self.playbackMenu
+        trayMenu.addSeparator()
+        trayMenu.addAction(self.quitAction)
+        self.systemTray.setContextMenu(trayMenu)
         self.systemTray.setVisible(self.parameter.trayIcon)
 
         if self.parameter.loop == "playlist":
@@ -182,6 +185,7 @@ class mainWindow(windowUI):
             if self.schedule:
                 self.scheduleNextTrack()
             else:
+                self.showTrayInformation(0)
                 self.schedule = True
         elif status.value == 1: # playing status
             self.centralWidget.playorpauseButton.setText(self.tr("Pause"))
@@ -192,9 +196,11 @@ class mainWindow(windowUI):
             self.centralWidget.nextButton.setEnabled(True)
             self.repeatAction.setEnabled(True)
             self.centralWidget.repeatButton.setEnabled(True)
+            self.showTrayInformation(1)
         elif status.value == 2: # paused status
             self.centralWidget.playorpauseButton.setText(self.tr("Play"))
             self.playorpauseAction.setText(self.tr("Play"))
+            self.showTrayInformation(2)
 
     def scheduleNextTrack(self, callby = "auto"): # previous, playorpause, repeat or auto
         if self.playlistDock.playlistWidget.allTable.rowCount() == 0:
@@ -265,6 +271,15 @@ class mainWindow(windowUI):
                         self.actualPlayOrPause()
                     else:
                         self.stop_()
+
+    def showTrayInformation(self, v):
+        if self.parameter.trayIcon and self.parameter.trayInfo:
+            if v == 1:
+                self.systemTray.showMessage(self.tr("Status changed"), f"Now playing: {self.currentTrack.trackTitle} by {self.currentTrack.trackArtist}", QIcon("icon/logo.png"), 6000)
+            elif v == 2:
+                self.systemTray.showMessage(self.tr("Status changed"), f"Paused: {self.currentTrack.trackTitle} by {self.currentTrack.trackArtist}", QIcon("icon/logo.png"), 6000)
+            else:
+                self.systemTray.showMessage(self.tr("Status changed"), "Stopped", QIcon("icon/logo.png"), 6000)
 
     def openFileAction_(self):
         url, fil = QFileDialog.getOpenFileUrl(None, self.tr("choose a music file"), QUrl.fromLocalFile(self.parameter.collectionPath), "music files (*.mp3 *.flac)")

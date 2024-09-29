@@ -48,7 +48,7 @@ class lrcParser:
             lyrics.append([k, td[k], dl[o]])
             o += 1
         readyLine = [[0, "", lyrics[0][0]]]
-        return readyLine + lyrics   # [[tag1, lyrics1, duaration1], [tag2, lyrics2, duaration2], .......]
+        return readyLine + lyrics   # [[tag1, lyrics1, duration1], [tag2, lyrics2, duration2], .......]
 
 
     def tagToms(self, tag):

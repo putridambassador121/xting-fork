@@ -11,7 +11,7 @@ from lrcShowX.lrcParser import lrcParser
 from lrcShowX.lrclib import LrcLibAPI
 from lrcShowX.lrclibThread import lrclibSearchThread, lrclibGetThread
 from lrcShowX.resultDisplay import resultDisplay
-from lrcShowX.t2s import t2s
+from lrcShowX.tsTool import tsTool
 
 
 class lrcShowX(QTextBrowser):
@@ -21,18 +21,21 @@ class lrcShowX(QTextBrowser):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setWordWrapMode(QTextOption.WrapMode.NoWrap)
-        self.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.constructMenu()
 
         self.lrclibApi = LrcLibAPI(user_agent="xting")
         self.lrclibSearchThread = lrclibSearchThread(self.lrclibApi)
         self.lrclibGetThread = lrclibGetThread(self.lrclibApi)
 
-        self.transferTool = t2s()
+        self.transferTool = tsTool()
 
         self.timer = QTimer()
         self.animateTimer = QTimer()
 
         self.readParameters()
+        self.lrcScheduleList = None
+        self.currentTag = None
 
         self.initColor()
 
@@ -49,6 +52,8 @@ class lrcShowX(QTextBrowser):
         self.lrclibSearchThread.lrcSearched.connect(self.lrclibSearchResult)
         self.lrclibGetThread.lrcGot.connect(self.lrclibGotLrc)
 
+        self.customContextMenuRequested.connect(self.showContextMenu)
+
 
     def playbackStateChanged_(self, state):
         sv = state.value
@@ -62,35 +67,42 @@ class lrcShowX(QTextBrowser):
             self.showInfo("No music is playing")
 
         elif sv == 1: # playing state
-            self.showInfo("Searching lrc...")
-            fi = self.searchLocal()
-            if fi:
-                p = lrcParser(fi, True)
-                self.lrcScheduleList = p.parse()
+            if self.lrcScheduleList:
                 self.showLrc()
                 self.locateCurrentTag()
                 self.scrolLToCurrent()
             else:
-                self.searchLrclib()
+                self.showInfo("Searching lrc...")
+                fi = self.searchLocal()
+                if fi:
+                    p = lrcParser(fi, True)
+                    self.lrcScheduleList = p.parse()
+                    self.showLrc()
+                    self.locateCurrentTag()
+                    self.scrolLToCurrent()
+                else:
+                    self.searchLrclib()
 
-                # ll = self.searchOnline()
-                # if ll:
-                #     p = lrcParser(ll, False)
-                #     self.lrcScheduleList = p.parse()
-                #     self.showLrc()
-                #     self.locateCurrentTag()
-                #     self.scrolLToCurrent()
-                #     if self.autoSaveLrc:
-                #         with open(os.path.join(self.lrcLocalPath, f"{self.parent.parent.currentTrack.trackTitle} - {self.parent.parent.currentTrack.trackArtist}.lrc"), "w") as ff:
-                #             ff.write(ll)
-                # else:
-                #     self.lrcScheduleList = None
-                #     self.currentTag = None
-                #     self.showInfo("No lrc found")
+                    # ll = self.searchOnline()
+                    # if ll:
+                    #     p = lrcParser(ll, False)
+                    #     self.lrcScheduleList = p.parse()
+                    #     self.showLrc()
+                    #     self.locateCurrentTag()
+                    #     self.scrolLToCurrent()
+                    #     if self.autoSaveLrc:
+                    #         with open(os.path.join(self.lrcLocalPath, f"{self.parent.parent.currentTrack.trackTitle} - {self.parent.parent.currentTrack.trackArtist}.lrc"), "w") as ff:
+                    #             ff.write(ll)
+                    # else:
+                    #     self.lrcScheduleList = None
+                    #     self.currentTag = None
+                    #     self.showInfo("No lrc found")
 
         else:  # paused state
-            self.locateCurrentTag()
-            self.scrolLToCurrent()
+            if self.timer.isActive():
+                self.timer.stop()
+            if self.animateTimer.isActive():
+                self.animateTimer.stop()
 
     def searchLrclib(self):
         self.lrclibSearchThread.title = self.parent.parent.currentTrack.trackTitle
@@ -206,21 +218,21 @@ class lrcShowX(QTextBrowser):
         for count in range(0, self.topMarginLines + self.currentTag - 1):
             self.moveCursor(QTextCursor.MoveOperation.Down)
         self.highLightCurrentLine()
-        duaration = self.lrcScheduleList[self.currentTag][0] - self.trackPos
+        duration = self.lrcScheduleList[self.currentTag][0] - self.trackPos
         self.verticalScrollBar().setValue((self.currentTag - 1) * self.margin)
-        self.timer.start(duaration)
+        self.timer.start(duration)
 
     def scroll(self):
-        duaration = self.lrcScheduleList[self.currentTag][2]
-        if duaration < 0:
+        duration = self.lrcScheduleList[self.currentTag][2]
+        if duration < 0:
             pass
         else:
-            if duaration < 700:
+            if duration < 700:
                 self.verticalScrollBar().setValue(self.currentTag * self.margin)
             else:
                 self.animateStartTag = self.currentTag
                 self.animate()
-            self.timer.start(duaration)
+            self.timer.start(duration)
             self.currentTag += 1
             self.highLightCurrentLine()
 
@@ -296,6 +308,30 @@ class lrcShowX(QTextBrowser):
         pl.setColor(QPalette.ColorRole.HighlightedText, QColor(self.highLightColor))
         self.setPalette(pl)
         self.update()
+
+    def showContextMenu(self, pos):
+        self.contextMenu.popup(self.mapToGlobal(pos))
+
+    def constructMenu(self):
+        self.contextMenu = QMenu(self)
+        offsetMenu = self.contextMenu.addMenu(self.tr("Offset"))
+        self.forwardAction = QAction(QIcon("icon/forward.png"), self.tr("forward"))
+        self.backwardAction = QAction(QIcon("icon/backward.png"), self.tr("backward"))
+        offsetMenu.addAction(self.forwardAction)
+        offsetMenu.addAction(self.backwardAction)
+        self.saveTheLrcAction = QAction(self.tr("Save the lrc"))
+        self.contextMenu.addAction(self.saveTheLrcAction)
+        self.reloadAction = QAction(self.tr("Reload lrc"))
+        self.contextMenu.addAction(self.reloadAction)
+        self.closeLrcAction = QAction(self.tr("Close the lrc"))
+        self.contextMenu.addAction(self.closeLrcAction)
+        self.copyAction = QAction(self.tr("Copy lrc"))
+        self.contextMenu.addAction(self.copyAction)
+        stToolMenu = self.contextMenu.addMenu(self.tr("S-T transfer"))
+        self.s2tAction = QAction(self.tr("s2t"))
+        stToolMenu.addAction(self.s2tAction)
+        self.t2sAction = QAction(self.tr("t2s"))
+        stToolMenu.addAction(self.t2sAction)
 
     def mouseDoubleClickEvent(self, e):
         e.ignore()
