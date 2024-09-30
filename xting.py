@@ -12,14 +12,20 @@ import sys, os
 
 if __name__ == "__main__":
 
+    __application__ = "xting"
+    __version__ = "0.99"
+    __author__ = "sanfanling"
+    __license__ = "GPLV-3.0"
+    __website__ = "https://github.com/sanfanling/xting"
+
     appdir = os.path.join(os.path.expanduser("~"), ".xting")
     if not os.path.isdir(appdir):
         os.mkdir(appdir)
     if not os.path.isdir(os.path.join(appdir, "lrc")):
         os.mkdir(os.path.join(appdir, "lrc"))
 
-
-    app = QApplication(sys.argv)
+    args = [__application__, __version__, __author__, __license__, __website__]
+    app = QApplication(args)
 
     devices = QMediaDevices.audioOutputs()
 
