@@ -421,7 +421,9 @@ class mainWindow(windowUI):
         settingDialog.lrcShowxConfig.appearenceBox.bgEffectLabel.setStyleSheet("QLabel { background-color: " + self.parameter.backGroundColor + "; color: white; }")
         settingDialog.lrcShowxConfig.appearenceBox.fgEffectLabel.setStyleSheet("QLabel { background-color: " + self.parameter.foreGroundColor + "; color: white; }")
         settingDialog.lrcShowxConfig.appearenceBox.hlEffectLabel.setStyleSheet("QLabel { background-color: " + self.parameter.highLightColor + "; color: white; }")
-        settingDialog.lrcShowxConfig.appearenceBox.fontEffectLabel.setFont(QFont(self.parameter.lrcFont))
+        ff = QFont()
+        ff.fromString(self.parameter.lrcFont)
+        settingDialog.lrcShowxConfig.appearenceBox.fontEffectLabel.setFont(ff)
 
         settingDialog.lrcShowxConfig.lrcPathBox.llLine.setText(self.parameter.lrcLocalPath)
         settingDialog.lrcShowxConfig.lrcPathBox.auto.setChecked(self.parameter.autoSaveLrc)
