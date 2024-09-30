@@ -42,6 +42,7 @@ class parameterData:
         self.autoSaveLrc = self.stringToBool(self.iniFile.value("/lrcshowx/autosavelrc", False))
         self.autoChooseTheFirst = self.stringToBool(self.iniFile.value("/lrcshowx/autochoosethefirst", False))
         self.autoT2S = self.stringToBool(self.iniFile.value("/lrcshowx/autot2s", False))
+        self.lrcFont = self.iniFile.value("/lrcShow/lrcfont", "")
 
     def save(self):
         self.iniFile.setValue("player/collectionpath", self.collectionPath)
@@ -70,6 +71,7 @@ class parameterData:
         self.iniFile.setValue("/lrcshowx/autosavelrc", self.autoSaveLrc)
         self.iniFile.setValue("/lrcshowx/autochoosethefirst", self.autoChooseTheFirst)
         self.iniFile.setValue("/lrcshowx/autot2s", self.autoT2S)
+        self.iniFile.setValue("/lrcShow/lrcfont", self.lrcFont)
 
     def stringToBool(self, s):
         if type(s) == bool:

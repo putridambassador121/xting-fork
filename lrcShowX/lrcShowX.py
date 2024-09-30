@@ -34,13 +34,12 @@ class lrcShowX(QTextBrowser):
         self.animateTimer = QTimer()
 
         self.readParameters()
+
         self.lrcScheduleList = None
         self.currentTag = None
 
+        self.initFont()
         self.initColor()
-
-        self.margin = QFontMetrics(self.font()).height() + self.lineMargin
-        self.nullNum = int(self.viewport().height() / self.margin)
 
         self.showInfo("No music is playing")
 
@@ -116,7 +115,7 @@ class lrcShowX(QTextBrowser):
                     #     self.currentTag = None
                     #     self.copyPlainAction.setEnabled(False)
                     #     self.copyLrcAction.setEnabled(False)
-                    #     self.closeLrcAction.setEnabled(False)
+                    #     self.closeLrcAction.setEnabled(True)
                     #     self.reloadAction.setEnabled(False)
                     #     self.s2tAction.setEnabled(False)
                     #     self.t2sAction.setEnabled(False)
@@ -165,7 +164,7 @@ class lrcShowX(QTextBrowser):
                 self.copyPlainAction.setEnabled(False)
                 self.copyLrcAction.setEnabled(False)
                 self.closeLrcAction.setEnabled(False)
-                self.reloadAction.setEnabled(False)
+                self.reloadAction.setEnabled(True)
                 self.s2tAction.setEnabled(False)
                 self.t2sAction.setEnabled(False)
                 self.showInfo("Cancel getting lrc by user")
@@ -195,7 +194,7 @@ class lrcShowX(QTextBrowser):
             self.copyPlainAction.setEnabled(False)
             self.copyLrcAction.setEnabled(False)
             self.closeLrcAction.setEnabled(False)
-            self.reloadAction.setEnabled(False)
+            self.reloadAction.setEnabled(True)
             self.s2tAction.setEnabled(False)
             self.t2sAction.setEnabled(False)
             self.showInfo("lrc error")
@@ -304,6 +303,10 @@ class lrcShowX(QTextBrowser):
         self.highLightColor = self.parent.parent.parameter.highLightColor
         self.lrcLocalPath = self.parent.parent.parameter.lrcLocalPath
         self.autoSaveLrc = self.parent.parent.parameter.autoSaveLrc
+        if not self.parent.parent.parameter.lrcFont:
+            self.lrcFont = self.parent.parent.parameter.lrcFont = self.font().toString()
+        else:
+            self.lrcFont = self.parent.parent.parameter.lrcFont
 
     def getMargin(self):
         self.margin = self.fontMetrics().height() + self.lineMargin
@@ -340,6 +343,13 @@ class lrcShowX(QTextBrowser):
                 context += t
             co = nullLines + context + 50 * j + '<p align="center">&nbsp;</p>'
             return co
+
+    def initFont(self):
+        f = QFont()
+        f.fromString(self.lrcFont)
+        self.setFont(f)
+        self.margin = QFontMetrics(self.font()).height() + self.lineMargin
+        self.nullNum = int(self.viewport().height() / self.margin)
 
     def initColor(self):
         pl = QPalette()

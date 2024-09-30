@@ -421,6 +421,7 @@ class mainWindow(windowUI):
         settingDialog.lrcShowxConfig.appearenceBox.bgEffectLabel.setStyleSheet("QLabel { background-color: " + self.parameter.backGroundColor + "; color: white; }")
         settingDialog.lrcShowxConfig.appearenceBox.fgEffectLabel.setStyleSheet("QLabel { background-color: " + self.parameter.foreGroundColor + "; color: white; }")
         settingDialog.lrcShowxConfig.appearenceBox.hlEffectLabel.setStyleSheet("QLabel { background-color: " + self.parameter.highLightColor + "; color: white; }")
+        settingDialog.lrcShowxConfig.appearenceBox.fontEffectLabel.setFont(QFont(self.parameter.lrcFont))
 
         settingDialog.lrcShowxConfig.lrcPathBox.llLine.setText(self.parameter.lrcLocalPath)
         settingDialog.lrcShowxConfig.lrcPathBox.auto.setChecked(self.parameter.autoSaveLrc)
@@ -435,16 +436,17 @@ class mainWindow(windowUI):
             self.parameter.lrcLocalPath = self.lrcShowxDock.lrcShowxWidget.lrcLocalPath = settingDialog.lrcShowxConfig.lrcPathBox.llLine.text()
             self.parameter.autoSaveLrc = self.lrcShowxDock.lrcShowxWidget.autoSaveLrc = settingDialog.lrcShowxConfig.lrcPathBox.auto.isChecked()
 
-            if self.parameter.topMarginLines != settingDialog.lrcShowxConfig.appearenceBox.tlLine.value() or self.parameter.lineMargin != settingDialog.lrcShowxConfig.appearenceBox.lmLine.value():
+            if self.parameter.topMarginLines != settingDialog.lrcShowxConfig.appearenceBox.tlLine.value() or self.parameter.lineMargin != settingDialog.lrcShowxConfig.appearenceBox.lmLine.value() or settingDialog.lrcShowxConfig.appearenceBox.fontEffectLabel.font().toString != self.parameter.lrcFont:
                 self.parameter.topMarginLines = self.lrcShowxDock.lrcShowxWidget.topMarginLines = settingDialog.lrcShowxConfig.appearenceBox.tlLine.value()
                 self.parameter.lineMargin = self.lrcShowxDock.lrcShowxWidget.lineMargin = settingDialog.lrcShowxConfig.appearenceBox.lmLine.value()
+                self.parameter.lrcFont = self.lrcShowxDock.lrcShowxWidget.lrcFont = settingDialog.lrcShowxConfig.appearenceBox.fontEffectLabel.font().toString()
+                self.lrcShowxDock.lrcShowxWidget.initFont()
                 self.lrcShowxDock.lrcShowxWidget.playbackStateChanged_(self.musicEngine.getPlaybackState())
 
             if self.parameter.backGroundColor != settingDialog.lrcShowxConfig.appearenceBox.backGroundColor or self.parameter.foreGroundColor != settingDialog.lrcShowxConfig.appearenceBox.foreGroundColor or self.parameter.highLightColor != settingDialog.lrcShowxConfig.appearenceBox.highLightColor:
                 self.parameter.backGroundColor = self.lrcShowxDock.lrcShowxWidget.backGroundColor = settingDialog.lrcShowxConfig.appearenceBox.backGroundColor
                 self.parameter.foreGroundColor = self.lrcShowxDock.lrcShowxWidget.foreGroundColor = settingDialog.lrcShowxConfig.appearenceBox.foreGroundColor
                 self.parameter.highLightColor = self.lrcShowxDock.lrcShowxWidget.highLightColor = settingDialog.lrcShowxConfig.appearenceBox.highLightColor
-                self.lrcShowxDock.lrcShowxWidget.initColor()
 
         self.parameter.configurationSplitterState = settingDialog.splitter.saveState()
 

@@ -208,7 +208,7 @@ class appearenceBox(QGroupBox):
         mainLayout.addWidget(self.lmLabel, 2, 0)
         mainLayout.addWidget(self.lmLine, 2, 1)
 
-        mainLayout.addItem(QSpacerItem(10, 10), 3, 0)
+        mainLayout.addItem(QSpacerItem(10, 20), 3, 0)
 
         self.bgLabel = QLabel(self.tr("Background color:"), self)
         self.bgEffectLabel = QLabel(self)
@@ -232,11 +232,34 @@ class appearenceBox(QGroupBox):
         mainLayout.addWidget(self.hlEffectLabel, 6, 1)
         mainLayout.addWidget(self.hlButton, 6, 2)
 
+        mainLayout.addItem(QSpacerItem(10, 20), 7, 0)
+
+        self.fontLabel = QLabel(self.tr("Lyrics font:"), self)
+        self.fontEffectLabel = QLabel(self.tr("The music is wonderful!"), self)
+
+        self.fontButton = QPushButton("...")
+
+        mainLayout.addWidget(self.fontLabel, 8, 0)
+        mainLayout.addWidget(self.fontEffectLabel, 8, 1)
+        mainLayout.addWidget(self.fontButton, 8, 2)
+
+
+
         self.setLayout(mainLayout)
 
         self.bgButton.clicked.connect(self.changeColor)
         self.fgButton.clicked.connect(self.changeColor)
         self.hlButton.clicked.connect(self.changeColor)
+
+        self.fontButton.clicked.connect(self.changeFont)
+
+    def changeFont(self):
+
+        font, ok = QFontDialog.getFont(QFont(self.parent.parent.parent.parameter.lrcFont), self)
+        if ok:
+            self.fontEffectLabel.setFont(font)
+
+
 
     def changeColor(self):
         obName = self.sender().objectName()
@@ -278,7 +301,7 @@ class shortcutConfig(QWidget):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    w = configuration()
+    w = configuration(None)
     w.show()
 
     sys.exit(app.exec())
