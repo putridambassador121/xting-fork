@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # filename: lrcShow-X.py
 
-import os, glob
+import os, glob, re
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
@@ -55,6 +55,12 @@ class lrcShowX(QTextBrowser):
         self.customContextMenuRequested.connect(self.showContextMenu)
 
 
+        self.copyPlainAction.triggered.connect(self.copyAction)
+        self.copyLrcAction.triggered.connect(self.copyAction)
+        self.reloadAction.triggered.connect(self.reloadAction_)
+        self.closeLrcAction.triggered.connect(self.closeLrcAction_)
+
+
     def playbackStateChanged_(self, state):
         sv = state.value
         if sv == 0: # stoped state
@@ -64,10 +70,16 @@ class lrcShowX(QTextBrowser):
                 self.animateTimer.stop()
             self.lrcScheduleList = None
             self.currentTag = None
+            self.copyPlainAction.setEnabled(False)
+            self.copyLrcAction.setEnabled(False)
+            self.closeLrcAction.setEnabled(False)
+            self.reloadAction.setEnabled(False)
+            self.s2tAction.setEnabled(False)
+            self.t2sAction.setEnabled(False)
             self.showInfo("No music is playing")
 
         elif sv == 1: # playing state
-            if self.lrcScheduleList:
+            if self.lrcScheduleList and self.currentTag:
                 self.showLrc()
                 self.locateCurrentTag()
                 self.scrolLToCurrent()
@@ -78,6 +90,12 @@ class lrcShowX(QTextBrowser):
                     p = lrcParser(fi, True)
                     self.lrcScheduleList = p.parse()
                     self.showLrc()
+                    self.copyPlainAction.setEnabled(True)
+                    self.copyLrcAction.setEnabled(True)
+                    self.closeLrcAction.setEnabled(True)
+                    self.reloadAction.setEnabled(True)
+                    self.s2tAction.setEnabled(True)
+                    self.t2sAction.setEnabled(True)
                     self.locateCurrentTag()
                     self.scrolLToCurrent()
                 else:
@@ -96,6 +114,12 @@ class lrcShowX(QTextBrowser):
                     # else:
                     #     self.lrcScheduleList = None
                     #     self.currentTag = None
+                    #     self.copyPlainAction.setEnabled(False)
+                    #     self.copyLrcAction.setEnabled(False)
+                    #     self.closeLrcAction.setEnabled(False)
+                    #     self.reloadAction.setEnabled(False)
+                    #     self.s2tAction.setEnabled(False)
+                    #     self.t2sAction.setEnabled(False)
                     #     self.showInfo("No lrc found")
 
         else:  # paused state
@@ -138,6 +162,12 @@ class lrcShowX(QTextBrowser):
             else:
                 self.lrcScheduleList = None
                 self.currentTag = None
+                self.copyPlainAction.setEnabled(False)
+                self.copyLrcAction.setEnabled(False)
+                self.closeLrcAction.setEnabled(False)
+                self.reloadAction.setEnabled(False)
+                self.s2tAction.setEnabled(False)
+                self.t2sAction.setEnabled(False)
                 self.showInfo("Cancel getting lrc by user")
 
 
@@ -148,6 +178,12 @@ class lrcShowX(QTextBrowser):
             p = lrcParser(lrc, False)
             self.lrcScheduleList = p.parse()
             self.showLrc()
+            self.copyPlainAction.setEnabled(True)
+            self.copyLrcAction.setEnabled(True)
+            self.closeLrcAction.setEnabled(True)
+            self.reloadAction.setEnabled(True)
+            self.s2tAction.setEnabled(True)
+            self.t2sAction.setEnabled(True)
             self.locateCurrentTag()
             self.scrolLToCurrent()
             if self.autoSaveLrc:
@@ -156,6 +192,12 @@ class lrcShowX(QTextBrowser):
         else:
             self.lrcScheduleList = None
             self.currentTag = None
+            self.copyPlainAction.setEnabled(False)
+            self.copyLrcAction.setEnabled(False)
+            self.closeLrcAction.setEnabled(False)
+            self.reloadAction.setEnabled(False)
+            self.s2tAction.setEnabled(False)
+            self.t2sAction.setEnabled(False)
             self.showInfo("lrc error")
 
     def searchOnline(self):
@@ -315,23 +357,84 @@ class lrcShowX(QTextBrowser):
     def constructMenu(self):
         self.contextMenu = QMenu(self)
         offsetMenu = self.contextMenu.addMenu(self.tr("Offset"))
-        self.forwardAction = QAction(QIcon("icon/forward.png"), self.tr("forward"))
-        self.backwardAction = QAction(QIcon("icon/backward.png"), self.tr("backward"))
+        self.forwardAction = QAction(QIcon("icon/forward.png"), "+200ms")
+        self.forwardAction.setEnabled(False)
+        self.backwardAction = QAction(QIcon("icon/backward.png"), "-200ms")
+        self.backwardAction.setEnabled(False)
+        self.saveTheOffsetAction = QAction(self.tr("Save the offset"))
+        self.saveTheOffsetAction.setEnabled(False)
         offsetMenu.addAction(self.forwardAction)
         offsetMenu.addAction(self.backwardAction)
         self.saveTheLrcAction = QAction(self.tr("Save the lrc"))
         self.contextMenu.addAction(self.saveTheLrcAction)
         self.reloadAction = QAction(self.tr("Reload lrc"))
+        self.reloadAction.setEnabled(False)
         self.contextMenu.addAction(self.reloadAction)
         self.closeLrcAction = QAction(self.tr("Close the lrc"))
         self.contextMenu.addAction(self.closeLrcAction)
-        self.copyAction = QAction(self.tr("Copy lrc"))
-        self.contextMenu.addAction(self.copyAction)
+        copyMenu = self.contextMenu.addMenu(self.tr("Copy"))
+        self.copyPlainAction = QAction(self.tr("Copy plain lyrics"))
+        self.copyPlainAction.setEnabled(False)
+        self.copyLrcAction = QAction(self.tr("Copy synced lyrics"))
+        self.copyLrcAction.setEnabled(False)
+        copyMenu.addAction(self.copyPlainAction)
+        copyMenu.addAction(self.copyLrcAction)
         stToolMenu = self.contextMenu.addMenu(self.tr("S-T transfer"))
         self.s2tAction = QAction(self.tr("s2t"))
+        self.s2tAction.setEnabled(False)
         stToolMenu.addAction(self.s2tAction)
         self.t2sAction = QAction(self.tr("t2s"))
+        self.t2sAction.setEnabled(False)
         stToolMenu.addAction(self.t2sAction)
+
+
+    def copyAction(self):
+        l = self.toPlainText().strip()
+        if self.sender().iconText() == "Copy plain lyrics":
+            t = re.sub(r"\[\d\d:\d\d.*?\]", "", l)
+        else:
+            t = self.constructLrcFromPlain()
+        clipboard = QApplication.clipboard()
+        clipboard.setText(t)
+
+    def constructLrcFromPlain(self):
+        if self.lrcScheduleList:
+            t = ""
+            for i in self.lrcScheduleList[1:]:
+                t += f"{self.msTotag(i[0])}{i[1]}\n"
+            return t
+        else:
+            return False
+
+    def msTotag(self, t):
+        m, ts = divmod(t, 60000)
+        if m < 10:
+            m = f'0{m}'
+        else:
+            m = str(m)
+        ms = str(ts)[-3:]
+        s = str(ts)[:2]
+        return f"[{m}:{s}.{ms}]"
+
+    def reloadAction_(self):
+        self.lrcScheduleList = self.currentTag = None
+        self.playbackStateChanged_(self.parent.parent.musicEngine.getPlaybackState())
+
+    def closeLrcAction_(self):
+        if self.timer.isActive():
+            self.timer.stop()
+        if self.animateTimer.isActive():
+            self.animateTimer.stop()
+        self.lrcScheduleList = None
+        self.currentTag = None
+        self.copyPlainAction.setEnabled(False)
+        self.copyLrcAction.setEnabled(False)
+        self.closeLrcAction.setEnabled(False)
+        self.s2tAction.setEnabled(False)
+        self.t2sAction.setEnabled(False)
+        self.showInfo("Current lrc was closed")
+
+
 
     def mouseDoubleClickEvent(self, e):
         e.ignore()
@@ -347,8 +450,4 @@ class lrcShowX(QTextBrowser):
 
     def wheelEvent(self, e):
         e.ignore()
-
-
-    # def resizeEvent(self, e):
-    #     self.nullNum = self.height() / self.margin
 
