@@ -14,4 +14,12 @@
 * sanfanling (xujia19@outlook.com)
 
 ### Note:
-* Please modify config file manually due to developing. The config file is $HOME/.xting/xting.conf
+* Developed in Linux environment, but could run in windows system theoretically, never tested, welcome report.
+
+### Next todo list:
+*[] finish all lrcShow-X context menu function
+*[] finish album cover function
+*[] finish play list function
+*[] finish shortcuts function
+*[] add shortcuts config page
+*[] finish lrc edit function
