@@ -10,7 +10,7 @@ class tsTool:
         with open("lrcShowX/dict/simplified", 'r') as f:
             self.sdict = f.read()
 
-    def transfer(self, originalText, symbol = True):
+    def transfer(self, originalText, symbol = True):  # set True if t2s, else set False
         text = ""
         if symbol:
             for i in originalText:

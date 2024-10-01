@@ -35,8 +35,10 @@ class lrcShowX(QTextBrowser):
 
         self.readParameters()
 
-        self.lrcScheduleList = None
+        self.lrcInstance = None
         self.currentTag = None
+        self.offsetOneShort = 0
+        self.totalOffset = 0
 
         self.initFont()
         self.initColor()
@@ -58,6 +60,13 @@ class lrcShowX(QTextBrowser):
         self.copyLrcAction.triggered.connect(self.copyAction)
         self.reloadAction.triggered.connect(self.reloadAction_)
         self.closeLrcAction.triggered.connect(self.closeLrcAction_)
+        self.saveTheLrcAction.triggered.connect(self.saveTheLrcAction_)
+        self.forwardAction.triggered.connect(self.adjustOffset)
+        self.backwardAction.triggered.connect(self.adjustOffset)
+        self.saveTheOffsetAction.triggered.connect(self.saveTheOffsetAction_)
+        self.s2tAction.triggered.connect(self.transfer_)
+        self.t2sAction.triggered.connect(self.transfer_)
+        self.saveAfterTransferAction.triggered.connect(self.saveAfterTransferAction_)
 
 
     def playbackStateChanged_(self, state):
@@ -67,18 +76,26 @@ class lrcShowX(QTextBrowser):
                 self.timer.stop()
             if self.animateTimer.isActive():
                 self.animateTimer.stop()
-            self.lrcScheduleList = None
+            self.lrcInstance = None
             self.currentTag = None
+            self.offsetOneShort = 0
+            self.totalOffset = 0
+            self.forwardAction.setEnabled(False)
+            self.backwardAction.setEnabled(False)
+            self.saveTheOffsetAction.setEnabled(False)
             self.copyPlainAction.setEnabled(False)
             self.copyLrcAction.setEnabled(False)
             self.closeLrcAction.setEnabled(False)
             self.reloadAction.setEnabled(False)
-            self.s2tAction.setEnabled(False)
+            self.saveTheLrcAction.setEnabled(False)
             self.t2sAction.setEnabled(False)
+            self.s2tAction.setEnabled(False)
+            self.saveAfterTransferAction.setEnabled(False)
+
             self.showInfo("No music is playing")
 
         elif sv == 1: # playing state
-            if self.lrcScheduleList and self.currentTag:
+            if self.lrcInstance and self.currentTag:
                 self.showLrc()
                 self.locateCurrentTag()
                 self.scrolLToCurrent()
@@ -87,14 +104,19 @@ class lrcShowX(QTextBrowser):
                 fi = self.searchLocal()
                 if fi:
                     p = lrcParser(fi, True)
-                    self.lrcScheduleList = p.parse()
+                    self.lrcInstance = p.parse()
                     self.showLrc()
+                    self.forwardAction.setEnabled(True)
+                    self.backwardAction.setEnabled(True)
                     self.copyPlainAction.setEnabled(True)
                     self.copyLrcAction.setEnabled(True)
                     self.closeLrcAction.setEnabled(True)
                     self.reloadAction.setEnabled(True)
-                    self.s2tAction.setEnabled(True)
+                    self.saveTheLrcAction.setEnabled(False)
                     self.t2sAction.setEnabled(True)
+                    self.s2tAction.setEnabled(True)
+                    self.saveAfterTransferAction.setEnabled(False)
+
                     self.locateCurrentTag()
                     self.scrolLToCurrent()
                 else:
@@ -103,7 +125,7 @@ class lrcShowX(QTextBrowser):
                     # ll = self.searchOnline()
                     # if ll:
                     #     p = lrcParser(ll, False)
-                    #     self.lrcScheduleList = p.parse()
+                    #     self.lrcInstance = p.parse()
                     #     self.showLrc()
                     #     self.locateCurrentTag()
                     #     self.scrolLToCurrent()
@@ -111,14 +133,19 @@ class lrcShowX(QTextBrowser):
                     #         with open(os.path.join(self.lrcLocalPath, f"{self.parent.parent.currentTrack.trackTitle} - {self.parent.parent.currentTrack.trackArtist}.lrc"), "w") as ff:
                     #             ff.write(ll)
                     # else:
-                    #     self.lrcScheduleList = None
+                    #     self.lrcInstance = None
                     #     self.currentTag = None
+                    #     self.forwardAction.setEnabled(True)
+                    #     self.backwardAction.setEnabled(True)
                     #     self.copyPlainAction.setEnabled(False)
                     #     self.copyLrcAction.setEnabled(False)
                     #     self.closeLrcAction.setEnabled(True)
                     #     self.reloadAction.setEnabled(False)
-                    #     self.s2tAction.setEnabled(False)
+                    #     self.saveTheLrcAction.setEnabled(False)
                     #     self.t2sAction.setEnabled(False)
+                    #     self.s2tAction.setEnabled(False)
+                    #     self.saveAfterTransferAction.setEnabled(False)
+
                     #     self.showInfo("No lrc found")
 
         else:  # paused state
@@ -134,8 +161,10 @@ class lrcShowX(QTextBrowser):
 
     def lrclibSearchResult(self, l):
         if not l:
-            self.lrcScheduleList = None
+            self.lrcInstance = None
             self.currentTag = None
+            self.offsetOneShort = 0
+            self.totalOffset = 0
             self.showInfo("No lrc found")
             return
 
@@ -159,14 +188,22 @@ class lrcShowX(QTextBrowser):
                 self.lrclibGetThread.idd = l[dis.currentRow].id
                 self.lrclibGetThread.start()
             else:
-                self.lrcScheduleList = None
+                self.lrcInstance = None
                 self.currentTag = None
+                self.offsetOneShort = 0
+                self.totalOffset = 0
+                self.forwardAction.setEnabled(False)
+                self.backwardAction.setEnabled(False)
+                self.saveTheOffsetAction.setEnabled(False)
                 self.copyPlainAction.setEnabled(False)
                 self.copyLrcAction.setEnabled(False)
                 self.closeLrcAction.setEnabled(False)
                 self.reloadAction.setEnabled(True)
-                self.s2tAction.setEnabled(False)
+                self.saveTheLrcAction(False)
                 self.t2sAction.setEnabled(False)
+                self.s2tAction.setEnabled(False)
+                self.saveAfterTransferAction.setEnabled(False)
+
                 self.showInfo("Cancel getting lrc by user")
 
 
@@ -175,28 +212,40 @@ class lrcShowX(QTextBrowser):
             if self.parent.parent.parameter.autoT2S:
                 lrc = self.transferTool.transfer(lrc)
             p = lrcParser(lrc, False)
-            self.lrcScheduleList = p.parse()
+            self.lrcInstance = p.parse()
             self.showLrc()
+            self.forwardAction.setEnabled(True)
+            self.backwardAction.setEnabled(True)
             self.copyPlainAction.setEnabled(True)
             self.copyLrcAction.setEnabled(True)
             self.closeLrcAction.setEnabled(True)
             self.reloadAction.setEnabled(True)
-            self.s2tAction.setEnabled(True)
+            self.saveTheLrcAction.setEnabled(True)
             self.t2sAction.setEnabled(True)
+            self.s2tAction.setEnabled(True)
+            self.saveAfterTransferAction.setEnabled(False)
+
             self.locateCurrentTag()
             self.scrolLToCurrent()
             if self.autoSaveLrc:
-                with open(os.path.join(self.lrcLocalPath, f"{self.parent.parent.currentTrack.trackTitle} - {self.parent.parent.currentTrack.trackArtist}.lrc"), "w") as ff:
-                    ff.write(lrc)
+                self.saveTheLrcAction_()
         else:
-            self.lrcScheduleList = None
+            self.lrcInstance = None
             self.currentTag = None
+            self.offsetOneShort = 0
+            self.totalOffset = 0
+            self.forwardAction.setEnabled(False)
+            self.backwardAction.setEnabled(False)
+            self.saveTheOffsetAction.setEnabled(False)
             self.copyPlainAction.setEnabled(False)
             self.copyLrcAction.setEnabled(False)
             self.closeLrcAction.setEnabled(False)
             self.reloadAction.setEnabled(True)
-            self.s2tAction.setEnabled(False)
+            self.saveTheLrcAction.setEnabled(False)
             self.t2sAction.setEnabled(False)
+            self.s2tAction.setEnabled(False)
+            self.saveAfterTransferAction.setEnabled(False)
+
             self.showInfo("lrc error")
 
     def searchOnline(self):
@@ -230,7 +279,7 @@ class lrcShowX(QTextBrowser):
 
 
     def trackPositionChanged(self):
-        if not self.lrcScheduleList:
+        if not self.lrcInstance:
             return
 
         if self.timer.isActive():
@@ -244,7 +293,7 @@ class lrcShowX(QTextBrowser):
     def locateCurrentTag(self):
         self.trackPos = self.parent.parent.musicEngine.getPosition()
         n = 0
-        for i in self.lrcScheduleList:
+        for i in self.lrcInstance.scheduledLrc:
             if self.trackPos < i[0]:
                 break
             elif self.trackPos == i[0]:
@@ -259,12 +308,16 @@ class lrcShowX(QTextBrowser):
         for count in range(0, self.topMarginLines + self.currentTag - 1):
             self.moveCursor(QTextCursor.MoveOperation.Down)
         self.highLightCurrentLine()
-        duration = self.lrcScheduleList[self.currentTag][0] - self.trackPos
+        duration = self.lrcInstance.scheduledLrc[self.currentTag][0] - self.trackPos
         self.verticalScrollBar().setValue((self.currentTag - 1) * self.margin)
         self.timer.start(duration)
 
     def scroll(self):
-        duration = self.lrcScheduleList[self.currentTag][2]
+        duration = self.lrcInstance.scheduledLrc[self.currentTag][2]
+        if duration - self.offsetOneShort <= 0:
+            pass
+        else:
+            duration = duration - self.offsetOneShort
         if duration < 0:
             pass
         else:
@@ -274,6 +327,10 @@ class lrcShowX(QTextBrowser):
                 self.animateStartTag = self.currentTag
                 self.animate()
             self.timer.start(duration)
+
+            if self.offsetOneShort != 0:
+                self.totalOffset += self.offsetOneShort
+                self.offsetOneShort = 0
             self.currentTag += 1
             self.highLightCurrentLine()
 
@@ -328,13 +385,13 @@ class lrcShowX(QTextBrowser):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def formartLrc(self):
-        if not self.lrcScheduleList:
+        if not self.lrcInstance:
             self.showInfo("Can not parse the LRC file")
         else:
             j =  f'<p align="center" style=" margin-top:{self.lineMargin}px; margin-bottom:{self.lineMargin}px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&nbsp;</p>'
             nullLines = self.topMarginLines * j
             context = ""
-            for i in self.lrcScheduleList:
+            for i in self.lrcInstance.scheduledLrc:
                 if i[1] == "":
                     t = f'<p align="center" style=" margin-top:{self.lineMargin}px; margin-bottom:{self.lineMargin}px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&nbsp;</p>'
                 else:
@@ -371,63 +428,53 @@ class lrcShowX(QTextBrowser):
         self.forwardAction.setEnabled(False)
         self.backwardAction = QAction(QIcon("icon/backward.png"), "-200ms")
         self.backwardAction.setEnabled(False)
-        self.saveTheOffsetAction = QAction(self.tr("Save the offset"))
+
+        self.saveTheOffsetAction = QAction(self.tr("Save to file"))
         self.saveTheOffsetAction.setEnabled(False)
         offsetMenu.addAction(self.forwardAction)
         offsetMenu.addAction(self.backwardAction)
+        offsetMenu.addSeparator()
+        offsetMenu.addAction(self.saveTheOffsetAction)
         self.saveTheLrcAction = QAction(self.tr("Save the lrc"))
+        self.saveTheLrcAction.setEnabled(False)
         self.contextMenu.addAction(self.saveTheLrcAction)
         self.reloadAction = QAction(self.tr("Reload lrc"))
         self.reloadAction.setEnabled(False)
         self.contextMenu.addAction(self.reloadAction)
         self.closeLrcAction = QAction(self.tr("Close the lrc"))
         self.contextMenu.addAction(self.closeLrcAction)
-        copyMenu = self.contextMenu.addMenu(self.tr("Copy"))
+        copyMenu = self.contextMenu.addMenu(self.tr("Copy to clipboard"))
         self.copyPlainAction = QAction(self.tr("Copy plain lyrics"))
         self.copyPlainAction.setEnabled(False)
         self.copyLrcAction = QAction(self.tr("Copy synced lyrics"))
         self.copyLrcAction.setEnabled(False)
         copyMenu.addAction(self.copyPlainAction)
         copyMenu.addAction(self.copyLrcAction)
-        stToolMenu = self.contextMenu.addMenu(self.tr("S-T transfer"))
-        self.s2tAction = QAction(self.tr("s2t"))
-        self.s2tAction.setEnabled(False)
-        stToolMenu.addAction(self.s2tAction)
-        self.t2sAction = QAction(self.tr("t2s"))
+        stToolMenu = self.contextMenu.addMenu(self.tr("ST transfer"))
+        self.t2sAction = QAction(self.tr("T->S"))
         self.t2sAction.setEnabled(False)
+        self.s2tAction = QAction(self.tr("S->T"))
+        self.s2tAction.setEnabled(False)
+        self.saveAfterTransferAction = QAction(self.tr("Save to file"))
+        self.saveAfterTransferAction.setEnabled(False)
         stToolMenu.addAction(self.t2sAction)
+        stToolMenu.addAction(self.s2tAction)
+        stToolMenu.addSeparator()
+        stToolMenu.addAction(self.saveAfterTransferAction)
+
 
 
     def copyAction(self):
-        l = self.toPlainText().strip()
         if self.sender().iconText() == "Copy plain lyrics":
-            t = re.sub(r"\[\d\d:\d\d.*?\]", "", l)
+            t = self.lrcInstance.lrcWithoutTag
         else:
-            t = self.constructLrcFromPlain()
+            t = self.lrcInstance.lrcWithTag
         clipboard = QApplication.clipboard()
         clipboard.setText(t)
 
-    def constructLrcFromPlain(self):
-        if self.lrcScheduleList:
-            t = ""
-            for i in self.lrcScheduleList[1:]:
-                t += f"{self.msTotag(i[0])}{i[1]}\n"
-            return t
-        else:
-            return False
-
-    def msTotag(self, t):
-        m, ts = divmod(t, 60000)
-        if m < 10:
-            m = f'0{m}'
-        else:
-            m = str(m)
-        ms = str(ts)[-3:]
-        s = str(ts)[:2]
-        return f"[{m}:{s}.{ms}]"
 
     def reloadAction_(self):
-        self.lrcScheduleList = self.currentTag = None
+        self.lrcInstance = self.currentTag = None
         self.playbackStateChanged_(self.parent.parent.musicEngine.getPlaybackState())
 
     def closeLrcAction_(self):
@@ -435,15 +482,76 @@ class lrcShowX(QTextBrowser):
             self.timer.stop()
         if self.animateTimer.isActive():
             self.animateTimer.stop()
-        self.lrcScheduleList = None
+        self.lrcInstance = None
         self.currentTag = None
         self.copyPlainAction.setEnabled(False)
         self.copyLrcAction.setEnabled(False)
         self.closeLrcAction.setEnabled(False)
-        self.s2tAction.setEnabled(False)
-        self.t2sAction.setEnabled(False)
         self.showInfo("Current lrc was closed")
 
+    def saveTheLrcAction_(self):
+        fileName = os.path.join(self.lrcLocalPath, f"{self.parent.parent.currentTrack.trackTitle} - {self.parent.parent.currentTrack.trackArtist}.lrc")
+        if os.path.exists(fileName):
+            msgBox = QMessageBox(self)
+            msgBox.setIconPixmap(QPixmap("icon/logo.png"))
+            msgBox.setWindowTitle(self.tr("Waring"))
+            msgBox.setText(self.tr("Target file exists, overwrite?"))
+            yesRoleButton = msgBox.addButton(QMessageBox.StandardButton.Yes)
+            noRoleButton = msgBox.addButton(QMessageBox.StandardButton.No)
+            r = msgBox.exec()
+            if r == QMessageBox.StandardButton.Yes:
+                with open(fileName, "w") as ff:
+                    ff.write(self.lrcInstance.lrcWithTag)
+                self.lrcInstance.lrcFrom = fileName
+        else:
+            with open(fileName, "w") as ff:
+                ff.write(self.lrcInstance.lrcWithTag)
+            self.lrcInstance.lrcFrom = fileName
+
+    def transfer_(self):
+        if self.sender().iconText() == "T->S":
+            sy = True
+        else:
+            sy = False
+        lrc = self.transferTool.transfer(self.lrcInstance.lrcWithTag, sy)
+        p = lrcParser(lrc, False, self.lrcInstance.lrcFrom)
+        self.lrcInstance = p.parse()
+        self.showLrc()
+        self.saveAfterTransferAction.setEnabled(True)
+        self.locateCurrentTag()
+        self.scrolLToCurrent()
+
+    def saveAfterTransferAction_(self):
+        if self.lrcInstance.lrcFrom == "online":
+            fileName = os.path.join(self.lrcLocalPath, f"{self.parent.parent.currentTrack.trackTitle} - {self.parent.parent.currentTrack.trackArtist}.lrc")
+        else:
+            fileName = self.lrcInstance.lrcFrom
+        with open(fileName, "w") as ff:
+            ff.write(self.lrcInstance.lrcWithTag)
+        self.lrcInstance.lrcFrom = fileName
+        self.saveAfterTransferAction.setEnabled(False)
+
+
+    def adjustOffset(self):
+        if self.sender().iconText() == "+200ms":
+            self.offsetOneShort += 200
+        else:
+            self.offsetOneShort += -200
+        self.saveTheOffsetAction.setEnabled(os.path.exists(self.lrcInstance.lrcFrom))
+
+    def saveTheOffsetAction_(self):
+        oldLrc = self.lrcInstance.lrcWithTag
+        offsetTag = re.search(r'\[offset:(.*?)\]', oldLrc)
+        if offsetTag:
+            offset = int(offsetTag.group(1).strip()) + self.totalOffset
+            newLrc = re.sub(r'\[offset:.*?\]', f"[offset: {str(offset)}]", oldLrc)
+        else:
+            newLrc = f"[offset: {self.totalOffset}]" + self.lrcInstance.lrcWithTag
+        with open(self.lrcInstance.lrcFrom, "w") as ff:
+            ff.write(newLrc)
+
+        self.totalOffset = 0
+        self.saveTheOffsetAction.setEnabled(False)
 
 
     def mouseDoubleClickEvent(self, e):

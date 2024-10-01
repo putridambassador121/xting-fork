@@ -408,7 +408,7 @@ class mainWindow(windowUI):
         b = QMessageBox(self)
         b.setIconPixmap(QPixmap('icon/logo.png'))
         b.setWindowTitle(self.tr(f'About {QApplication.arguments()[0]}'))
-        b.setText(f'Name: {QApplication.arguments()[0]}\n\nVersion: {QApplication.arguments()[1]}\n\nShort description: xting is a personal local music application, not special. Synced lyrics display is interesting\n\nAuthors: {QApplication.arguments()[2]}\n\nLicense: {QApplication.arguments()[3]}\n\nWebsite: {QApplication.arguments()[4]}')
+        b.setText(f'Application: {QApplication.arguments()[0]}\n\nVersion: {QApplication.arguments()[1]}\n\nShort description: xting is a personal local music application, not special. Synced lyrics display is interesting\n\nAuthors: {QApplication.arguments()[2]}\n\nLicense: {QApplication.arguments()[3]}\n\nWebsite: {QApplication.arguments()[4]}')
         b.exec()
 
     def aboutQt_(self):

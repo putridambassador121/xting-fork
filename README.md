@@ -17,9 +17,10 @@
 * Developed in Linux environment, but could run in windows system theoretically, never tested, welcome report.
 
 ### Next todo list:
-* [] finish all lrcShow-X context menu function
+* [x] finish all lrcShow-X context menu function
 * [] finish album cover function
 * [] finish play list function
 * [] finish shortcuts function
 * [] add shortcuts config page
 * [] finish lrc edit function
+* [] icons
