@@ -199,7 +199,7 @@ class lrcShowX(QTextBrowser):
                 self.copyLrcAction.setEnabled(False)
                 self.closeLrcAction.setEnabled(False)
                 self.reloadAction.setEnabled(True)
-                self.saveTheLrcAction(False)
+                self.saveTheLrcAction.setEnabled(False)
                 self.t2sAction.setEnabled(False)
                 self.s2tAction.setEnabled(False)
                 self.saveAfterTransferAction.setEnabled(False)
@@ -229,6 +229,7 @@ class lrcShowX(QTextBrowser):
             self.scrolLToCurrent()
             if self.autoSaveLrc:
                 self.saveTheLrcAction_()
+                self.saveTheLrcAction.setEnabled(False)
         else:
             self.lrcInstance = None
             self.currentTag = None

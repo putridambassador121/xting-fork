@@ -40,10 +40,7 @@ class mainWindow(windowUI):
         self.initStatusBar()
 
         self.systemTray = QSystemTrayIcon(QIcon("icon/logo.png"), self)
-        trayMenu = self.playbackMenu
-        trayMenu.addSeparator()
-        trayMenu.addAction(self.quitAction)
-        self.systemTray.setContextMenu(trayMenu)
+        self.systemTray.setContextMenu(self.trayContextMenu)
         self.systemTray.setVisible(self.parameter.trayIcon)
 
         if self.parameter.loop == "playlist":

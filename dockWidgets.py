@@ -9,6 +9,9 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from lrcShowX.lrcShowX import lrcShowX
+from mutagen.flac import FLAC, Picture
+from mutagen.mp3 import MP3
+from mutagen.id3 import ID3, APIC, error
 
 
 class lrcShowxDock(QDockWidget):
@@ -105,23 +108,6 @@ class playlistWidget(QWidget):
 
 
 
-class albumCoverDock(QDockWidget):
-
-    def __init__(self, title, parent = None):
-        super().__init__(title)
-        self.albumCoverWidget = albumCoverWidget(self)
-        self.setWidget(self.albumCoverWidget)
-        self.setFloating(False)
-
-
-class albumCoverWidget(QLabel):
-    def __init__(self, parent):
-        super().__init__()
-        self.parent = parent
-        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        pix = QPixmap("icon/blankAlbum.png").scaled(200, 200)
-        self.setPixmap(pix)
-
 class lrcEditorDock(QDockWidget):
 
     def __init__(self, title, parent = None):
@@ -136,3 +122,73 @@ class lrcEditorWidget(QTextEdit):
     def __init__(self, parent = None):
         super().__init__()
         self.parent = parent
+
+
+class albumCoverDock(QDockWidget):
+
+    def __init__(self, title, parent = None):
+        super().__init__()
+        self.setWindowTitle(title)
+        self.parent = parent
+        self.albumCoverWidget = albumCoverWidget(self)
+        self.setWidget(self.albumCoverWidget)
+        self.setFloating(False)
+
+
+
+
+class albumCoverWidget(QLabel):
+    def __init__(self, parent):
+        super().__init__()
+        self.parent = parent
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.setBlankCover()
+
+        self.parent.parent.musicEngine.musicEquipment.playbackStateChanged.connect(self.schedule)
+
+    def schedule(self, state):
+        if state.value == 0:
+            self.setBlankCover()
+        elif state.value == 1:
+            if self.parent.parent.currentTrack.trackType == "flac":
+                self.searchMedia()
+            else:
+                self.searchOnline()
+        else:
+            pass
+
+    def setBlankCover(self):
+        pix = QPixmap("icon/blankAlbum.png").scaled(270, 270)
+        self.setPixmap(pix)
+
+    def searchMedia(self):
+        f = self.parent.parent.currentTrack.trackFile
+        audio = FLAC(f)
+        if audio.pictures:
+            p = audio.pictures[0]
+            pix = QPixmap()
+            pix.loadFromData(p.data)
+            pix = pix.scaled(270, 270)
+            self.setPixmap(pix)
+        else:
+            self.searchOnline()
+
+    def searchOnline(self):
+        pass
+
+
+
+
+
+
+if __name__ == "__main__":
+
+    app = QApplication(sys.argv)
+    w = albumCoverDock("Album cover")
+    w.show()
+
+    sys.exit(app.exec())
+
+
+

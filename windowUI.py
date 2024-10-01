@@ -116,6 +116,17 @@ class windowUI(QMainWindow):
         self.helpMenu.addAction(self.aboutAppAction)
         self.helpMenu.addAction(self.aboutQtAction)
 
+
+        self.trayContextMenu = QMenu(self)
+        self.trayContextMenu.addAction(self.previousAction)
+        self.trayContextMenu.addAction(self.playorpauseAction)
+        self.trayContextMenu.addAction(self.stopAction)
+        self.trayContextMenu.addAction(self.nextAction)
+        self.trayContextMenu.addAction(self.repeatAction)
+        self.trayContextMenu.addSeparator()
+        self.trayContextMenu.addAction(self.quitAction)
+
+
     def initDockwidget(self):
         self.lrcShowxDock = lrcShowxDock(self.tr("lrcShow-X"), self)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.lrcShowxDock)
