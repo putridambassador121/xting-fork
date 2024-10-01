@@ -112,16 +112,72 @@ class lrcEditorDock(QDockWidget):
 
     def __init__(self, title, parent = None):
         super().__init__(title)
+        self.parent = parent
         self.setWindowTitle = title
         self.lrcEditorWidget = lrcEditorWidget(self)
         self.setWidget(self.lrcEditorWidget)
         self.setFloating(False)
 
-class lrcEditorWidget(QTextEdit):
+class lrcEditorWidget(QWidget):
 
     def __init__(self, parent = None):
         super().__init__()
         self.parent = parent
+
+        layout = QVBoxLayout(None)
+
+        self.initMenu()
+        self.initToolBar()
+
+
+        self.editLrc = QTextEdit(self)
+        self.editLrc.setAcceptRichText(False)
+
+        layout.addWidget(self.lrcEditMenu)
+        layout.addWidget(self.toolBar)
+        layout.addWidget(self.editLrc)
+
+        self.setLayout(layout)
+
+        self.insertAction.triggered.connect(self.insertAction_)
+
+    def initMenu(self):
+        self.lrcEditMenu = QMenuBar(self)
+        fileMenu = self.lrcEditMenu.addMenu(self.tr("File"))
+        self.newAction = QAction(self.tr("New"), self)
+        self.openAction = QAction(self.tr("Open..."), self)
+        self.saveAction = QAction(self.tr("Save"), self)
+        self.saveAsAction = QAction(self.tr('Save as...'), self)
+        fileMenu.addAction(self.newAction)
+        fileMenu.addAction(self.openAction)
+        fileMenu.addAction(self.saveAction)
+        fileMenu.addAction(self.saveAsAction)
+        editMenu = self.lrcEditMenu.addMenu(self.tr("Edit"))
+        self.insertAction = QAction(self.tr("Insert a tag"), self)
+        self.removeTagssAction = QAction(self.tr("Remove all tags in current line"), self)
+        self.removeAllTagsAction = QAction(self.tr("Remove all tags"), self)
+        editMenu.addAction(self.insertAction)
+        editMenu.addAction(self.removeTagssAction)
+        editMenu.addAction(self.removeAllTagsAction)
+        toolMenu = self.lrcEditMenu.addMenu(self.tr("Tool"))
+
+    def initToolBar(self):
+        self.toolBar = QToolBar(self)
+        self.toolBar.addAction(self.insertAction)
+        self.toolBar.addAction(self.removeTagssAction)
+
+    def insertAction_(self):
+        m, ts = divmod(self.parent.parent.musicEngine.getPosition(), 60000)
+        m = str(m).zfill(2)
+        s = str(ts).zfill(5)[:2]
+        ms = str(ts).zfill(5)[-3:]
+        tag = f"[{m}:{s}.{ms}]"
+        self.editLrc.textCursor().insertText(tag)
+        self.editLrc.moveCursor(QTextCursor.MoveOperation.StartOfLine)
+        self.editLrc.moveCursor(QTextCursor.MoveOperation.Down)
+
+
+
 
 
 class albumCoverDock(QDockWidget):
