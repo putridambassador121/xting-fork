@@ -3,7 +3,7 @@
 # filename: dockWidgets.py
 
 
-import os, sys
+import os, sys, re
 from track import track
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
@@ -126,12 +126,13 @@ class lrcEditorWidget(QWidget):
 
         layout = QVBoxLayout(None)
 
+        self.editLrc = QPlainTextEdit(self)
+        self.editLrc.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
+
+        self.lrcFile = None
+
         self.initMenu()
         self.initToolBar()
-
-
-        self.editLrc = QTextEdit(self)
-        self.editLrc.setAcceptRichText(False)
 
         layout.addWidget(self.lrcEditMenu)
         layout.addWidget(self.toolBar)
@@ -139,7 +140,28 @@ class lrcEditorWidget(QWidget):
 
         self.setLayout(layout)
 
+        self.newAction.triggered.connect(self.newAction_)
+        self.openAction.triggered.connect(self.openAction_)
+        self.saveAction.triggered.connect(self.saveAction_)
+        self.saveAsAction.triggered.connect(self.saveAsAction_)
+
+        self.editLrc.undoAvailable.connect(self.undoAction.setEnabled)
+        self.editLrc.redoAvailable.connect(self.redoAction.setEnabled)
+        self.editLrc.copyAvailable.connect(self.cutAction.setEnabled)
+        self.editLrc.copyAvailable.connect(self.copyAction.setEnabled)
+
+        self.undoAction.triggered.connect(self.editLrc.undo)
+        self.redoAction.triggered.connect(self.editLrc.redo)
+        self.cutAction.triggered.connect(self.editLrc.cut)
+        self.copyAction.triggered.connect(self.editLrc.copy)
+        self.pasteAction.triggered.connect(self.editLrc.paste)
+        self.clearAction.triggered.connect(self.editLrc.clear)
+
         self.insertAction.triggered.connect(self.insertAction_)
+        self.removeTagsAction.triggered.connect(self.removeTagsAction_)
+        self.removeAllTagsAction.triggered.connect(self.removeAllTagsAction_)
+        self.removeAllBlankLinesAction.triggered.connect(self.removeAllBlankLinesAction_)
+        self.removeWhiteSpaceAction.triggered.connect(self.removeWhiteSpaceAction_)
 
     def initMenu(self):
         self.lrcEditMenu = QMenuBar(self)
@@ -153,18 +175,67 @@ class lrcEditorWidget(QWidget):
         fileMenu.addAction(self.saveAction)
         fileMenu.addAction(self.saveAsAction)
         editMenu = self.lrcEditMenu.addMenu(self.tr("Edit"))
-        self.insertAction = QAction(self.tr("Insert a tag"), self)
-        self.removeTagssAction = QAction(self.tr("Remove all tags in current line"), self)
-        self.removeAllTagsAction = QAction(self.tr("Remove all tags"), self)
-        editMenu.addAction(self.insertAction)
-        editMenu.addAction(self.removeTagssAction)
-        editMenu.addAction(self.removeAllTagsAction)
+        self.undoAction = QAction(self.tr("Undo"), self)
+        self.undoAction.setEnabled(False)
+        self.redoAction = QAction(self.tr("Redo"), self)
+        self.redoAction.setEnabled(False)
+        self.cutAction = QAction(self.tr("Cut"), self)
+        self.cutAction.setEnabled(False)
+        self.copyAction = QAction(self.tr("Copy"), self)
+        self.copyAction.setEnabled(False)
+        self.pasteAction = QAction(self.tr("Paste"), self)
+        self.pasteAction.setEnabled(self.editLrc.canPaste())
+        self.clearAction = QAction(self.tr("Clear"), self)
+        editMenu.addAction(self.undoAction)
+        editMenu.addAction(self.redoAction)
+        editMenu.addSeparator()
+        editMenu.addAction(self.cutAction)
+        editMenu.addAction(self.copyAction)
+        editMenu.addAction(self.pasteAction)
+        editMenu.addSeparator()
+        editMenu.addAction(self.clearAction)
+
         toolMenu = self.lrcEditMenu.addMenu(self.tr("Tool"))
+        self.insertAction = QAction(self.tr("Insert a tag"), self)
+        self.removeTagsAction = QAction(self.tr("Remove all tags in current line"), self)
+        self.removeAllTagsAction = QAction(self.tr("Remove all tags"), self)
+        self.removeAllBlankLinesAction = QAction(self.tr("Remove blank lines"), self)
+        self.removeWhiteSpaceAction = QAction(self.tr("Remove whitespace character at start/end of lines"), self)
+        toolMenu.addAction(self.insertAction)
+        toolMenu.addAction(self.removeTagsAction)
+        toolMenu.addAction(self.removeAllTagsAction)
+        toolMenu.addAction(self.removeAllBlankLinesAction)
+        toolMenu.addAction(self.removeWhiteSpaceAction)
 
     def initToolBar(self):
         self.toolBar = QToolBar(self)
         self.toolBar.addAction(self.insertAction)
-        self.toolBar.addAction(self.removeTagssAction)
+        self.toolBar.addAction(self.removeTagsAction)
+
+    def newAction_(self):
+        self.editLrc.clear()
+        self.editLrc.setPlainText("[ti:]\n[ar:]\n[al:]\n[by:]\n[offset: 0]\n\n")
+
+    def openAction_(self):
+        url, fil = QFileDialog.getOpenFileUrl(None, self.tr("choose a music file"), QUrl.fromLocalFile(self.parent.parent.parameter.lrcLocalPath), "lrc files (*.lrc)")
+        if not url.isEmpty():
+            with open(url.toLocalFile(), "r") as f:
+                text = f.read()
+            self.editLrc.setPlainText(text)
+            self.lrcFile = url.toLocalFile()
+
+    def saveAction_(self):
+        if self.lrcFile:
+            with open(self.lrcFile, "w") as f:
+                f.write(self.editLrc.toPlainText())
+        else:
+            self.saveAsAction_()
+
+    def saveAsAction_(self):
+        f, r = QFileDialog.getSaveFileName(self, self.tr("Save as"), self.parent.parent.parameter.lrcLocalPath, "lrc files (*.lrc)")
+        if f:
+            self.lrcFile = f
+            self.saveAction_()
 
     def insertAction_(self):
         m, ts = divmod(self.parent.parent.musicEngine.getPosition(), 60000)
@@ -172,10 +243,39 @@ class lrcEditorWidget(QWidget):
         s = str(ts).zfill(5)[:2]
         ms = str(ts).zfill(5)[-3:]
         tag = f"[{m}:{s}.{ms}]"
+        self.editLrc.moveCursor(QTextCursor.MoveOperation.StartOfLine)
         self.editLrc.textCursor().insertText(tag)
         self.editLrc.moveCursor(QTextCursor.MoveOperation.StartOfLine)
         self.editLrc.moveCursor(QTextCursor.MoveOperation.Down)
 
+    def removeTagsAction_(self):
+        self.editLrc.moveCursor(QTextCursor.MoveOperation.StartOfLine)
+        self.editLrc.moveCursor(QTextCursor.MoveOperation.EndOfLine, QTextCursor.MoveMode.KeepAnchor)
+        cursor = self.editLrc.textCursor()
+        text = cursor.selectedText()
+        newText = re.sub(r'\[\d\d:\d\d.*?\]', "", text)
+        self.editLrc.cut()
+        self.editLrc.insertPlainText(newText)
+
+    def removeAllTagsAction_(self):
+        text = self.editLrc.toPlainText()
+        self.editLrc.clear()
+        newText = re.sub(r'\[\d\d:\d\d.*?\]', "", text)
+        self.editLrc.setPlainText(newText)
+
+    def removeAllBlankLinesAction_(self):
+        lines = self.editLrc.toPlainText().split("\n")
+        self.editLrc.clear()
+        newLines = list(filter(lambda x: x != "", lines))
+        text = "\n".join(newLines)
+        self.editLrc.setPlainText(text)
+
+    def removeWhiteSpaceAction_(self):
+        lines = self.editLrc.toPlainText().split("\n")
+        self.editLrc.clear()
+        newLines = list(map(lambda x: x.strip(), lines))
+        text = "\n".join(newLines)
+        self.editLrc.setPlainText(text)
 
 
 
