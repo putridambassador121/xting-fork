@@ -19,8 +19,6 @@ class lrcParser:
             l = "online"
         self.syncedLyrics = syncedLyrics(l)
 
-
-
     def parse(self):
         if not self.isFile:
             lineList = self.lrcfile.split("\n")
@@ -29,6 +27,7 @@ class lrcParser:
                 lineList = f.readlines()
         lineList = list(map(lambda x: x.strip().replace("<br />", ""), lineList))
         self.syncedLyrics.lrcWithTag = "\n".join(lineList)
+        print(self.syncedLyrics.lrcWithTag)
 
         offset = 0
         for y in lineList:
@@ -64,7 +63,6 @@ class lrcParser:
         readyLine = [[0, "", lyrics[0][0]]]
         self.syncedLyrics.scheduledLrc = readyLine + lyrics  # [[tag1, lyrics1, duration1], [tag2, lyrics2, duration2], .......]
         self.syncedLyrics.lrcWithoutTag = plain
-
         return self.syncedLyrics
 
 

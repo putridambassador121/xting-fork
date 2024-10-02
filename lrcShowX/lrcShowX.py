@@ -319,21 +319,27 @@ class lrcShowX(QTextBrowser):
             pass
         else:
             duration = duration - self.offsetOneShort
-        if duration < 0:
-            pass
-        else:
-            if duration < 700:
-                self.verticalScrollBar().setValue(self.currentTag * self.margin)
-            else:
-                self.animateStartTag = self.currentTag
-                self.animate()
-            self.timer.start(duration)
 
-            if self.offsetOneShort != 0:
-                self.totalOffset += self.offsetOneShort
-                self.offsetOneShort = 0
+
+
+        if 0 < duration < 700:
+            self.verticalScrollBar().setValue(self.currentTag * self.margin)
+            self.timer.start(duration)
+        elif duration >= 700:
+            self.animateStartTag = self.currentTag
+            self.animate()
+            self.timer.start(duration)
+        else:
+            self.animateStartTag = self.currentTag
+            self.animate()
+
+
+        if self.offsetOneShort != 0:
+            self.totalOffset += self.offsetOneShort
+            self.offsetOneShort = 0
+        if duration > 0:
             self.currentTag += 1
-            self.highLightCurrentLine()
+        self.highLightCurrentLine()
 
     def animate(self):
         dis = int(self.margin / 5)
