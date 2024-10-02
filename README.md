@@ -22,6 +22,6 @@
 * [] finish play list function
 * [] finish shortcuts function
 * [] add shortcuts config page
-* [] finish lrc edit function
+* [x] finish lrc edit function
 * [] icons
 * [] edit track tags
