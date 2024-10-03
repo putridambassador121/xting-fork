@@ -48,9 +48,39 @@ class resultDisplay(QDialog):
         self.currentRow = row
         self.accept()
 
+
+
+class multiLocalLrc(QDialog):
+
+    def __init__(self, parent):
+        super().__init__()
+        self.rstl = QListWidget(self)
+        self.rstl.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.rstl.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.rstl.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+
+        buttonBox = QDialogButtonBox(self)
+        cancelButton = QPushButton(self.tr("Cancel"))
+        okButton = QPushButton(self.tr("OK"))
+        buttonBox.addButton(cancelButton, QDialogButtonBox.ButtonRole.RejectRole)
+        buttonBox.addButton(okButton, QDialogButtonBox.ButtonRole.AcceptRole)
+
+        mainLayout = QVBoxLayout(None)
+        mainLayout.addWidget(self.rstl)
+        mainLayout.addWidget(buttonBox)
+        self.setLayout(mainLayout)
+
+
+        buttonBox.accepted.connect(self.accept)
+        buttonBox.rejected.connect(self.reject)
+        self.rstl.itemDoubleClicked.connect(self.accept)
+
+
+
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    w = resultDisplay(None)
+    w = multiLocalLrc(None)
     w.show()
 
     sys.exit(app.exec())

@@ -10,7 +10,7 @@ from lrcShowX.lrcParser import lrcParser
 
 from lrcShowX.lrclib import LrcLibAPI
 from lrcShowX.lrclibThread import lrclibSearchThread, lrclibGetThread
-from lrcShowX.resultDisplay import resultDisplay
+from lrcShowX.resultDialog import resultDisplay, multiLocalLrc
 from lrcShowX.tsTool import tsTool
 
 
@@ -101,52 +101,56 @@ class lrcShowX(QTextBrowser):
                 self.scrolLToCurrent()
             else:
                 self.showInfo("Searching lrc...")
-                fi = self.searchLocal()
-                if fi:
-                    p = lrcParser(fi, True)
-                    self.lrcInstance = p.parse()
-                    self.showLrc()
-                    self.forwardAction.setEnabled(True)
-                    self.backwardAction.setEnabled(True)
-                    self.copyPlainAction.setEnabled(True)
-                    self.copyLrcAction.setEnabled(True)
-                    self.closeLrcAction.setEnabled(True)
-                    self.reloadAction.setEnabled(True)
-                    self.saveTheLrcAction.setEnabled(False)
-                    self.t2sAction.setEnabled(True)
-                    self.s2tAction.setEnabled(True)
-                    self.saveAfterTransferAction.setEnabled(False)
+                fil = self.searchLocal()
 
-                    self.locateCurrentTag()
-                    self.scrolLToCurrent()
-                else:
+                if not fil:
                     self.searchLrclib()
+                    return
 
-                    # ll = self.searchOnline()
-                    # if ll:
-                    #     p = lrcParser(ll, False)
-                    #     self.lrcInstance = p.parse()
-                    #     self.showLrc()
-                    #     self.locateCurrentTag()
-                    #     self.scrolLToCurrent()
-                    #     if self.autoSaveLrc:
-                    #         with open(os.path.join(self.lrcLocalPath, f"{self.parent.parent.currentTrack.trackTitle} - {self.parent.parent.currentTrack.trackArtist}.lrc"), "w") as ff:
-                    #             ff.write(ll)
-                    # else:
-                    #     self.lrcInstance = None
-                    #     self.currentTag = None
-                    #     self.forwardAction.setEnabled(True)
-                    #     self.backwardAction.setEnabled(True)
-                    #     self.copyPlainAction.setEnabled(False)
-                    #     self.copyLrcAction.setEnabled(False)
-                    #     self.closeLrcAction.setEnabled(True)
-                    #     self.reloadAction.setEnabled(False)
-                    #     self.saveTheLrcAction.setEnabled(False)
-                    #     self.t2sAction.setEnabled(False)
-                    #     self.s2tAction.setEnabled(False)
-                    #     self.saveAfterTransferAction.setEnabled(False)
+                if len(fil) > 1:
+                    multiResult = multiLocalLrc(self)
+                    for kk in fil:
+                        multiResult.rstl.addItem(kk)
+                    r = multiResult.exec()
+                    if r == 1:
+                        fi = multiResult.rstl.currentItem().text()
+                    else:
+                        self.lrcInstance = None
+                        self.currentTag = None
+                        self.offsetOneShort = 0
+                        self.totalOffset = 0
+                        self.forwardAction.setEnabled(False)
+                        self.backwardAction.setEnabled(False)
+                        self.saveTheOffsetAction.setEnabled(False)
+                        self.copyPlainAction.setEnabled(False)
+                        self.copyLrcAction.setEnabled(False)
+                        self.closeLrcAction.setEnabled(False)
+                        self.reloadAction.setEnabled(True)
+                        self.saveTheLrcAction.setEnabled(False)
+                        self.t2sAction.setEnabled(False)
+                        self.s2tAction.setEnabled(False)
+                        self.saveAfterTransferAction.setEnabled(False)
+                        self.showInfo("Cancel getting lrc by user")
+                        return
+                else:
+                    fi = fil[0]
 
-                    #     self.showInfo("No lrc found")
+                p = lrcParser(fi, True)
+                self.lrcInstance = p.parse()
+                self.showLrc()
+                self.forwardAction.setEnabled(True)
+                self.backwardAction.setEnabled(True)
+                self.copyPlainAction.setEnabled(True)
+                self.copyLrcAction.setEnabled(True)
+                self.closeLrcAction.setEnabled(True)
+                self.reloadAction.setEnabled(True)
+                self.saveTheLrcAction.setEnabled(False)
+                self.t2sAction.setEnabled(True)
+                self.s2tAction.setEnabled(True)
+                self.saveAfterTransferAction.setEnabled(False)
+                self.locateCurrentTag()
+                self.scrolLToCurrent()
+
 
         else:  # paused state
             if self.timer.isActive():
@@ -273,10 +277,14 @@ class lrcShowX(QTextBrowser):
         if (not title) and (not artist):
             return False
 
+        resultList = []
         for i in glob.glob(os.path.join(self.lrcLocalPath, "*.lrc")):
             if title in i.lower() and artist in i.lower():
-                return i
-        return False
+                resultList.append(i)
+        if resultList:
+            return resultList
+        else:
+            return False
 
 
     def trackPositionChanged(self):
@@ -575,4 +583,6 @@ class lrcShowX(QTextBrowser):
 
     def wheelEvent(self, e):
         e.ignore()
+
+
 

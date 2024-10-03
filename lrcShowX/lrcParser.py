@@ -27,7 +27,6 @@ class lrcParser:
                 lineList = f.readlines()
         lineList = list(map(lambda x: x.strip().replace("<br />", ""), lineList))
         self.syncedLyrics.lrcWithTag = "\n".join(lineList)
-        print(self.syncedLyrics.lrcWithTag)
 
         offset = 0
         for y in lineList:
