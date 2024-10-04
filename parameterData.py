@@ -23,6 +23,8 @@ class parameterData:
         self.loop = self.iniFile.value("/player/loop", "playlist")
         self.sequence = self.iniFile.value("/player/sequence", "order")
 
+        self.currentPlaylistName = self.iniFile.value("/playlist/currentplaylistname", "")
+
         self.windowState = self.iniFile.value("/session/windowstate/", "")
         self.windowGeometry = self.iniFile.value("/session/windowgeometry", "")
         self.lrcShowxDockGeometry = self.iniFile.value("/session/lrcshowxdockgeometry", "")
@@ -51,6 +53,8 @@ class parameterData:
         self.iniFile.setValue("player/closenotquit", self.closeNotQuit)
         self.iniFile.setValue("player/loop", self.loop)
         self.iniFile.setValue("player/sequence", self.sequence)
+
+        self.iniFile.setValue("playlist/currentplaylistname", self.currentPlaylistName)
 
         self.iniFile.setValue("/session/windowstate", self.windowState)
         self.iniFile.setValue("/session/windowgeometry", self.windowGeometry)

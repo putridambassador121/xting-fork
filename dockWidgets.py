@@ -24,80 +24,6 @@ class lrcShowxDock(QDockWidget):
         self.setFloating(False)
 
 
-class playlistDock(QDockWidget):
-
-    def __init__(self, title, parent = None):
-        super().__init__(title)
-        self.parent = parent
-        self.playlistWidget = playlistWidget(self)
-        self.setWidget(self.playlistWidget)
-        self.setFloating(False)
-
-
-class playlistWidget(QWidget):
-    def __init__(self, parent):
-        super().__init__()
-        self.parent = parent
-
-        searchLayout = QHBoxLayout(None)
-        self.searchLabel = QLabel(self.tr("Search:"))
-        self.searchLine = QLineEdit(self)
-        self.searchLine.setClearButtonEnabled(True)
-
-        self.searchLine.textChanged.connect(self.filtItems)
-
-        searchLayout.addWidget(self.searchLabel)
-        searchLayout.addWidget(self.searchLine)
-
-        self.playlistTable = QTableWidget(0, 9)
-        self.playlistTable.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-        self.playlistTable.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
-        #self.playlistTable.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
-        header = [self.tr("Title"), self.tr("Artist"), self.tr("Length"), self.tr("Album"), self.tr("Type"), self.tr("Date"), self.tr("Bit rate"), self.tr("Sample rate"), self.tr("File")]
-        self.playlistTable.setHorizontalHeaderLabels(header)
-
-
-        mainLayout = QVBoxLayout(None)
-        mainLayout.addLayout(searchLayout)
-        mainLayout.addWidget(self.playlistTable)
-        self.setLayout(mainLayout)
-
-    def filtItems(self, t):
-        if t == "":
-            self.loadItems(self.parent.parent.collectionListTmp)
-        else:
-            l = self.playlistTable.findItems(t, Qt.MatchFlag.MatchContains)
-            rowList = list(set((map(lambda x: x.row(), l))))
-            tl = []
-            for i in rowList:
-                tl.append(self.parent.parent.collectionListTmp[i])
-            self.loadItems(tl)
-
-    def loadItems(self, trackList, itemsFrom = "collection"):
-        self.playlistTable.setRowCount(len(trackList))
-        row = 0
-        for i in trackList:
-            au = track(i.strip())
-            self.playlistTable.setItem(row, 0, QTableWidgetItem(au.trackTitle))
-            self.playlistTable.setItem(row, 1, QTableWidgetItem(au.trackArtist))
-            self.playlistTable.setItem(row, 2, QTableWidgetItem(self.formatTrackLength(au.trackLength)))
-            self.playlistTable.setItem(row, 3, QTableWidgetItem(au.trackAlbum))
-            self.playlistTable.setItem(row, 4, QTableWidgetItem(au.trackType))
-            self.playlistTable.setItem(row, 5, QTableWidgetItem(au.trackDate))
-            self.playlistTable.setItem(row, 6, QTableWidgetItem(str(au.trackBitrate)))
-            self.playlistTable.setItem(row, 7, QTableWidgetItem(str(au.trackSamplerate)))
-            self.playlistTable.setItem(row, 8, QTableWidgetItem(au.trackFile))
-            row += 1
-
-    def formatTrackLength(self, t):
-        m, s = divmod(t, 60)
-        if s < 10:
-            return f"{m}:0{s}"
-        else:
-            return f"{m}:{s}"
-
-
-
 class lrcEditorDock(QDockWidget):
 
     def __init__(self, title, parent = None):
@@ -325,6 +251,110 @@ class albumCoverWidget(QLabel):
 
 
 
+class playlistDock(QDockWidget):
+
+    def __init__(self, title, parent = None):
+        super().__init__(title)
+        self.parent = parent
+        self.playlistWidget = playlistWidget(self)
+        self.setWidget(self.playlistWidget)
+        self.setFloating(False)
+
+
+class playlistWidget(QWidget):
+    def __init__(self, parent):
+        super().__init__()
+        self.parent = parent
+
+        searchLayout = QHBoxLayout(None)
+        self.searchLabel = QLabel(self.tr("Search:"))
+        self.searchLine = QLineEdit(self)
+        self.searchLine.setClearButtonEnabled(True)
+
+        self.searchLine.textChanged.connect(self.filtItems)
+
+        searchLayout.addWidget(self.searchLabel)
+        searchLayout.addWidget(self.searchLine)
+
+        self.playlistTable = QTableView(self)
+        self.playlistTable.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.playlistTable.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        #self.playlistTable.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.headers = [self.tr("Title"), self.tr("Artist"), self.tr("Length"), self.tr("Album"), self.tr("Type"), self.tr("Date"), self.tr("Bit rate"), self.tr("Sample rate"), self.tr("File")]
+
+        self.model = QStandardItemModel(0, 8)  # 0 rows, 1 column
+
+        self.model.setHorizontalHeaderLabels(self.headers)
+        self.playlistTable.setModel(self.model)
+
+
+        mainLayout = QVBoxLayout(None)
+        mainLayout.addLayout(searchLayout)
+        mainLayout.addWidget(self.playlistTable)
+        self.setLayout(mainLayout)
+
+    def filtItems(self, t):
+        if t == "":
+            self.loadItems(self.parent.parent.collectionListTmp)
+        else:
+            l = self.playlistTable.findItems(t, Qt.MatchFlag.MatchContains)
+            rowList = list(set((map(lambda x: x.row(), l))))
+            tl = []
+            for i in rowList:
+                tl.append(self.parent.parent.collectionListTmp[i])
+            self.loadItems(tl)
+
+    def loadItems(self, trackList):
+        row = 0
+        model = QStandardItemModel(len(trackList), 8)
+        for i in trackList:
+            au = track(i.strip())
+            self.model.setItem(row, 0, QStandardItem(au.trackTitle))
+            self.model.setItem(row, 1, QStandardItem(au.trackArtist))
+            self.model.setItem(row, 2, QStandardItem(self.formatTrackLength(au.trackLength)))
+            self.model.setItem(row, 3, QStandardItem(au.trackAlbum))
+            self.model.setItem(row, 4, QStandardItem(au.trackType))
+            self.model.setItem(row, 5, QStandardItem(au.trackDate))
+            self.model.setItem(row, 6, QStandardItem(str(au.trackBitrate)))
+            self.model.setItem(row, 7, QStandardItem(str(au.trackFile)))
+            self.model.setItem(row, 8, QStandardItem(au.trackFile))
+            row += 1
+        self.playlistTable.setModel(self.model)
+
+    def getCurrentPlaylist(self):
+        l = []
+        for i in range(0, self.model.rowCount()):
+            l.append(self.model.item(i, 8).text())
+        return l
+
+
+
+
+
+
+
+
+
+
+            # self.playlistTable.setItem(row, 0, QTableWidgetItem(au.trackTitle))
+            # self.playlistTable.setItem(row, 1, QTableWidgetItem(au.trackArtist))
+            # self.playlistTable.setItem(row, 2, QTableWidgetItem(self.formatTrackLength(au.trackLength)))
+            # self.playlistTable.setItem(row, 3, QTableWidgetItem(au.trackAlbum))
+            # self.playlistTable.setItem(row, 4, QTableWidgetItem(au.trackType))
+            # self.playlistTable.setItem(row, 5, QTableWidgetItem(au.trackDate))
+            # self.playlistTable.setItem(row, 6, QTableWidgetItem(str(au.trackBitrate)))
+            # self.playlistTable.setItem(row, 7, QTableWidgetItem(str(au.trackSamplerate)))
+            # self.playlistTable.setItem(row, 8, QTableWidgetItem(au.trackFile))
+            # row += 1
+
+    def formatTrackLength(self, t):
+        m, s = divmod(t, 60)
+        if s < 10:
+            return f"{m}:0{s}"
+        else:
+            return f"{m}:{s}"
+#########################################################################################
+
 
 class collectionDock(QDockWidget):
 
@@ -344,15 +374,15 @@ class collectionWidget(QWidget):
 
         di = QDir("/home/frank/Music/", "Media files (*.mp3 *.flac)")
         layout = QVBoxLayout(None)
-        self.kii = QPushButton("Scan collection", self)
         self.model = QFileSystemModel()
         self.model.setNameFilters(["*.mp3", "*.flac"])
         self.model.setNameFilterDisables(False)
         self.model.setRootPath(di.path())
-        self.collectionView = QListView(self)
+
+        self.collectionView = collectionView(self)
+
         self.collectionView.setModel(self.model)
         self.collectionView.setRootIndex(self.model.index(di.path()))
-        layout.addWidget(self.kii)
         layout.addWidget(self.collectionView)
         self.setLayout(layout)
 
@@ -360,6 +390,34 @@ class collectionWidget(QWidget):
 
 
 
+class collectionView(QListView):
+
+    def __init__(self, parent = None):
+        super().__init__()
+        self.parent = parent
+        #self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
+
+        self.initContextMenu()
+
+        self.addToPlaylistAction.triggered.connect(self.addToPlaylistAction_)
+
+    def initContextMenu(self):
+        self.contextMenu = QMenu(self)
+        self.addToPlaylistAction = QAction(self.tr("add to playlist"), self)
+        self.contextMenu.addAction(self.addToPlaylistAction)
+
+
+    def contextMenuEvent(self, ev):
+        self.contextMenu.popup(self.mapToGlobal(ev.pos()))
+
+    def addToPlaylistAction_(self):
+        root = self.model().rootPath()
+        mediaList = []
+        for i in self.selectedIndexes():
+            mediaList.append(os.path.join(root, i.data()))
+        self.parent.parent.parent.addToPlaylist(mediaList)
 
 
 
