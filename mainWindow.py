@@ -114,7 +114,7 @@ class mainWindow(windowUI):
         except:
             pass
         try:
-            self.playlistDock.playlistWidget.allTable.horizontalHeader().restoreState(self.parameter.playlistDockAllTableState)
+            self.playlistDock.playlistWidget.playlistTable.horizontalHeader().restoreState(self.parameter.playlistDockPlaylistTableState)
         except:
             pass
         try:
@@ -130,7 +130,7 @@ class mainWindow(windowUI):
 
         self.systemTray.activated.connect(self.showorhideTray_)
 
-        self.playlistDock.playlistWidget.allTable.cellDoubleClicked.connect(self.playorpauseByDoubleClick_)
+        self.playlistDock.playlistWidget.playlistTable.cellDoubleClicked.connect(self.playorpauseByDoubleClick_)
 
         self.musicEngine.musicEquipment.playbackStateChanged.connect(self.playbackStateChanged_)
 
@@ -202,22 +202,22 @@ class mainWindow(windowUI):
             self.showTrayInformation(2)
 
     def scheduleNextTrack(self, callby = "auto"): # previous, playorpause, repeat or auto
-        if self.playlistDock.playlistWidget.allTable.rowCount() == 0:
+        if self.playlistDock.playlistWidget.playlistTable.rowCount() == 0:
             return
         if callby == "playorpause":
             if self.musicEngine.musicEquipment.playbackState().value == 0:
                 if self.sequenceRandomAction.isChecked():
-                    tr = self.playlistDock.playlistWidget.allTable.rowCount()
+                    tr = self.playlistDock.playlistWidget.playlistTable.rowCount()
                     self.currentNo = random.randint(0, tr - 1)
                 else:
-                    if len(self.playlistDock.playlistWidget.allTable.selectedItems()) == 0:
+                    if len(self.playlistDock.playlistWidget.playlistTable.selectedItems()) == 0:
                         self.currentNo = 0
                     else:
-                        self.currentNo = self.playlistDock.playlistWidget.allTable.currentRow()
-                url = self.playlistDock.playlistWidget.allTable.item(self.currentNo, 8).text()
+                        self.currentNo = self.playlistDock.playlistWidget.playlistTable.currentRow()
+                url = self.playlistDock.playlistWidget.playlistTable.item(self.currentNo, 8).text()
                 self.musicEngine.add(url)
                 self.currentTrack = track(url)
-                self.playlistDock.playlistWidget.allTable.selectRow(self.currentNo)
+                self.playlistDock.playlistWidget.playlistTable.selectRow(self.currentNo)
             self.actualPlayOrPause()
 
         elif callby == "previous":
@@ -229,33 +229,33 @@ class mainWindow(windowUI):
             self.currentNo = self.getNumberFromFile(pf)
             self.musicEngine.add(pf)
             self.currentTrack = track(pf)
-            self.playlistDock.playlistWidget.allTable.selectRow(self.currentNo)
+            self.playlistDock.playlistWidget.playlistTable.selectRow(self.currentNo)
             self.actualPlayOrPause()
 
         elif callby == "repeat":
-            self.playlistDock.playlistWidget.allTable.selectRow(self.currentNo)
+            self.playlistDock.playlistWidget.playlistTable.selectRow(self.currentNo)
             self.actualPlayOrPause()
 
         else:
             if self.loopTrackAction.isChecked():
-                self.playlistDock.playlistWidget.allTable.selectRow(self.currentNo)
+                self.playlistDock.playlistWidget.playlistTable.selectRow(self.currentNo)
                 self.actualPlayOrPause()
             elif self.loopPlaylistAction.isChecked():
                 if self.sequenceRandomAction.isChecked():
-                    tr = self.playlistDock.playlistWidget.allTable.rowCount()
+                    tr = self.playlistDock.playlistWidget.playlistTable.rowCount()
                     self.currentNo = random.randint(0, tr - 1)
-                    url = self.playlistDock.playlistWidget.allTable.item(self.currentNo, 8).text()
+                    url = self.playlistDock.playlistWidget.playlistTable.item(self.currentNo, 8).text()
                     self.musicEngine.add(url)
                     self.currentTrack = track(url)
-                    self.playlistDock.playlistWidget.allTable.selectRow(self.currentNo)
+                    self.playlistDock.playlistWidget.playlistTable.selectRow(self.currentNo)
                     self.actualPlayOrPause()
                 elif self.sequenceOrderAction.isChecked():
-                    if self.currentNo + 1 < self.playlistDock.playlistWidget.allTable.rowCount():
+                    if self.currentNo + 1 < self.playlistDock.playlistWidget.playlistTable.rowCount():
                         self.currentNo += 1
-                        url = self.playlistDock.playlistWidget.allTable.item(self.currentNo, 8).text()
+                        url = self.playlistDock.playlistWidget.playlistTable.item(self.currentNo, 8).text()
                         self.musicEngine.add(url)
                         self.currentTrack = track(url)
-                        self.playlistDock.playlistWidget.allTable.selectRow(self.currentNo)
+                        self.playlistDock.playlistWidget.playlistTable.selectRow(self.currentNo)
                         self.actualPlayOrPause()
                     else:
                         self.stop_()
@@ -263,10 +263,10 @@ class mainWindow(windowUI):
                 elif self.sequenceReverseOrderAction.isChecked():
                     if self.currentNo - 1 >= 0:
                         self.currentNo -= 1
-                        url = self.playlistDock.playlistWidget.allTable.item(self.currentNo, 8).text()
+                        url = self.playlistDock.playlistWidget.playlistTable.item(self.currentNo, 8).text()
                         self.musicEngine.add(url)
                         self.currentTrack = track(url)
-                        self.playlistDock.playlistWidget.allTable.selectRow(self.currentNo)
+                        self.playlistDock.playlistWidget.playlistTable.selectRow(self.currentNo)
                         self.actualPlayOrPause()
                     else:
                         self.stop_()
@@ -288,18 +288,18 @@ class mainWindow(windowUI):
 
             # self.currentNo = self.getNumberFromFile(self.currentTrack.trackFile)
             # if self.currentNo != -1:
-            #     self.playlistDock.playlistWidget.allTable.selectRow(self.currentNo)
+            #     self.playlistDock.playlistWidget.playlistTable.selectRow(self.currentNo)
             self.actualPlayOrPause()
 
     def getNumberFromFile(self, f):
-        for i in range(0, self.playlistDock.playlistWidget.allTable.rowCount()):
-            if f == self.playlistDock.playlistWidget.allTable.item(i, 8).text():
+        for i in range(0, self.playlistDock.playlistWidget.playlistTable.rowCount()):
+            if f == self.playlistDock.playlistWidget.playlistTable.item(i, 8).text():
                 break
         return i
 
     def playorpauseByDoubleClick_(self, row, col):
         self.schedule = False
-        url = self.playlistDock.playlistWidget.allTable.item(row, 8).text()
+        url = self.playlistDock.playlistWidget.playlistTable.item(row, 8).text()
         self.currentNo = row
         self.musicEngine.add(url)
         self.currentTrack = track(url)
@@ -465,8 +465,7 @@ class mainWindow(windowUI):
         self.parameter.playlistDockGeometry = self.playlistDock.saveGeometry()
         self.parameter.albumCoverDockGeometry = self.albumCoverDock.saveGeometry()
         self.parameter.lrcEditorDockGeometry = self.lrcEditorDock.saveGeometry()
-        self.parameter.playlistDockAllTableState = self.playlistDock.playlistWidget.allTable.horizontalHeader().saveState()
-        self.parameter.playlistDockCustomTableState = self.playlistDock.playlistWidget.customTable.horizontalHeader().saveState()
+        self.parameter.playlistDockPlaylistTableState = self.playlistDock.playlistWidget.playlistTable.horizontalHeader().saveState()
 
 
         self.parameter.save()

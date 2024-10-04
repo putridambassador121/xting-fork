@@ -28,7 +28,7 @@ class parameterData:
         self.lrcShowxDockGeometry = self.iniFile.value("/session/lrcshowxdockgeometry", "")
         self.playlistDockGeometry = self.iniFile.value("/session/playlistdockgeometry", "")
         self.albumCoverDockGeometry = self.iniFile.value("/session/albumcoverdockgeometry", "")
-        self.playlistDockAllTableState = self.iniFile.value("/session/playlistdockalltablestate", "")
+        self.playlistDockPlaylistTableState = self.iniFile.value("/session/playlistdockplaylisttablestate", "")
         self.playlistDockCustomTableState = self.iniFile.value("/session/playlistdockcustomtablestate", "")
         self.configurationSplitterState = self.iniFile.value("/session/configurationsplitterstate", "")
         self.lrcEditorDockGeometry = self.iniFile.value("/session/lrceditordockgeometry", "")
@@ -57,8 +57,7 @@ class parameterData:
         self.iniFile.setValue("/session/lrcshowxdockgeometry", self.lrcShowxDockGeometry)
         self.iniFile.setValue("/session/playlistdockgeometry", self.playlistDockGeometry)
         self.iniFile.setValue("/session/albumcoverdockgeometry", self.albumCoverDockGeometry)
-        self.iniFile.setValue("/session/playlistdockalltablestate", self.playlistDockAllTableState)
-        self.iniFile.setValue("/session/playlistdockcustomtablestate", self.playlistDockCustomTableState)
+        self.iniFile.setValue("/session/playlistdockplaylisttablestate", self.playlistDockPlaylistTableState)
         self.iniFile.setValue("/session/configurationsplitterstate", self.configurationSplitterState)
         self.iniFile.setValue("/session/lrceditordockgeometry", self.lrcEditorDockGeometry)
 

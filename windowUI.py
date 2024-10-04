@@ -89,6 +89,7 @@ class windowUI(QMainWindow):
         self.viewMenu.addAction(self.lrcEditorDock.toggleViewAction())
         self.viewMenu.addAction(self.playlistDock.toggleViewAction())
         self.viewMenu.addAction(self.albumCoverDock.toggleViewAction())
+        self.viewMenu.addAction(self.collectionDock.toggleViewAction())
 
         self.audioMenu = self.menuBar().addMenu(self.tr("Audio"))
         self.deviceMenu = self.audioMenu.addMenu(self.tr("Device"))
@@ -135,6 +136,7 @@ class windowUI(QMainWindow):
         self.lrcEditorDock = lrcEditorDock(self.tr("Lrc editor"), self)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.lrcEditorDock)
         self.lrcEditorDock.setObjectName("Lrc editor")
+        # self.lrcEditorDock.setVisible(False)
 
         self.playlistDock = playlistDock(self.tr("Playlist"), self)
         self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, self.playlistDock)
@@ -143,6 +145,10 @@ class windowUI(QMainWindow):
         self.albumCoverDock = albumCoverDock(self.tr("Album cover"), self)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.albumCoverDock)
         self.albumCoverDock.setObjectName("Album cover")
+
+        self.collectionDock = collectionDock(self.tr("Collection"), self)
+        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.collectionDock)
+        self.collectionDock.setObjectName("Collection")
 
         self.setCorner(Qt.Corner.TopLeftCorner, Qt.DockWidgetArea.LeftDockWidgetArea)
         self.setCorner(Qt.Corner.TopRightCorner, Qt.DockWidgetArea.RightDockWidgetArea)
