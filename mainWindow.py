@@ -29,15 +29,31 @@ class mainWindow(windowUI):
 
         self.musicEngine = engine()
         self.playHistory = []
-        self.currentTrack = None
-        self.currentNo = -1
-        self.schedule = True
         self.addToPlayHistory = True
+        self.currentTrack = None
+        self.virtualStop = True
+        self.currentIndex = 0
 
         self.initCentralWidget()
         self.initDockwidget()
         self.initMenuBar()
         self.initStatusBar()
+
+        if not self.parameter.currentPlaylistName:
+            path = os.path.join(self.appPrivatePath, "current.txt")
+            if os.path.exists(path):
+                with open(path, "r") as f:
+                    self.playlistTmp = f.readlines()
+                self.addToPlaylist(self.playlistTmp)
+            else:
+                self.playlistTmp = []
+        else:
+            with open(self.parameter.currentPlaylistName, "r") as f:
+                self.playlistTmp = f.readlines()
+            self.addToPlaylist(self.playlistTmp)
+
+
+
 
         self.systemTray = QSystemTrayIcon(QIcon("icon/logo.png"), self)
         self.systemTray.setContextMenu(self.trayContextMenu)
@@ -45,8 +61,10 @@ class mainWindow(windowUI):
 
         if self.parameter.loop == "playlist":
             self.loopPlaylistAction.setChecked(True)
-        else:
+        elif self.parameter.loop == "track":
             self.loopTrackAction.setChecked(True)
+        else:
+            self.noLoopAction.setChecked(True)
 
         if self.parameter.sequence == "order":
             self.sequenceOrderAction.setChecked(True)
@@ -68,17 +86,7 @@ class mainWindow(windowUI):
         self.musicEngine.setVolume(0.8)
         self.centralWidget.volumeSlider.setValue(8)
 
-        if not self.parameter.currentPlaylistName:
-            path = os.path.join(self.appPrivatePath, "current.txt")
-            print(path)
-            if os.path.exists(path):
-                with open(path, "r") as f:
-                    lineList = f.readlines()
-                self.addToPlaylist(lineList)
-        else:
-            with open(self.parameter.currentPlaylistName, "r") as f:
-                lineList = f.readlines()
-            self.addToPlaylist(lineList)
+
 
         self.openFileAction.triggered.connect(self.openFileAction_)
         self.centralWidget.playorpauseButton.clicked.connect(self.playorpause_)
@@ -91,13 +99,38 @@ class mainWindow(windowUI):
         self.nextAction.triggered.connect(self.next_)
         self.repeatAction.triggered.connect(self.repeat_)
         self.centralWidget.repeatButton.clicked.connect(self.repeat_)
-        self.scanAction.triggered.connect(self.scanAction_)
         self.configurationAction.triggered.connect(self.configurationAction_)
 
         for q in self.deviceGroup.actions():
             exec(f"q.triggered.connect(self.changeDevice)")
 
+        self.restoreWidgetState()
 
+
+        self.timer.timeout.connect(self.progressForward)
+
+        self.centralWidget.progressSlider.valueChanged.connect(self.adjustTrackPosition)
+
+        self.centralWidget.volumeSlider.valueChanged.connect(self.volumeSlider_)
+
+        self.systemTray.activated.connect(self.showorhideTray_)
+
+        self.playlistDock.playlistWidget.playlistTable.doubleClicked.connect(self.playorpauseByDoubleClick_)
+
+        self.musicEngine.musicEquipment.playbackStateChanged.connect(self.playbackStateChanged_)
+
+        self.loopTrackAction.toggled.connect(self.changeLoop)
+        self.loopPlaylistAction.toggled.connect(self.changeLoop)
+        self.noLoopAction.toggled.connect(self.changeLoop)
+        self.sequenceOrderAction.toggled.connect(self.changeSequence)
+        self.sequenceReverseOrderAction.toggled.connect(self.changeSequence)
+        self.sequenceRandomAction.toggled.connect(self.changeSequence)
+
+        self.aboutAppAction.triggered.connect(self.aboutAppAction_)
+        self.aboutQtAction.triggered.connect(self.aboutQt_)
+        self.quitAction.triggered.connect(self.quit_)
+
+    def restoreWidgetState(self):
         try:
             self.lrcShowxDock.restoreGeometry(self.parameter.lrcShowxDockGeometry)
         except:
@@ -131,44 +164,152 @@ class mainWindow(windowUI):
         except:
             pass
 
-        self.timer.timeout.connect(self.progressForward)
-
-        self.centralWidget.progressSlider.valueChanged.connect(self.adjustTrackPosition)
-
-        self.centralWidget.volumeSlider.valueChanged.connect(self.volumeSlider_)
-
-        self.systemTray.activated.connect(self.showorhideTray_)
-
-        self.playlistDock.playlistWidget.playlistTable.doubleClicked.connect(self.playorpauseByDoubleClick_)
-
-        self.musicEngine.musicEquipment.playbackStateChanged.connect(self.playbackStateChanged_)
-
-        self.loopTrackAction.toggled.connect(self.changeLoop)
-        self.loopPlaylistAction.toggled.connect(self.changeLoop)
-        self.sequenceOrderAction.toggled.connect(self.changeSequence)
-        self.sequenceReverseOrderAction.toggled.connect(self.changeSequence)
-        self.sequenceRandomAction.toggled.connect(self.changeSequence)
-
-        self.aboutAppAction.triggered.connect(self.aboutAppAction_)
-        self.aboutQtAction.triggered.connect(self.aboutQt_)
-        self.quitAction.triggered.connect(self.quit_)
-
 
     def addToPlaylist(self, fileList):
+        self.playlistTmp = fileList
         self.playlistDock.playlistWidget.loadItems(fileList)
+
+    def setButtonStatus(self, status = None):
+        if len(self.playHistory) !=  0:
+            self.previousAction.setEnabled(True)
+            self.centralWidget.previousButton.setEnabled(True)
+        else:
+            self.previousAction.setEnabled(False)
+            self.centralWidget.previousButton.setEnabled(False)
+
+        if status == 0:
+            self.playorpauseAction.setEnabled(True)
+            self.playorpauseAction.setText(self.tr("Play"))
+            self.centralWidget.playorpauseButton.setEnabled(True)
+            self.centralWidget.playorpauseButton.setText(self.tr("Play"))
+            self.stopAction.setEnabled(False)
+            self.centralWidget.stopButton.setEnabled(False)
+            self.previousAction.setEnabled(False)
+            self.centralWidget.previousButton.setEnabled(False)
+            self.nextAction.setEnabled(False)
+            self.centralWidget.nextButton.setEnabled(False)
+            self.repeatAction.setEnabled(False)
+            self.centralWidget.repeatButton.setEnabled(False)
+            self.centralWidget.progressSlider.setValue(0)
+            self.centralWidget.progressSlider.setEnabled(False)
+            self.centralWidget.lengthLabel.setText("--:--")
+            self.centralWidget.timeLabel.setText("--:--")
+
+        elif status == 1:
+            self.playorpauseAction.setText(self.tr("Pause"))
+            self.centralWidget.playorpauseButton.setText(self.tr("Pause"))
+            self.playorpauseAction.setEnabled(True)
+            self.centralWidget.playorpauseButton.setEnabled(True)
+            self.stopAction.setEnabled(True)
+            self.centralWidget.stopButton.setEnabled(True)
+            self.centralWidget.nextButton.setEnabled(True)
+            self.nextAction.setEnabled(True)
+            self.centralWidget.repeatButton.setEnabled(True)
+            self.repeatAction.setEnabled(True)
+
+        elif status == 2:
+            self.playorpauseAction.setText(self.tr("Play"))
+            self.centralWidget.playorpauseButton.setText(self.tr("Play"))
+
+    def addHistoryAction(self):
+        if self.addToPlayHistory:
+            try:
+                a = self.playHistory[-1]
+            except:
+                self.playHistory.append(self.currentTrack.trackFile)
+            else:
+                if a != self.currentTrack.trackFile:
+                    self.playHistory.append(self.currentTrack.trackFile)
 
 
     def playbackStateChanged_(self, status):
 
+
+
         if status.value == 0: # stoped status
-            pass
+
+            self.addHistoryAction()
+
+            self.timer.stop()
+            if self.virtualStop:   # True: handle track to track automatically, feel like playing by playing without stop, it's default'
+                self.scheduleNextTrack()
+            else:                  # False: handle real stop, happens end of playlist, user click stop button etc
+                self.actualStop()
         elif status.value == 1: # playing status
-            pass
+            self.setButtonStatus(1)
+            self.showTrayInformation(1)
         elif status.value == 2: # paused status
-            pass
+            self.setButtonStatus(2)
+            self.showTrayInformation(2)
+
+    def actualStop(self):
+        self.timer.stop()
+        self.setButtonStatus(0)
+        self.showTrayInformation(0)
+        self.virtualStop = True
+        self.stop_()
 
     def scheduleNextTrack(self):
-        pass
+        if not self.addToPlayHistory:   # command comes from previous button
+            pf = self.playHistory[-1]
+            try:
+                self.playHistory = self.playHistory[:-1]
+            except:
+                self.playHistory = []
+            self.currentIndex = self.getNumberFromFile(pf)
+            self.musicEngine.add(pf)
+            self.currentTrack = track(pf)
+            self.playlistDock.playlistWidget.playlistTable.selectRow(self.currentIndex)
+            self.actualPlayOrPause()
+            return
+
+        if self.loopTrackAction.isChecked():
+            self.playlistDock.playlistWidget.playlistTable.selectRow(self.currentIndex)
+            self.actualPlayOrPause(True, True)
+            return
+        if self.sequenceRandomAction.isChecked():
+            tr = self.playlistDock.playlistWidget.model.rowCount()
+            ind = random.randint(0, tr - 1)
+            url = self.playlistDock.playlistWidget.model.item(ind, 8).text()
+            self.musicEngine.add(url)
+            self.currentIndex = ind
+            self.currentTrack = track(url)
+            self.playlistDock.playlistWidget.playlistTable.selectRow(ind)
+            self.actualPlayOrPause(True, True)
+            return
+
+        if self.sequenceOrderAction.isChecked():
+            if self.currentIndex + 1 >= self.playlistDock.playlistWidget.model.rowCount():
+                if self.noLoopAction.isChecked():
+                    self.stop_()
+                elif self.loopPlaylistAction.isChecked():
+                    self.currentIndex = 0
+                    self.currentTrack = track(self.playlistDock.playlistWidget.model.item(self.currentIndex, 8).text())
+                    self.playlistDock.playlistWidget.playlistTable.selectRow(self.currentIndex)
+                    self.actualPlayOrPause(True, True)
+            else:
+                self.currentIndex += 1
+                self.currentTrack = track(self.playlistDock.playlistWidget.model.item(self.currentIndex, 8).text())
+                self.playlistDock.playlistWidget.playlistTable.selectRow(self.currentIndex)
+                self.actualPlayOrPause(True, True)
+            return
+
+        if self.sequenceReverseOrderAction.isChecked():
+
+            if self.currentIndex - 1 < 0:
+                if self.noLoopAction.isChecked():
+                    self.stop_()
+                elif self.loopPlaylistAction.isChecked():
+                    self.currentIndex = self.playlistDock.playlistWidget.model.rowCount() - 1
+                    self.currentTrack = track(self.playlistDock.playlistWidget.model.item(self.currentIndex, 8).text())
+                    self.playlistDock.playlistWidget.playlistTable.selectRow(self.currentIndex)
+                    self.actualPlayOrPause(True, True)
+            else:
+                self.currentIndex -= 1
+                self.currentTrack = track(self.playlistDock.playlistWidget.model.item(self.currentIndex, 8).text())
+                self.playlistDock.playlistWidget.playlistTable.selectRow(self.currentIndex)
+                self.actualPlayOrPause(True, True)
+            return
 
     def showTrayInformation(self, v):
         if self.parameter.trayIcon and self.parameter.trayInfo:
@@ -184,38 +325,44 @@ class mainWindow(windowUI):
         if not url.isEmpty():
             self.musicEngine.add(url)
             self.currentTrack = track(url.toLocalFile())
+            self.addToPlaylist([self.currentTrack])
+            self.currentIndex = self.playlistDock.playlistWidget.model.rowCount() - 1
             self.actualPlayOrPause()
 
     def getNumberFromFile(self, f):
-        for i in range(0, self.playlistDock.playlistWidget.playlistTable.rowCount()):
-            if f == self.playlistDock.playlistWidget.playlistTable.item(i, 8).text():
+        for i in range(0, self.playlistDock.playlistWidget.model.rowCount()):
+            if f == self.playlistDock.playlistWidget.model.item(i, 8).text():
                 break
         return i
 
     def playorpauseByDoubleClick_(self, ind):
+        self.virtualStop = False
         url = self.playlistDock.playlistWidget.model.item(ind.row(), 8).text()
-        self.currentNo = ind.row()
+        self.currentIndex = ind.row()
         self.musicEngine.add(url)
         self.currentTrack = track(url)
         self.actualPlayOrPause()
+        self.virtualStop = True
 
     def next_(self):
         self.stop_()
-        self.scheduleNextTrack("auto")
+        self.scheduleNextTrack()
 
     def previous_(self):
         self.addToPlayHistory = False
-        self.stop_()
-        self.scheduleNextTrack("previous")
+        self.scheduleNextTrack()
+        self.addToPlayHistory = True
 
     def playorpause_(self):
-        self.scheduleNextTrack("playorpause")
+        self.actualPlayOrPause(False)
 
-    def actualPlayOrPause(self):
-        if self.musicEngine.isPlaying():
+    def actualPlayOrPause(self, newTrack = True, ignoreIsPlaying = False):
+        if self.musicEngine.isPlaying() and (not ignoreIsPlaying):
             self.timer.stop()
             self.musicEngine.pause()
         else:
+            if newTrack:
+                self.musicEngine.add(self.currentTrack.trackFile)
             t = self.currentTrack.trackLength
             self.centralWidget.progressSlider.setEnabled(True)
             self.centralWidget.progressSlider.setRange(0, t * 1000)
@@ -226,13 +373,13 @@ class mainWindow(windowUI):
             self.musicEngine.play()
 
     def stop_(self):
-        self.schedule = False
+        self.virtualStop = False
         self.timer.stop()
         self.musicEngine.stop()
 
     def repeat_(self):
-        self.stop_()
-        self.scheduleNextTrack("repeat")
+        self.virtualStop = False
+        self.actualPlayOrPause(True, True)
 
     def volumeSlider_(self, v):
         self.musicEngine.setVolume(v / 10)
@@ -243,7 +390,7 @@ class mainWindow(windowUI):
         self.centralWidget.timeLabel.setText(self.formatTrackLength(int(v / 1000)))
 
     def adjustTrackPosition(self, v):
-        if abs(v - self.musicEngine.getPosition()) < 1000:
+        if abs(v - self.musicEngine.getPosition()) < 1000 or v == 0:
             pass
         else:
             self.timer.stop()
@@ -251,21 +398,6 @@ class mainWindow(windowUI):
             self.musicEngine.setPosition(v)
             self.timer.start(1000)
             self.positionChanged.emit()
-
-    def scanAction_(self, recursive = False):
-        musicList = glob.glob(os.path.join(self.parameter.collectionPath, "*.*"))
-
-        t = ""
-        for i in musicList:
-            if mutagen.File(i) == None:
-                continue
-            i = i + "\n"
-            t += i
-
-        with open(os.path.join(self.appPrivatePath, "collection.txt"), "w") as f:
-            f.write(t)
-
-        # self.loadPlaylist()
 
     def showorhideTray_(self, r):
         if r.value == 3:
@@ -326,7 +458,7 @@ class mainWindow(windowUI):
         settingDialog.lrcShowxConfig.lrcPathBox.auto.setChecked(self.parameter.autoSaveLrc)
         r = settingDialog.exec()
         if r == 1:  # accepted
-            self.parameter.collectionPath = settingDialog.playerConfig.playerPathBox.cpLine.text()
+
             self.parameter.trayIcon = settingDialog.playerConfig.playerTrayBox.trayIcon.isChecked()
             self.systemTray.setVisible(self.parameter.trayIcon)
             self.parameter.closeNotQuit = settingDialog.playerConfig.playerTrayBox.closeNotQuit.isChecked()
@@ -334,6 +466,10 @@ class mainWindow(windowUI):
 
             self.parameter.lrcLocalPath = self.lrcShowxDock.lrcShowxWidget.lrcLocalPath = settingDialog.lrcShowxConfig.lrcPathBox.llLine.text()
             self.parameter.autoSaveLrc = self.lrcShowxDock.lrcShowxWidget.autoSaveLrc = settingDialog.lrcShowxConfig.lrcPathBox.auto.isChecked()
+
+            if self.parameter.collectionPath != settingDialog.playerConfig.playerPathBox.cpLine.text():
+                self.parameter.collectionPath = settingDialog.playerConfig.playerPathBox.cpLine.text()
+                self.collectionDock.collectionWidget.updateModel()
 
             if self.parameter.topMarginLines != settingDialog.lrcShowxConfig.appearenceBox.tlLine.value() or self.parameter.lineMargin != settingDialog.lrcShowxConfig.appearenceBox.lmLine.value() or settingDialog.lrcShowxConfig.appearenceBox.fontEffectLabel.font().toString != self.parameter.lrcFont:
                 self.parameter.topMarginLines = self.lrcShowxDock.lrcShowxWidget.topMarginLines = settingDialog.lrcShowxConfig.appearenceBox.tlLine.value()

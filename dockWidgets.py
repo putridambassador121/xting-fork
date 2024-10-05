@@ -295,16 +295,22 @@ class playlistWidget(QWidget):
 
     def filtItems(self, t):
         if t == "":
-            self.loadItems(self.parent.parent.collectionListTmp)
+            self.loadItems(self.parent.parent.playlistTmp)
         else:
-            l = self.playlistTable.findItems(t, Qt.MatchFlag.MatchContains)
+            l0 = self.model.match(self.model.index(0, 0), Qt.ItemDataRole.DisplayRole, QVariant(t), -1, Qt.MatchFlag.MatchContains)
+            l1 = self.model.match(self.model.index(0, 1), Qt.ItemDataRole.DisplayRole, QVariant(t), -1, Qt.MatchFlag.MatchContains)
+            l3 = self.model.match(self.model.index(0, 3), Qt.ItemDataRole.DisplayRole, QVariant(t), -1, Qt.MatchFlag.MatchContains)
+            l = list(set(l0 + l1 + l3))
             rowList = list(set((map(lambda x: x.row(), l))))
             tl = []
             for i in rowList:
-                tl.append(self.parent.parent.collectionListTmp[i])
+                tl.append(self.parent.parent.playlistTmp[i])
             self.loadItems(tl)
 
     def loadItems(self, trackList):
+        self.model.clear()
+        self.model.setHorizontalHeaderLabels(self.headers)
+        self.playlistTable.setModel(self.model)
         row = 0
         model = QStandardItemModel(len(trackList), 8)
         for i in trackList:
@@ -327,25 +333,6 @@ class playlistWidget(QWidget):
             l.append(self.model.item(i, 8).text())
         return l
 
-
-
-
-
-
-
-
-
-
-            # self.playlistTable.setItem(row, 0, QTableWidgetItem(au.trackTitle))
-            # self.playlistTable.setItem(row, 1, QTableWidgetItem(au.trackArtist))
-            # self.playlistTable.setItem(row, 2, QTableWidgetItem(self.formatTrackLength(au.trackLength)))
-            # self.playlistTable.setItem(row, 3, QTableWidgetItem(au.trackAlbum))
-            # self.playlistTable.setItem(row, 4, QTableWidgetItem(au.trackType))
-            # self.playlistTable.setItem(row, 5, QTableWidgetItem(au.trackDate))
-            # self.playlistTable.setItem(row, 6, QTableWidgetItem(str(au.trackBitrate)))
-            # self.playlistTable.setItem(row, 7, QTableWidgetItem(str(au.trackSamplerate)))
-            # self.playlistTable.setItem(row, 8, QTableWidgetItem(au.trackFile))
-            # row += 1
 
     def formatTrackLength(self, t):
         m, s = divmod(t, 60)
@@ -372,7 +359,7 @@ class collectionWidget(QWidget):
         super().__init__()
         self.parent = parent
 
-        di = QDir("/home/frank/Music/", "Media files (*.mp3 *.flac)")
+        di = QDir(self.parent.parent.parameter.collectionPath, "Media files (*.mp3 *.flac)")
         layout = QVBoxLayout(None)
         self.model = QFileSystemModel()
         self.model.setNameFilters(["*.mp3", "*.flac"])
@@ -386,7 +373,16 @@ class collectionWidget(QWidget):
         layout.addWidget(self.collectionView)
         self.setLayout(layout)
 
+    def updateModel(self):
+        self.collectionView.reset()
+        di = QDir(self.parent.parent.parameter.collectionPath, "Media files (*.mp3 *.flac)")
+        self.model = QFileSystemModel()
+        self.model.setNameFilters(["*.mp3", "*.flac"])
+        self.model.setNameFilterDisables(False)
+        self.model.setRootPath(di.path())
 
+        self.collectionView.setModel(self.model)
+        self.collectionView.setRootIndex(self.model.index(di.path()))
 
 
 

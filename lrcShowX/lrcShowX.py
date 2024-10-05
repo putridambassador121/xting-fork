@@ -306,10 +306,16 @@ class lrcShowX(QTextBrowser):
             if self.trackPos < i[0]:
                 break
             elif self.trackPos == i[0]:
-                n += 1
+                if n + 1 < len(self.lrcInstance.scheduledLrc):
+                    n += 1
+                else:
+                    n = len(self.lrcInstance.scheduledLrc) - 1
                 break
             else:
-                n += 1
+                if n + 1 < len(self.lrcInstance.scheduledLrc):
+                    n += 1
+                else:
+                    n = len(self.lrcInstance.scheduledLrc) - 1
         self.currentTag = n
 
 

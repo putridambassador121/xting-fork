@@ -65,11 +65,15 @@ class windowUI(QMainWindow):
         self.loopTrackAction.setCheckable(True)
         self.loopPlaylistAction = QAction(self.tr("Playlist"))
         self.loopPlaylistAction.setCheckable(True)
+        self.noLoopAction = QAction(self.tr("No loop"))
+        self.noLoopAction.setCheckable(True)
         self.loopGroup = QActionGroup(self)
         self.loopGroup.addAction(self.loopTrackAction)
         self.loopGroup.addAction(self.loopPlaylistAction)
+        self.loopGroup.addAction(self.noLoopAction)
         self.loopMenu.addAction(self.loopTrackAction)
         self.loopMenu.addAction(self.loopPlaylistAction)
+        self.loopMenu.addAction(self.noLoopAction)
         self.sequenceMenu = self.playlistMenu.addMenu(self.tr("Sequence"))
         self.sequenceRandomAction = QAction(self.tr("Random"))
         self.sequenceRandomAction.setCheckable(True)
@@ -104,9 +108,9 @@ class windowUI(QMainWindow):
             exec(f"self.deviceMenu.addAction(self.device{n}Action)")
             n += 1
 
-        self.toolsMenu = self.menuBar().addMenu(self.tr("Tools"))
-        self.scanAction = QAction(self.tr("Scan collection"))
-        self.toolsMenu.addAction(self.scanAction)
+        # self.toolsMenu = self.menuBar().addMenu(self.tr("Tools"))
+        # self.scanAction = QAction(self.tr("Scan collection"))
+        # self.toolsMenu.addAction(self.scanAction)
 
         self.settingMenu = self.menuBar().addMenu(self.tr("Setting"))
         self.configurationAction = QAction(self.tr("Configurate..."))
@@ -137,19 +141,19 @@ class windowUI(QMainWindow):
         self.lrcEditorDock = lrcEditorDock(self.tr("Lrc editor"), self)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.lrcEditorDock)
         self.lrcEditorDock.setObjectName("Lrc editor")
-        # self.lrcEditorDock.setVisible(False)
+        self.lrcEditorDock.setVisible(False)
 
         self.playlistDock = playlistDock(self.tr("Playlist"), self)
         self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, self.playlistDock)
         self.playlistDock.setObjectName("Playlist")
 
+        self.collectionDock = collectionDock(self.tr("Collection"), self)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.collectionDock)
+        self.collectionDock.setObjectName("Collection")
+
         self.albumCoverDock = albumCoverDock(self.tr("Album cover"), self)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.albumCoverDock)
         self.albumCoverDock.setObjectName("Album cover")
-
-        self.collectionDock = collectionDock(self.tr("Collection"), self)
-        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.collectionDock)
-        self.collectionDock.setObjectName("Collection")
 
         self.setCorner(Qt.Corner.TopLeftCorner, Qt.DockWidgetArea.LeftDockWidgetArea)
         self.setCorner(Qt.Corner.TopRightCorner, Qt.DockWidgetArea.RightDockWidgetArea)
