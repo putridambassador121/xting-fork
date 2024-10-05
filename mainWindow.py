@@ -24,7 +24,6 @@ class mainWindow(windowUI):
 
         self.setWindowTitle("xting")
         self.setWindowIcon(QIcon("icon/logo.png"))
-        self.appPrivatePath = os.path.expanduser("~/.xting")
         self.timer = QTimer()
 
         self.musicEngine = engine()
@@ -40,16 +39,17 @@ class mainWindow(windowUI):
         self.initStatusBar()
 
         if not self.parameter.currentPlaylistName:
-            path = os.path.join(self.appPrivatePath, "current.txt")
+            path = os.path.join(self.parameter.privatePath, "current.txt")
             if os.path.exists(path):
                 with open(path, "r") as f:
-                    self.playlistTmp = f.readlines()
+                    self.playlistTmp = list(map(lambda x: x.strip(), f.readlines()))
                 self.addToPlaylist(self.playlistTmp)
             else:
                 self.playlistTmp = []
         else:
+            print(self.parameter.currentPlaylistName)
             with open(self.parameter.currentPlaylistName, "r") as f:
-                self.playlistTmp = f.readlines()
+                self.playlistTmp = list(map(lambda x: x.strip(), f.readlines()))
             self.addToPlaylist(self.playlistTmp)
 
 
@@ -166,8 +166,10 @@ class mainWindow(windowUI):
 
 
     def addToPlaylist(self, fileList):
-        self.playlistTmp = fileList
         self.playlistDock.playlistWidget.loadItems(fileList)
+
+    def appendToPlaylist(self, fileList):
+        self.playlistDock.playlistWidget.appendItems(fileList)
 
     def setButtonStatus(self, status = None):
         if len(self.playHistory) !=  0:
@@ -223,8 +225,6 @@ class mainWindow(windowUI):
 
 
     def playbackStateChanged_(self, status):
-
-
 
         if status.value == 0: # stoped status
 
@@ -469,7 +469,7 @@ class mainWindow(windowUI):
 
             if self.parameter.collectionPath != settingDialog.playerConfig.playerPathBox.cpLine.text():
                 self.parameter.collectionPath = settingDialog.playerConfig.playerPathBox.cpLine.text()
-                self.collectionDock.collectionWidget.updateModel()
+                self.collectionDock.collectionWidget.updateList()
 
             if self.parameter.topMarginLines != settingDialog.lrcShowxConfig.appearenceBox.tlLine.value() or self.parameter.lineMargin != settingDialog.lrcShowxConfig.appearenceBox.lmLine.value() or settingDialog.lrcShowxConfig.appearenceBox.fontEffectLabel.font().toString != self.parameter.lrcFont:
                 self.parameter.topMarginLines = self.lrcShowxDock.lrcShowxWidget.topMarginLines = settingDialog.lrcShowxConfig.appearenceBox.tlLine.value()
@@ -502,9 +502,8 @@ class mainWindow(windowUI):
             self.saveCurrentPlaylist()
 
     def saveCurrentPlaylist(self):
-        l = self.playlistDock.playlistWidget.getCurrentPlaylist()
-        t = "\n".join(l) + "\n"
-        with open(os.path.join(self.appPrivatePath, "current.txt"), "w") as f:
+        t = "\n".join(self.playlistTmp) + "\n"
+        with open(os.path.join(self.parameter.privatePath, "current.txt"), "w") as f:
             f.write(t)
 
 

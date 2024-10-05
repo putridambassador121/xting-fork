@@ -266,6 +266,8 @@ class playlistWidget(QWidget):
         super().__init__()
         self.parent = parent
 
+        self.initToolBar()
+
         searchLayout = QHBoxLayout(None)
         self.searchLabel = QLabel(self.tr("Search:"))
         self.searchLine = QLineEdit(self)
@@ -287,11 +289,29 @@ class playlistWidget(QWidget):
         self.model.setHorizontalHeaderLabels(self.headers)
         self.playlistTable.setModel(self.model)
 
+        self.nameLabel = QLabel(self)
+        self.updateNameLabel()
+
+        toolLayout = QHBoxLayout(None)
+        toolLayout.addWidget(self.toolBar)
+        toolLayout.addStretch(0)
+        toolLayout.addWidget(self.nameLabel)
 
         mainLayout = QVBoxLayout(None)
+
         mainLayout.addLayout(searchLayout)
+        mainLayout.addLayout(toolLayout)
         mainLayout.addWidget(self.playlistTable)
+
         self.setLayout(mainLayout)
+
+        self.clearTrackAction.triggered.connect(self.clearTrackAction_)
+        self.playlistTable.activated.connect(self.enableThePlayButton)
+        self.removeTrackAction.triggered.connect(self.removeTrackAction_)
+        self.addTrackAction.triggered.connect(self.addTrackAction_)
+        self.savePlaylistAction.triggered.connect(self.savePlaylistAction_)
+        self.saveasPlayListAction.triggered.connect(self.saveasPlayListAction_)
+        self.loadPlaylistAction.triggered.connect(self.loadPlaylistAction_)
 
     def filtItems(self, t):
         if t == "":
@@ -301,19 +321,30 @@ class playlistWidget(QWidget):
             l1 = self.model.match(self.model.index(0, 1), Qt.ItemDataRole.DisplayRole, QVariant(t), -1, Qt.MatchFlag.MatchContains)
             l3 = self.model.match(self.model.index(0, 3), Qt.ItemDataRole.DisplayRole, QVariant(t), -1, Qt.MatchFlag.MatchContains)
             l = list(set(l0 + l1 + l3))
+            # l = self.model.findItems(t, Qt.MatchFlag.MatchContains)
             rowList = list(set((map(lambda x: x.row(), l))))
             tl = []
             for i in rowList:
                 tl.append(self.parent.parent.playlistTmp[i])
-            self.loadItems(tl)
+            self.loadItems(tl, False, False)
 
-    def loadItems(self, trackList):
+    def loadItems(self, trackList, append = False, updatePlaylistTmp = True):
         self.model.clear()
         self.model.setHorizontalHeaderLabels(self.headers)
-        self.playlistTable.setModel(self.model)
-        row = 0
-        model = QStandardItemModel(len(trackList), 8)
+        self.operateModel(trackList, append, updatePlaylistTmp)
+
+    def appendItems(self, newList):
+        newItems = list(set(newList) - set(self.parent.parent.playlistTmp))
+        self.operateModel(newItems, True)
+
+    def operateModel(self, trackList, append = False, updatePlaylistTmp = True):
+        if append:
+            row = len(self.parent.parent.playlistTmp)
+        else:
+            row = 0
         for i in trackList:
+            if not i.strip():
+                continue
             au = track(i.strip())
             self.model.setItem(row, 0, QStandardItem(au.trackTitle))
             self.model.setItem(row, 1, QStandardItem(au.trackArtist))
@@ -326,12 +357,81 @@ class playlistWidget(QWidget):
             self.model.setItem(row, 8, QStandardItem(au.trackFile))
             row += 1
         self.playlistTable.setModel(self.model)
+        if updatePlaylistTmp:
+            if append:
+                self.parent.parent.playlistTmp += trackList
+            else:
+                self.parent.parent.playlistTmp = trackList
 
-    def getCurrentPlaylist(self):
-        l = []
-        for i in range(0, self.model.rowCount()):
-            l.append(self.model.item(i, 8).text())
-        return l
+
+    def initToolBar(self):
+        self.toolBar = QToolBar(self)
+        self.loadPlaylistAction = QAction(self.tr("Load playlist"), self)
+        self.savePlaylistAction = QAction(self.tr("Save "))
+        self.saveasPlayListAction = QAction(self.tr("Save as..."))
+        self.addTrackAction = QAction(self.tr("Add..."), self)
+        self.removeTrackAction = QAction(self.tr("Remove"))
+        self.clearTrackAction = QAction(self.tr("Clear"))
+        self.toolBar.addAction(self.loadPlaylistAction)
+        self.toolBar.addAction(self.savePlaylistAction)
+        self.toolBar.addAction(self.saveasPlayListAction)
+        self.toolBar.addAction(self.addTrackAction)
+        self.toolBar.addAction(self.removeTrackAction)
+        self.toolBar.addAction(self.clearTrackAction)
+
+    def clearTrackAction_(self):
+        self.loadItems([])
+
+    def removeTrackAction_(self):
+        indexList = self.playlistTable.selectedIndexes()
+        fileList = []
+        for i in indexList:
+            f = self.model.item(i.row(), 8).text()
+            fileList.append(f)
+        l = list(set(self.parent.parent.playlistTmp) - set(fileList))
+        print(l)
+        self.loadItems(l)
+
+    def addTrackAction_(self):
+        urlList, fi = QFileDialog.getOpenFileNames(self, self.tr("Add tracks"), self.parent.parent.parameter.collectionPath, "Media files (*.mp3 *.flac)")
+        self.appendItems(urlList)
+
+    def savePlaylistAction_(self):
+        if self.parent.parent.parameter.currentPlaylistName:
+            t = "\n".join(self.parent.parent.playlistTmp) + "\n"
+            with open(self.parent.parent.parameter.currentPlaylistName, "w") as f:
+                f.write(t)
+        else:
+            self.saveasPlayListAction_()
+
+    def saveasPlayListAction_(self):
+        f, r = QFileDialog.getSaveFileName(self, self.tr("Save as"), self.parent.parent.parameter.privatePath, "plain text files (*.txt)")
+        if f:
+            self.parent.parent.parameter.currentPlaylistName = f
+            self.savePlaylistAction_()
+            self.updateNameLabel()
+
+    def loadPlaylistAction_(self):
+        f, r = QFileDialog.getOpenFileName(self, self.tr("Select a playlist"), self.parent.parent.parameter.privatePath, "plain text files (*.txt)")
+        if f:
+
+            with open(f, "r") as ff:
+                pl = ff.readlines()
+            self.loadItems(pl, False, True)
+            self.parent.parent.parameter.currentPlaylistName = f
+            self.updateNameLabel()
+
+    def updateNameLabel(self):
+        if self.parent.parent.parameter.currentPlaylistName:
+            self.nameLabel.setText(self.parent.parent.parameter.currentPlaylistName)
+        else:
+            self.nameLabel.setText(self.tr("Unamed playlist"))
+
+
+    def enableThePlayButton(self):
+        pass
+        # self.parent.parent.playorpauseAction.setEnabled(True)
+        # self.parent.parent.centralWidget.playorpauseButton.setEnabled(True)
 
 
     def formatTrackLength(self, t):
@@ -359,26 +459,26 @@ class collectionWidget(QWidget):
         super().__init__()
         self.parent = parent
 
+        self.collectionView = collectionView(self)
+
         di = QDir(self.parent.parent.parameter.collectionPath, "Media files (*.mp3 *.flac)")
         layout = QVBoxLayout(None)
+
         self.model = QFileSystemModel()
         self.model.setNameFilters(["*.mp3", "*.flac"])
         self.model.setNameFilterDisables(False)
         self.model.setRootPath(di.path())
-
-        self.collectionView = collectionView(self)
-
         self.collectionView.setModel(self.model)
         self.collectionView.setRootIndex(self.model.index(di.path()))
         layout.addWidget(self.collectionView)
         self.setLayout(layout)
 
-    def updateModel(self):
+    def updateList(self):
         self.collectionView.reset()
+        self.updateModel()
+
+    def updateModel(self):
         di = QDir(self.parent.parent.parameter.collectionPath, "Media files (*.mp3 *.flac)")
-        self.model = QFileSystemModel()
-        self.model.setNameFilters(["*.mp3", "*.flac"])
-        self.model.setNameFilterDisables(False)
         self.model.setRootPath(di.path())
 
         self.collectionView.setModel(self.model)
@@ -413,7 +513,7 @@ class collectionView(QListView):
         mediaList = []
         for i in self.selectedIndexes():
             mediaList.append(os.path.join(root, i.data()))
-        self.parent.parent.parent.addToPlaylist(mediaList)
+        self.parent.parent.parent.appendToPlaylist(mediaList)
 
 
 
