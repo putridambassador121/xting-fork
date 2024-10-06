@@ -158,10 +158,6 @@ class mainWindow(windowUI):
             self.playlistDock.playlistWidget.playlistTable.horizontalHeader().restoreState(self.parameter.playlistDockPlaylistTableState)
         except:
             pass
-        try:
-            self.playlistDock.playlistWidget.customTable.horizontalHeader().restoreState(self.parameter.playlistDockCustomTableState)
-        except:
-            pass
 
 
     def addToPlaylist(self, fileList):

@@ -31,7 +31,6 @@ class parameterData:
         self.playlistDockGeometry = self.iniFile.value("/session/playlistdockgeometry", "")
         self.albumCoverDockGeometry = self.iniFile.value("/session/albumcoverdockgeometry", "")
         self.playlistDockPlaylistTableState = self.iniFile.value("/session/playlistdockplaylisttablestate", "")
-        self.playlistDockCustomTableState = self.iniFile.value("/session/playlistdockcustomtablestate", "")
         self.configurationSplitterState = self.iniFile.value("/session/configurationsplitterstate", "")
         self.lrcEditorDockGeometry = self.iniFile.value("/session/lrceditordockgeometry", "")
 

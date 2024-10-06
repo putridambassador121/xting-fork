@@ -313,9 +313,9 @@ class playlistWidget(QWidget):
         self.saveasPlayListAction.triggered.connect(self.saveasPlayListAction_)
         self.loadPlaylistAction.triggered.connect(self.loadPlaylistAction_)
 
-        self.model.itemChanged.connect(self.itemTagChanged)
+        self.model.itemChanged.connect(self.itemTagChange)
 
-    def itemTagChanged(self, m):
+    def itemTagChange(self, m):
         col = m.column()
         v = m.text()
         f = self.model.item(m.row(), 8).text()
@@ -348,6 +348,10 @@ class playlistWidget(QWidget):
     def loadItems(self, trackList, append = False, updatePlaylistTmp = True):
         self.model.clear()
         self.model.setHorizontalHeaderLabels(self.headers)
+        try:
+            self.playlistTable.horizontalHeader().restoreState(self.parent.parent.parameter.playlistDockPlaylistTableState)
+        except:
+            pass
         self.operateModel(trackList, append, updatePlaylistTmp)
 
     def appendItems(self, newList):
@@ -355,7 +359,7 @@ class playlistWidget(QWidget):
         self.operateModel(newItems, True)
 
     def operateModel(self, trackList, append = False, updatePlaylistTmp = True):
-        self.model.itemChanged.disconnect(self.itemTagChanged)
+        self.model.itemChanged.disconnect(self.itemTagChange)
         if append:
             row = len(self.parent.parent.playlistTmp)
         else:
@@ -398,7 +402,7 @@ class playlistWidget(QWidget):
                 self.parent.parent.playlistTmp += trackList
             else:
                 self.parent.parent.playlistTmp = trackList
-        self.model.itemChanged.connect(self.itemTagChanged)
+        self.model.itemChanged.connect(self.itemTagChange)
 
 
     def initToolBar(self):
