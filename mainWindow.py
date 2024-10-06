@@ -47,7 +47,6 @@ class mainWindow(windowUI):
             else:
                 self.playlistTmp = []
         else:
-            print(self.parameter.currentPlaylistName)
             with open(self.parameter.currentPlaylistName, "r") as f:
                 self.playlistTmp = list(map(lambda x: x.strip(), f.readlines()))
             self.addToPlaylist(self.playlistTmp)

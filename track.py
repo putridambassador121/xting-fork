@@ -8,6 +8,7 @@ from mutagen.mp3 import MP3
 
 from mutagen.flac import FLAC
 
+from mutagen.id3 import TIT2, TALB, TPE1, TDRC
 
 class track:
 
@@ -88,4 +89,44 @@ class track:
             self.trackBitrate = 0
             self.trackSamplerate = 0
             self.trackLength = 0
+
+    def setTitleTag(self, v):
+        if self.trackType == "mp3":
+            self.audio['TIT2'] = TIT2(encoding = 3, text = v)
+            self.audio.save()
+        elif self.trackType == "flac":
+            self.audio["title"] = v
+            self.audio.save()
+        else:
+            print("Unsupported file type")
+
+    def setAlbumTag(self, v):
+        if self.trackType == "mp3":
+            self.audio['TALB'] = TIT2(encoding = 3, text = v)
+            self.audio.save()
+        elif self.trackType == "flac":
+            self.audio["album"] = v
+            self.audio.save()
+        else:
+            print("Unsupported file type")
+
+    def setArtistTag(self, v):
+        if self.trackType == "mp3":
+            self.audio['TPE1'] = TIT2(encoding = 3, text = v)
+            self.audio.save()
+        elif self.trackType == "flac":
+            self.audio["artist"] = v
+            self.audio.save()
+        else:
+            print("Unsupported file type")
+
+    def setDateTag(self, v):
+        if self.trackType == "mp3":
+            self.audio['TDRC'] = TIT2(encoding = 3, text = v)
+            self.audio.save()
+        elif self.trackType == "flac":
+            self.audio["date"] = v
+            self.audio.save()
+        else:
+            print("Unsupported file type")
 

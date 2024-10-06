@@ -19,9 +19,9 @@
 ### Next todo list:
 * [x] finish all lrcShow-X context menu function
 * [x] finish album cover function
-* [] finish play list function
+* [x] finish play list function
 * [] finish shortcuts function
 * [] add shortcuts config page
 * [x] finish lrc edit function
 * [] icons
-* [] edit track tags
+* [x] edit track tags

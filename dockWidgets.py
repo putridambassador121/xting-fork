@@ -279,7 +279,7 @@ class playlistWidget(QWidget):
         searchLayout.addWidget(self.searchLine)
 
         self.playlistTable = QTableView(self)
-        self.playlistTable.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.playlistTable.setEditTriggers(QAbstractItemView.EditTrigger.SelectedClicked)
         self.playlistTable.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         #self.playlistTable.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.headers = [self.tr("Title"), self.tr("Artist"), self.tr("Length"), self.tr("Album"), self.tr("Type"), self.tr("Date"), self.tr("Bit rate"), self.tr("Sample rate"), self.tr("File")]
@@ -313,6 +313,23 @@ class playlistWidget(QWidget):
         self.saveasPlayListAction.triggered.connect(self.saveasPlayListAction_)
         self.loadPlaylistAction.triggered.connect(self.loadPlaylistAction_)
 
+        self.model.itemChanged.connect(self.itemTagChanged)
+
+    def itemTagChanged(self, m):
+        col = m.column()
+        v = m.text()
+        f = self.model.item(m.row(), 8).text()
+        au = track(f)
+        if col == 0:
+            au.setTitleTag(v)
+        elif col == 1:
+            au.setArtistTag(v)
+        elif col == 3:
+            au.setAlbumTag(v)
+        elif col == 5:
+            au.setDateTag(v)
+
+
     def filtItems(self, t):
         if t == "":
             self.loadItems(self.parent.parent.playlistTmp)
@@ -338,6 +355,7 @@ class playlistWidget(QWidget):
         self.operateModel(newItems, True)
 
     def operateModel(self, trackList, append = False, updatePlaylistTmp = True):
+        self.model.itemChanged.disconnect(self.itemTagChanged)
         if append:
             row = len(self.parent.parent.playlistTmp)
         else:
@@ -346,15 +364,33 @@ class playlistWidget(QWidget):
             if not i.strip():
                 continue
             au = track(i.strip())
-            self.model.setItem(row, 0, QStandardItem(au.trackTitle))
-            self.model.setItem(row, 1, QStandardItem(au.trackArtist))
-            self.model.setItem(row, 2, QStandardItem(self.formatTrackLength(au.trackLength)))
-            self.model.setItem(row, 3, QStandardItem(au.trackAlbum))
-            self.model.setItem(row, 4, QStandardItem(au.trackType))
-            self.model.setItem(row, 5, QStandardItem(au.trackDate))
-            self.model.setItem(row, 6, QStandardItem(str(au.trackBitrate)))
-            self.model.setItem(row, 7, QStandardItem(str(au.trackFile)))
-            self.model.setItem(row, 8, QStandardItem(au.trackFile))
+            itemTitle = QStandardItem(au.trackTitle)
+            itemTitle.setEditable(True)
+            self.model.setItem(row, 0, itemTitle)
+            itemArtist = QStandardItem(au.trackArtist)
+            itemArtist.setEditable(True)
+            self.model.setItem(row, 1, itemArtist)
+            itemLength = QStandardItem(self.formatTrackLength(au.trackLength))
+            itemLength.setEditable(False)
+            self.model.setItem(row, 2, itemLength)
+            itemAlbum = QStandardItem(au.trackAlbum)
+            itemAlbum.setEditable(True)
+            self.model.setItem(row, 3, itemAlbum)
+            itemType = QStandardItem(au.trackType)
+            itemType.setEditable(False)
+            self.model.setItem(row, 4, itemType)
+            itemDate = QStandardItem(au.trackDate)
+            itemDate.setEditable(True)
+            self.model.setItem(row, 5, itemDate)
+            itemBitrate = QStandardItem(str(au.trackBitrate))
+            itemBitrate.setEditable(False)
+            self.model.setItem(row, 6, itemBitrate)
+            itemSamplerage = QStandardItem(str(au.trackSamplerate))
+            itemSamplerage.setEditable(False)
+            self.model.setItem(row, 7, itemSamplerage)
+            itemFile = QStandardItem(au.trackFile)
+            itemFile.setEditable(False)
+            self.model.setItem(row, 8, itemFile)
             row += 1
         self.playlistTable.setModel(self.model)
         if updatePlaylistTmp:
@@ -362,6 +398,7 @@ class playlistWidget(QWidget):
                 self.parent.parent.playlistTmp += trackList
             else:
                 self.parent.parent.playlistTmp = trackList
+        self.model.itemChanged.connect(self.itemTagChanged)
 
 
     def initToolBar(self):
