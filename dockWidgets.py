@@ -430,7 +430,6 @@ class playlistWidget(QWidget):
             f = self.model.item(i.row(), 8).text()
             fileList.append(f)
         l = list(set(self.parent.parent.playlistTmp) - set(fileList))
-        print(l)
         self.loadItems(l)
 
     def addTrackAction_(self):
@@ -469,10 +468,12 @@ class playlistWidget(QWidget):
             self.nameLabel.setText(self.tr("Unamed playlist"))
 
 
-    def enableThePlayButton(self):
-        pass
-        # self.parent.parent.playorpauseAction.setEnabled(True)
-        # self.parent.parent.centralWidget.playorpauseButton.setEnabled(True)
+    def enableThePlayButton(self, ind):
+        if self.parent.parent.musicEngine.getPlaybackState().value == 0:
+            self.parent.parent.playorpauseAction.setEnabled(True)
+            self.parent.parent.centralWidget.playorpauseButton.setEnabled(True)
+            self.parent.parent.currentIndex = ind.row()
+            self.parent.parent.currentTrack = track(self.model.item(ind.row(), 8).text())
 
 
     def formatTrackLength(self, t):
