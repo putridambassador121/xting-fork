@@ -23,6 +23,14 @@ class resultDisplay(QDialog):
         self.table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         header = [self.tr("Title"), self.tr("Artist"), self.tr("Album"), self.tr("Length")]
         self.table.setHorizontalHeaderLabels(header)
+        try:
+            self.table.horizontalHeader().restoreState(self.parent.parent.parent.parameter.resultDialogTableState)
+        except:
+            pass
+        try:
+            self.restoreGeometry(self.parent.parent.parent.parameter.resultDialogGeometry)
+        except:
+            pass
 
         buttonBox = QDialogButtonBox(self)
         cancelButton = QPushButton(self.tr("Cancel"))
@@ -36,8 +44,8 @@ class resultDisplay(QDialog):
         self.setLayout(mainLayout)
 
 
-        buttonBox.accepted.connect(self.accept)
-        buttonBox.rejected.connect(self.reject)
+        buttonBox.accepted.connect(self.accept_)
+        buttonBox.rejected.connect(self.reject_)
         self.table.cellDoubleClicked.connect(self.finishChoose)
         self.table.cellActivated.connect(self.chooseOne)
 
@@ -47,6 +55,16 @@ class resultDisplay(QDialog):
     def finishChoose(self, row, col):
         self.currentRow = row
         self.accept()
+
+    def accept_(self):
+        self.parent.parent.parent.parameter.resultDialogTableState = self.table.horizontalHeader().saveState()
+        self.parent.parent.parent.parameter.resultDialogGeometry = self.saveGeometry()
+        self.accept()
+
+    def reject_(self):
+        self.parent.parent.parent.parameter.resultDialogTableState = self.table.horizontalHeader().saveState()
+        self.parent.parent.parent.parameter.resultDialogGeometry = self.saveGeometry()
+        self.reject()
 
 
 
