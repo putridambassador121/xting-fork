@@ -47,6 +47,17 @@ class parameterData:
         self.autoT2S = self.stringToBool(self.iniFile.value("/lrcshowx/autot2s", False))
         self.lrcFont = self.iniFile.value("/lrcshowx/lrcfont", "")
 
+        self.playorpauseActionShortcut = self.iniFile.value("/shortcuts/playorpauseaction")
+        self.stopActionShortcut = self.iniFile.value("/shortcuts/stopactionshortcut")
+        self.nextActionShortcut = self.iniFile.value("/shortcuts/nextactionshortcut")
+        self.previousActionShortcut = self.iniFile.value("/shortcuts/previousactionshortcut")
+        self.repeatActionShortcut = self.iniFile.value("/shortcuts/repeatactionshortcut")
+        self.closeLrcShortcut = self.iniFile.value("/shortcuts/closelrcshortcut")
+        self.offsetForwardShortcut = self.iniFile.value("/shortcuts/offsetforwardshortcut")
+        self.offsetBackwardShortcut = self.iniFile.value("/shortcuts/offsetbackwardshortcut")
+        self.reloadLrcShortcut = self.iniFile.value("/shortcuts/reloadlrcshortcut")
+        self.insertTagShortcut = self.iniFile.value("/shortcuts/insertagshortcut")
+
     def save(self):
         self.iniFile.setValue("player/collectionpath", self.collectionPath)
         self.iniFile.setValue("player/trayicon", self.trayIcon)
@@ -78,6 +89,17 @@ class parameterData:
         self.iniFile.setValue("/lrcshowx/autochoosethefirst", self.autoChooseTheFirst)
         self.iniFile.setValue("/lrcshowx/autot2s", self.autoT2S)
         self.iniFile.setValue("/lrcshowx/lrcfont", self.lrcFont)
+
+        self.iniFile.setValue("/shortcuts/playorpauseaction", self.playorpauseActionShortcut)
+        self.iniFile.setValue("/shortcuts/stopactionshortcut", self.stopActionShortcut)
+        self.iniFile.setValue("/shortcuts/nextactionshortcut", self.nextActionShortcut)
+        self.iniFile.setValue("/shortcuts/previousactionshortcut", self.previousActionShortcut)
+        self.iniFile.setValue("/shortcuts/repeatactionshortcut", self.repeatActionShortcut)
+        self.iniFile.setValue("/shortcuts/closelrcshortcut", self.closeLrcShortcut)
+        self.iniFile.setValue("/shortcuts/offsetforwardshortcut", self.offsetForwardShortcut)
+        self.iniFile.setValue("/shortcuts/offsetbackwardshortcut", self.offsetBackwardShortcut)
+        self.iniFile.setValue("/shortcuts/reloadlrcshortcut", self.reloadLrcShortcut)
+        self.iniFile.setValue("/shortcuts/insertagshortcut", self.insertTagShortcut)
 
     def stringToBool(self, s):
         if type(s) == bool:

@@ -20,8 +20,8 @@
 * [x] finish all lrcShow-X context menu function
 * [x] finish album cover function
 * [x] finish play list function
-* [] finish shortcuts function
-* [] add shortcuts config page
+* [x] finish shortcuts function
+* [x] add shortcuts config page
 * [x] finish lrc edit function
 * [] icons
 * [x] edit track tags

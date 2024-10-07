@@ -25,8 +25,8 @@ class configuration(QDialog):
         self.stackArea.addWidget(self.playerConfig)
         self.lrcShowxConfig = lrcShowxConfig(self)
         self.stackArea.addWidget(self.lrcShowxConfig)
-        self.shortcutConfig = shortcutConfig(self)
-        self.stackArea.addWidget(self.shortcutConfig)
+        self.shortcutsConfig = shortcutsConfig(self)
+        self.stackArea.addWidget(self.shortcutsConfig)
 
         self.splitter = QSplitter(self)
         self.splitter.addWidget(self.catalogList)
@@ -77,6 +77,7 @@ class playerConfig(QWidget):
         self.playerTrayBox = playerTrayBox(self)
         mainLayout.addWidget(self.playerPathBox)
         mainLayout.addWidget(self.playerTrayBox)
+        mainLayout.addStretch(0)
         self.setLayout(mainLayout)
 
 class playerPathBox(QGroupBox):
@@ -145,6 +146,7 @@ class lrcShowxConfig(QWidget):
         self.appearenceBox = appearenceBox(self)
         mainLayout.addWidget(self.lrcPathBox)
         mainLayout.addWidget(self.appearenceBox)
+        mainLayout.addStretch(0)
         self.setLayout(mainLayout)
 
 
@@ -290,14 +292,73 @@ class appearenceBox(QGroupBox):
 
 ##########################################################
 
-class shortcutConfig(QWidget):
+class shortcutsConfig(QWidget):
 
     def __init__(self, parent):
         super().__init__(parent)
         self.parent = parent
 
+        mainLayout = QVBoxLayout(None)
+        self.playerShortcutsBox = playerShortcutsBox(self)
+        self.lrcShowxShortcutsBox = lrcShowxShortcutsBox(self)
+        self.lrcEditorShortcutsBox = lrcEditorShortcutsBox(self)
+        mainLayout.addWidget(self.playerShortcutsBox)
+        mainLayout.addWidget(self.lrcShowxShortcutsBox)
+        mainLayout.addWidget(self.lrcEditorShortcutsBox)
+        self.setLayout(mainLayout)
 
+class playerShortcutsBox(QGroupBox):
 
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.parent = parent
+        self.setTitle(self.tr("Player"))
+        self.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+
+        mainLayout = QFormLayout(None)
+        self.playorpauseActionShortcut = QKeySequenceEdit(self.parent.parent.parent.parameter.playorpauseActionShortcut)
+        self.stopActionShortcut = QKeySequenceEdit(self.parent.parent.parent.parameter.stopActionShortcut)
+        self.nextActionShortcut = QKeySequenceEdit(self.parent.parent.parent.parameter.nextActionShortcut)
+        self.previousActionShortcut = QKeySequenceEdit(self.parent.parent.parent.parameter.previousActionShortcut)
+        self.repeatActionShortcut = QKeySequenceEdit(self.parent.parent.parent.parameter.repeatActionShortcut)
+        mainLayout.addRow(self.tr("Play/Pause:"), self.playorpauseActionShortcut)
+        mainLayout.addRow(self.tr("Stop:"), self.stopActionShortcut)
+        mainLayout.addRow(self.tr("Next track:"), self.nextActionShortcut)
+        mainLayout.addRow(self.tr("Previous track:"), self.previousActionShortcut)
+        mainLayout.addRow(self.tr("Repeat current track:"), self.repeatActionShortcut)
+        self.setLayout(mainLayout)
+
+class lrcShowxShortcutsBox(QGroupBox):
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.parent = parent
+        self.setTitle(self.tr("lrcShow-X"))
+        self.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+
+        mainLayout = QFormLayout(None)
+        self.closeLrcShortcut = QKeySequenceEdit(self.parent.parent.parent.parameter.closeLrcShortcut)
+        self.offsetForwardShortcut = QKeySequenceEdit(self.parent.parent.parent.parameter.offsetForwardShortcut)
+        self.offsetBackwardShortcut = QKeySequenceEdit(self.parent.parent.parent.parameter.offsetBackwardShortcut)
+        self.reloadLrcShortcut = QKeySequenceEdit(self.parent.parent.parent.parameter.reloadLrcShortcut)
+        mainLayout.addRow(self.tr("Close current lrc:"), self.closeLrcShortcut)
+        mainLayout.addRow(self.tr("offset +200ms:"), self.offsetForwardShortcut)
+        mainLayout.addRow(self.tr("offset -200ms:"), self.offsetBackwardShortcut)
+        mainLayout.addRow(self.tr("Reload the lrc:"), self.reloadLrcShortcut)
+        self.setLayout(mainLayout)
+
+class lrcEditorShortcutsBox(QGroupBox):
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.parent = parent
+        self.setTitle(self.tr("lrc editor"))
+        self.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+
+        mainLayout = QFormLayout(None)
+        self.insertTagShortcut = QKeySequenceEdit(self.parent.parent.parent.parameter.insertTagShortcut)
+        mainLayout.addRow(self.tr("Insert one time tag:"), self.insertTagShortcut)
+        self.setLayout(mainLayout)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

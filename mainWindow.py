@@ -38,6 +38,8 @@ class mainWindow(windowUI):
         self.initMenuBar()
         self.initStatusBar()
 
+        self.setShortcuts()
+
         if not self.parameter.currentPlaylistName:
             path = os.path.join(self.parameter.privatePath, "current.txt")
             if os.path.exists(path):
@@ -50,9 +52,6 @@ class mainWindow(windowUI):
             with open(self.parameter.currentPlaylistName, "r") as f:
                 self.playlistTmp = list(map(lambda x: x.strip(), f.readlines()))
             self.addToPlaylist(self.playlistTmp)
-
-
-
 
         self.systemTray = QSystemTrayIcon(QIcon("icon/logo.png"), self)
         self.systemTray.setContextMenu(self.trayContextMenu)
@@ -468,6 +467,18 @@ class mainWindow(windowUI):
             self.parameter.lrcLocalPath = self.lrcShowxDock.lrcShowxWidget.lrcLocalPath = settingDialog.lrcShowxConfig.lrcPathBox.llLine.text()
             self.parameter.autoSaveLrc = self.lrcShowxDock.lrcShowxWidget.autoSaveLrc = settingDialog.lrcShowxConfig.lrcPathBox.auto.isChecked()
 
+            self.parameter.playorpauseActionShortcut = settingDialog.shortcutsConfig.playerShortcutsBox.playorpauseActionShortcut.keySequence()
+            self.parameter.stopActionShortcut = settingDialog.shortcutsConfig.playerShortcutsBox.stopActionShortcut.keySequence()
+            self.parameter.nextActionShortcut = settingDialog.shortcutsConfig.playerShortcutsBox.nextActionShortcut.keySequence()
+            self.parameter.previousActionShortcut = settingDialog.shortcutsConfig.playerShortcutsBox.previousActionShortcut.keySequence()
+            self.parameter.repeatActionShortcut = settingDialog.shortcutsConfig.playerShortcutsBox.repeatActionShortcut.keySequence()
+            self.parameter.closeLrcShortcut = settingDialog.shortcutsConfig.lrcShowxShortcutsBox.closeLrcShortcut.keySequence()
+            self.parameter.offsetForwardShortcut = settingDialog.shortcutsConfig.lrcShowxShortcutsBox.offsetForwardShortcut.keySequence()
+            self.parameter.offsetBackwardShortcut = settingDialog.shortcutsConfig.lrcShowxShortcutsBox.offsetBackwardShortcut.keySequence()
+            self.parameter.reloadLrcShortcut = settingDialog.shortcutsConfig.lrcShowxShortcutsBox.reloadLrcShortcut.keySequence()
+            self.parameter.insertTagShortcut =settingDialog.shortcutsConfig.lrcEditorShortcutsBox.insertTagShortcut.keySequence()
+            self.setShortcuts()
+
             if self.parameter.collectionPath != settingDialog.playerConfig.playerPathBox.cpLine.text():
                 self.parameter.collectionPath = settingDialog.playerConfig.playerPathBox.cpLine.text()
                 self.collectionDock.collectionWidget.updateList()
@@ -507,7 +518,17 @@ class mainWindow(windowUI):
         with open(os.path.join(self.parameter.privatePath, "current.txt"), "w") as f:
             f.write(t)
 
-
+    def setShortcuts(self):
+        self.playorpauseAction.setShortcut(QKeySequence(self.parameter.playorpauseActionShortcut))
+        self.stopAction.setShortcut(QKeySequence(self.parameter.stopActionShortcut))
+        self.nextAction.setShortcut(QKeySequence(self.parameter.nextActionShortcut))
+        self.previousAction.setShortcut(QKeySequence(self.parameter.previousActionShortcut))
+        self.repeatAction.setShortcut(QKeySequence(self.parameter.repeatActionShortcut))
+        self.lrcShowxDock.lrcShowxWidget.closeLrcAction.setShortcut(QKeySequence(self.parameter.closeLrcShortcut))
+        self.lrcShowxDock.lrcShowxWidget.forwardAction.setShortcut(QKeySequence(self.parameter.offsetForwardShortcut))
+        self.lrcShowxDock.lrcShowxWidget.backwardAction.setShortcut(QKeySequence(self.parameter.offsetBackwardShortcut))
+        self.lrcShowxDock.lrcShowxWidget.reloadAction.setShortcut(QKeySequence(self.parameter.reloadLrcShortcut))
+        self.lrcEditorDock.lrcEditorWidget.insertAction.setShortcut(QKeySequence(self.parameter.insertTagShortcut))
 
     def quit_(self):
         self.parameter.doQuit = self.parameter.closeNotQuit
