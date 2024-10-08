@@ -377,7 +377,7 @@ class mainWindow(windowUI):
         self.musicEngine.stop()
 
     def repeat_(self):
-        self.virtualStop = False
+        self.stop_()
         self.actualPlayOrPause(True)
         self.virtualStop = True
 
