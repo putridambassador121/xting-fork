@@ -23,5 +23,6 @@
 * [x] finish shortcuts function
 * [x] add shortcuts config page
 * [x] finish lrc edit function
-* [] icons
+* [x] icons
 * [x] edit track tags
+* [] bug fix

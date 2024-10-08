@@ -125,7 +125,7 @@ class mainWindow(windowUI):
         self.sequenceRandomAction.toggled.connect(self.changeSequence)
 
         self.aboutAppAction.triggered.connect(self.aboutAppAction_)
-        self.aboutQtAction.triggered.connect(self.aboutQt_)
+        self.aboutQtAction.triggered.connect(QApplication.aboutQt)
         self.quitAction.triggered.connect(self.quit_)
 
     def restoreWidgetState(self):
@@ -177,7 +177,7 @@ class mainWindow(windowUI):
             self.playorpauseAction.setEnabled(True)
             self.playorpauseAction.setText(self.tr("Play"))
             self.centralWidget.playorpauseButton.setEnabled(True)
-            self.centralWidget.playorpauseButton.setText(self.tr("Play"))
+            self.centralWidget.playorpauseButton.setIcon(QIcon("icon/play.png"))
             self.stopAction.setEnabled(False)
             self.centralWidget.stopButton.setEnabled(False)
             self.previousAction.setEnabled(False)
@@ -193,7 +193,7 @@ class mainWindow(windowUI):
 
         elif status == 1:
             self.playorpauseAction.setText(self.tr("Pause"))
-            self.centralWidget.playorpauseButton.setText(self.tr("Pause"))
+            self.centralWidget.playorpauseButton.setIcon(QIcon("icon/pause.png"))
             self.playorpauseAction.setEnabled(True)
             self.centralWidget.playorpauseButton.setEnabled(True)
             self.stopAction.setEnabled(True)
@@ -205,7 +205,7 @@ class mainWindow(windowUI):
 
         elif status == 2:
             self.playorpauseAction.setText(self.tr("Play"))
-            self.centralWidget.playorpauseButton.setText(self.tr("Play"))
+            self.centralWidget.playorpauseButton.setIcon(QIcon("icon/play.png"))
 
     def addHistoryAction(self):
         if self.addToPlayHistory:
@@ -221,11 +221,10 @@ class mainWindow(windowUI):
     def playbackStateChanged_(self, status):
 
         if status.value == 0: # stoped status
-
             self.addHistoryAction()
 
             self.timer.stop()
-            if self.virtualStop:   # True: handle track to track automatically, feel like playing by playing without stop, it's default'
+            if self.virtualStop:   # True: handle track to track automatically, feel like playing by playing without stop, it's default
                 self.scheduleNextTrack()
             else:                  # False: handle real stop, happens end of playlist, user click stop button etc
                 self.afterStop()
@@ -237,6 +236,7 @@ class mainWindow(windowUI):
             self.showTrayInformation(2)
 
     def afterStop(self):
+        self.virtualStop = True
         self.setButtonStatus(0)
         self.showTrayInformation(0)
 
@@ -432,9 +432,6 @@ class mainWindow(windowUI):
         b.setWindowTitle(self.tr(f'About {QApplication.arguments()[0]}'))
         b.setText(f'Application: {QApplication.arguments()[0]}\n\nVersion: {QApplication.arguments()[1]}\n\nShort description: xting is a personal local music application, not special. Synced lyrics display is interesting\n\nAuthors: {QApplication.arguments()[2]}\n\nLicense: {QApplication.arguments()[3]}\n\nWebsite: {QApplication.arguments()[4]}')
         b.exec()
-
-    def aboutQt_(self):
-        QMessageBox.aboutQt(self, self.tr("About Qt"))
 
     def configurationAction_(self):
         settingDialog = configuration(self)
