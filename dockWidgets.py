@@ -507,11 +507,11 @@ class collectionWidget(QWidget):
 
         self.collectionView = collectionView(self)
 
-        di = QDir(self.parent.parent.parameter.collectionPath, "Media files (*.mp3 *.flac *.ogg)")
+        di = QDir(self.parent.parent.parameter.collectionPath, "Media files (*.ogg *.mp3 *.flac)")
         layout = QVBoxLayout(None)
 
         self.model = QFileSystemModel()
-        self.model.setNameFilters(["*.mp3", "*.flac"])
+        self.model.setNameFilters(["*.ogg", "*.mp3", "*.flac"])
         self.model.setNameFilterDisables(False)
         self.model.setRootPath(di.path())
         self.collectionView.setModel(self.model)
@@ -524,7 +524,7 @@ class collectionWidget(QWidget):
         self.updateModel()
 
     def updateModel(self):
-        di = QDir(self.parent.parent.parameter.collectionPath, "Media files (*.mp3 *.flac *.ogg)")
+        di = QDir(self.parent.parent.parameter.collectionPath, "Media files (*.ogg)")
         self.model.setRootPath(di.path())
 
         self.collectionView.setModel(self.model)
@@ -549,7 +549,13 @@ class collectionView(QListView):
         self.contextMenu = QMenu(self)
         self.addToPlaylistAction = QAction(self.tr("add to playlist"), self)
         self.contextMenu.addAction(self.addToPlaylistAction)
-
+        self.contextMenu.addSeparator()
+        self.delFileAction = QAction(self.tr("Del file..."), self)
+        self.delFileAction.setEnabled(False)
+        self.renameAction = QAction(self.tr("Rename..."), self)
+        self.renameAction.setEnabled(False)
+        self.contextMenu.addAction(self.delFileAction)
+        self.contextMenu.addAction(self.renameAction)
 
     def contextMenuEvent(self, ev):
         self.contextMenu.popup(self.mapToGlobal(ev.pos()))
