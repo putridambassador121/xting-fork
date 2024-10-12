@@ -313,7 +313,7 @@ class mainWindow(windowUI):
                 self.systemTray.showMessage(self.tr("Status changed"), "Stopped", QIcon("icon/logo.png"), 6000)
 
     def openFileAction_(self):
-        url, fil = QFileDialog.getOpenFileUrl(None, self.tr("choose a music file"), QUrl.fromLocalFile(self.parameter.collectionPath), "music files (*.mp3 *.flac)")
+        url, fil = QFileDialog.getOpenFileUrl(None, self.tr("choose a music file"), QUrl.fromLocalFile(self.parameter.collectionPath), "music files (*.mp3 *.flac *.ogg)")
         if not url.isEmpty():
             self.musicEngine.add(url)
             self.currentTrack = track(url.toLocalFile())
