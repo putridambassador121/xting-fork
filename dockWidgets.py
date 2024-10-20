@@ -544,10 +544,13 @@ class collectionView(QListView):
         self.initContextMenu()
 
         self.addToPlaylistAction.triggered.connect(self.addToPlaylistAction_)
+        self.delFileAction.triggered.connect(self.delFileAction_)
+        self.renameAction.triggered.connect(self.renameAction_)
 
     def initContextMenu(self):
         self.contextMenu = QMenu(self)
         self.addToPlaylistAction = QAction(self.tr("add to playlist"), self)
+        self.addToPlaylistAction.setEnabled(False)
         self.contextMenu.addAction(self.addToPlaylistAction)
         self.contextMenu.addSeparator()
         self.delFileAction = QAction(self.tr("Del file..."), self)
@@ -557,7 +560,37 @@ class collectionView(QListView):
         self.contextMenu.addAction(self.delFileAction)
         self.contextMenu.addAction(self.renameAction)
 
+    def renameAction_(self):
+        oldName = self.selectedIndexes()[0].data()
+        newName, ok = QInputDialog.getText(self, "Input new name", "New file name:", QLineEdit.EchoMode.Normal, oldName)
+        if ok:
+            root = self.model().rootPath()
+            try:
+                os.rename(os.path.join(root, oldName), os.path.join(root, newName))
+            except:
+                QMessageBox.information(self, self.tr("Information:"), self.tr("Rename failed, please check the input characters"))
+
+
+    def delFileAction_(self):
+        b = QMessageBox.warning(self, self.tr("Important:"), self.tr("You are deleting the selected tracks from disk\nAre you sure?"), QMessageBox.StandardButton.Yes, QMessageBox.StandardButton.No)
+        if b.value == 16384:
+            root = self.model().rootPath()
+            for i in self.selectedIndexes():
+                self.parent.model.remove(i)
+
+
     def contextMenuEvent(self, ev):
+        n = len(self.selectedIndexes())
+        if n != 0:
+            self.addToPlaylistAction.setEnabled(True)
+            self.delFileAction.setEnabled(True)
+        else:
+            self.addToPlaylistAction.setEnabled(False)
+            self.delFileAction.setEnabled(False)
+        if n == 1:
+            self.renameAction.setEnabled(True)
+        else:
+            self.renameAction.setEnabled(False)
         self.contextMenu.popup(self.mapToGlobal(ev.pos()))
 
     def addToPlaylistAction_(self):
