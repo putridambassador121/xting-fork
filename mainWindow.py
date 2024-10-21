@@ -45,12 +45,15 @@ class mainWindow(windowUI):
             if os.path.exists(path):
                 with open(path, "r") as f:
                     self.playlistTmp = list(map(lambda x: x.strip(), f.readlines()))
+                    self.playlistTmp = list(filter(lambda x: os.path.exists(x), self.playlistTmp))
                 self.addToPlaylist(self.playlistTmp)
             else:
                 self.playlistTmp = []
         else:
             with open(self.parameter.currentPlaylistName, "r") as f:
                 self.playlistTmp = list(map(lambda x: x.strip(), f.readlines()))
+                self.playlistTmp = list(filter(lambda x: os.path.exists(x), self.playlistTmp))
+                print(self.playlistTmp)
             self.addToPlaylist(self.playlistTmp)
 
         self.systemTray = QSystemTrayIcon(QIcon("icon/logo.png"), self)

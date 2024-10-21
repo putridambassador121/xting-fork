@@ -359,6 +359,8 @@ class playlistWidget(QWidget):
         self.operateModel(trackList, append, updatePlaylistTmp)
 
     def appendItems(self, newList):
+        print(newList)
+        print(self.parent.parent.playlistTmp)
         newItems = list(set(newList) - set(self.parent.parent.playlistTmp))
         self.operateModel(newItems, True)
 
@@ -366,12 +368,16 @@ class playlistWidget(QWidget):
         self.model.itemChanged.disconnect(self.itemTagChange)
         if append:
             row = len(self.parent.parent.playlistTmp)
+            print(row)
         else:
             row = 0
         for i in trackList:
             if not i.strip():
                 continue
-            au = track(i.strip())
+            try:
+                au = track(i.strip())
+            except:
+                continue
             itemTitle = QStandardItem(au.trackTitle)
             itemTitle.setEditable(True)
             self.model.setItem(row, 0, itemTitle)
@@ -406,6 +412,7 @@ class playlistWidget(QWidget):
                 self.parent.parent.playlistTmp += trackList
             else:
                 self.parent.parent.playlistTmp = trackList
+        print(f"muasfasf{self.parent.parent.playlistTmp}sadfa")
         self.model.itemChanged.connect(self.itemTagChange)
 
 
@@ -461,6 +468,8 @@ class playlistWidget(QWidget):
 
             with open(f, "r") as ff:
                 pl = ff.readlines()
+            pl = list(map(lambda x: x.strip(), pl))
+            pl = list(filter(lambda x: os.path.exists(x), pl))
             self.loadItems(pl, False, True)
             self.parent.parent.parameter.currentPlaylistName = f
             self.updateNameLabel()
