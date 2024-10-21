@@ -359,8 +359,6 @@ class playlistWidget(QWidget):
         self.operateModel(trackList, append, updatePlaylistTmp)
 
     def appendItems(self, newList):
-        print(newList)
-        print(self.parent.parent.playlistTmp)
         newItems = list(set(newList) - set(self.parent.parent.playlistTmp))
         self.operateModel(newItems, True)
 
@@ -368,7 +366,6 @@ class playlistWidget(QWidget):
         self.model.itemChanged.disconnect(self.itemTagChange)
         if append:
             row = len(self.parent.parent.playlistTmp)
-            print(row)
         else:
             row = 0
         for i in trackList:
@@ -412,7 +409,6 @@ class playlistWidget(QWidget):
                 self.parent.parent.playlistTmp += trackList
             else:
                 self.parent.parent.playlistTmp = trackList
-        print(f"muasfasf{self.parent.parent.playlistTmp}sadfa")
         self.model.itemChanged.connect(self.itemTagChange)
 
 
