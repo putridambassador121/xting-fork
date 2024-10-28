@@ -57,9 +57,9 @@ class configuration(QDialog):
 
 
     def switchStack(self, i):
-        if i.text() == "Player":
+        if i.text() == self.tr("Player"):
             self.stackArea.setCurrentIndex(0)
-        elif i.text() == "lrcShow-X":
+        elif i.text() == self.tr("lrcShow-X"):
             self.stackArea.setCurrentIndex(1)
         else:
             self.stackArea.setCurrentIndex(2)

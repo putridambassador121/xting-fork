@@ -415,7 +415,7 @@ class playlistWidget(QWidget):
     def initToolBar(self):
         self.toolBar = QToolBar(self)
         self.loadPlaylistAction = QAction(self.tr("Load playlist"), self)
-        self.savePlaylistAction = QAction(self.tr("Save "))
+        self.savePlaylistAction = QAction(self.tr("Save"))
         self.saveasPlayListAction = QAction(self.tr("Save as..."))
         self.addTrackAction = QAction(self.tr("Add..."), self)
         self.removeTrackAction = QAction(self.tr("Remove"))
