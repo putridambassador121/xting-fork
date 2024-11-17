@@ -250,7 +250,6 @@ class mainWindow(windowUI):
             except:
                 self.playHistory = []
             self.currentIndex = self.getNumberFromFile(pf)
-            self.musicEngine.add(pf)
             self.currentTrack = track(pf)
             self.playlistDock.playlistWidget.playlistTable.selectRow(self.currentIndex)
             self.actualPlayOrPause()
@@ -265,7 +264,6 @@ class mainWindow(windowUI):
             tr = self.playlistDock.playlistWidget.model.rowCount()
             ind = random.randint(0, tr - 1)
             url = self.playlistDock.playlistWidget.model.item(ind, 8).text()
-            self.musicEngine.add(url)
             self.currentIndex = ind
             self.currentTrack = track(url)
             self.playlistDock.playlistWidget.playlistTable.selectRow(ind)
@@ -317,11 +315,11 @@ class mainWindow(windowUI):
     def openFileAction_(self):
         url, fil = QFileDialog.getOpenFileUrl(None, self.tr("choose a music file"), QUrl.fromLocalFile(self.parameter.collectionPath), "music files (*.mp3 *.flac *.ogg)")
         if not url.isEmpty():
-            self.musicEngine.add(url)
             self.currentTrack = track(url.toLocalFile())
-            self.addToPlaylist([self.currentTrack])
-            self.currentIndex = self.playlistDock.playlistWidget.model.rowCount() - 1
-            self.actualPlayOrPause()
+            self.addToPlaylist([self.currentTrack.trackFile])
+            self.currentIndex = 0
+            self.playlistDock.playlistWidget.playlistTable.selectRow(0)
+            self.actualPlayOrPause(True)
 
     def getNumberFromFile(self, f):
         for i in range(0, self.playlistDock.playlistWidget.model.rowCount()):
@@ -333,7 +331,6 @@ class mainWindow(windowUI):
         self.virtualStop = False
         url = self.playlistDock.playlistWidget.model.item(ind.row(), 8).text()
         self.currentIndex = ind.row()
-        self.musicEngine.add(url)
         self.currentTrack = track(url)
         self.actualPlayOrPause()
         self.virtualStop = True
