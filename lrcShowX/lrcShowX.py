@@ -43,7 +43,7 @@ class lrcShowX(QTextBrowser):
         self.initFont()
         self.initColor()
 
-        self.showInfo("No music is playing")
+        self.showInfo(self.tr("No music is playing"))
 
         self.parent.parent.musicEngine.musicEquipment.playbackStateChanged.connect(self.playbackStateChanged_)
         self.parent.parent.positionChanged.connect(self.trackPositionChanged)
@@ -92,7 +92,7 @@ class lrcShowX(QTextBrowser):
             self.s2tAction.setEnabled(False)
             self.saveAfterTransferAction.setEnabled(False)
 
-            self.showInfo("No music is playing")
+            self.showInfo(self.tr("No music is playing"))
 
         elif sv == 1: # playing state
             if self.lrcInstance and self.currentTag:
@@ -130,7 +130,7 @@ class lrcShowX(QTextBrowser):
                         self.t2sAction.setEnabled(False)
                         self.s2tAction.setEnabled(False)
                         self.saveAfterTransferAction.setEnabled(False)
-                        self.showInfo("Cancel getting lrc by user")
+                        self.showInfo(self.tr("Cancel getting lrc by user"))
                         return
                 else:
                     fi = fil[0]
@@ -169,7 +169,7 @@ class lrcShowX(QTextBrowser):
             self.currentTag = None
             self.offsetOneShort = 0
             self.totalOffset = 0
-            self.showInfo("No lrc found")
+            self.showInfo(self.tr("No lrc found"))
             return
 
         if self.parent.parent.parameter.autoChooseTheFirst or len(l) == 1:
@@ -208,7 +208,7 @@ class lrcShowX(QTextBrowser):
                 self.s2tAction.setEnabled(False)
                 self.saveAfterTransferAction.setEnabled(False)
 
-                self.showInfo("Cancel getting lrc by user")
+                self.showInfo(self.tr("Cancel getting lrc by user"))
 
 
     def lrclibGotLrc(self, lrc):
@@ -251,7 +251,7 @@ class lrcShowX(QTextBrowser):
             self.s2tAction.setEnabled(False)
             self.saveAfterTransferAction.setEnabled(False)
 
-            self.showInfo("lrc error")
+            self.showInfo(self.tr("lrc error"))
 
     def searchOnline(self):
         title = self.parent.parent.currentTrack.trackTitle
@@ -407,7 +407,7 @@ class lrcShowX(QTextBrowser):
 
     def formartLrc(self):
         if not self.lrcInstance:
-            self.showInfo("Can not parse the LRC file")
+            self.showInfo(self.tr("Can not parse the LRC file"))
         else:
             j =  f'<p align="center" style=" margin-top:{self.lineMargin}px; margin-bottom:{self.lineMargin}px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&nbsp;</p>'
             nullLines = self.topMarginLines * j
@@ -508,7 +508,7 @@ class lrcShowX(QTextBrowser):
         self.copyPlainAction.setEnabled(False)
         self.copyLrcAction.setEnabled(False)
         self.closeLrcAction.setEnabled(False)
-        self.showInfo("Current lrc was closed")
+        self.showInfo(self.tr("Current lrc was closed"))
 
     def saveTheLrcAction_(self):
         fileName = os.path.join(self.lrcLocalPath, f"{self.parent.parent.currentTrack.trackTitle} - {self.parent.parent.currentTrack.trackArtist}.lrc")

@@ -440,7 +440,7 @@ class playlistWidget(QWidget):
         self.loadItems(l)
 
     def addTrackAction_(self):
-        urlList, fi = QFileDialog.getOpenFileNames(self, self.tr("Add tracks"), self.parent.parent.parameter.collectionPath, "Media files (*.mp3 *.flac *.ogg)")
+        urlList, fi = QFileDialog.getOpenFileNames(self, self.tr("Add tracks"), self.parent.parent.parameter.collectionPath, "Media files (*.mp3 *.flac *.ogg *.m4a)")
         self.appendItems(urlList)
 
     def savePlaylistAction_(self):
@@ -512,11 +512,11 @@ class collectionWidget(QWidget):
 
         self.collectionView = collectionView(self)
 
-        di = QDir(self.parent.parent.parameter.collectionPath, "Media files (*.ogg *.mp3 *.flac)")
+        di = QDir(self.parent.parent.parameter.collectionPath, "Media files (*.ogg *.mp3 *.flac *.m4a)")
         layout = QVBoxLayout(None)
 
         self.model = QFileSystemModel()
-        self.model.setNameFilters(["*.ogg", "*.mp3", "*.flac"])
+        self.model.setNameFilters(["*.ogg", "*.mp3", "*.flac", "*.m4a"])
         self.model.setNameFilterDisables(False)
         self.model.setRootPath(di.path())
         self.collectionView.setModel(self.model)

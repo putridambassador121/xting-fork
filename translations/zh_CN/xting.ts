@@ -2,156 +2,6 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="zh_CN" sourcelanguage="en_US">
 <context>
-    <name>mainWindow</name>
-    <message>
-        <location filename="windowUI.py" line="37"/>
-        <source>File</source>
-        <translation>文件</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="38"/>
-        <source>Open...</source>
-        <translation>打开...</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="39"/>
-        <source>Quit</source>
-        <translation>退出</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="45"/>
-        <source>Playback</source>
-        <translation>玩乐</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="46"/>
-        <source>Previous</source>
-        <translation>上一曲</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="48"/>
-        <source>Play</source>
-        <translation>播放</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="50"/>
-        <source>Stop</source>
-        <translation>停止</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="52"/>
-        <source>Next</source>
-        <translation>下一曲</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="54"/>
-        <source>Repeat</source>
-        <translation>重播</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="146"/>
-        <location filename="windowUI.py" line="66"/>
-        <location filename="windowUI.py" line="62"/>
-        <source>Playlist</source>
-        <translation>播放列表</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="63"/>
-        <source>Loop</source>
-        <translation>循环</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="64"/>
-        <source>Track</source>
-        <translation>单曲循环</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="68"/>
-        <source>No loop</source>
-        <translation>无循环</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="77"/>
-        <source>Sequence</source>
-        <translation>播放次序</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="78"/>
-        <source>Random</source>
-        <translation>随机播放</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="80"/>
-        <source>Order</source>
-        <translation>顺序播放</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="82"/>
-        <source>Reverse order</source>
-        <translation>倒序播放</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="92"/>
-        <source>View</source>
-        <translation>查看</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="99"/>
-        <source>Audio</source>
-        <translation>音频</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="100"/>
-        <source>Device</source>
-        <translation>设备</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="115"/>
-        <source>Setting</source>
-        <translation>设置</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="116"/>
-        <source>Configurate...</source>
-        <translation>配置...</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="119"/>
-        <source>Help</source>
-        <translation>帮助</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="120"/>
-        <source>About xting...</source>
-        <translation>关于xting...</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="121"/>
-        <source>About Qt...</source>
-        <translation>关于Qt...</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="137"/>
-        <source>lrcShow-X</source>
-        <translation>lrcShow-X</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="141"/>
-        <source>Lrc editor</source>
-        <translation>lrc歌词编辑器</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="150"/>
-        <source>Collection</source>
-        <translation>收藏</translation>
-    </message>
-    <message>
-        <location filename="windowUI.py" line="154"/>
-        <source>Album cover</source>
-        <translation>专辑封面</translation>
-    </message>
-</context>
-<context>
     <name>appearenceBox</name>
     <message>
         <location filename="configuration.py" line="191"/>
@@ -261,6 +111,14 @@ Are you sure?</source>
         <location filename="configuration.py" line="43"/>
         <source>OK</source>
         <translation>确认</translation>
+    </message>
+</context>
+<context>
+    <name>engine</name>
+    <message>
+        <location filename="engine.py" line="32"/>
+        <source>please add a track first</source>
+        <translation>请先添加音轨文件</translation>
     </message>
 </context>
 <context>
@@ -400,6 +258,33 @@ Are you sure?</source>
 <context>
     <name>lrcShowX</name>
     <message>
+        <location filename="lrcShowX/lrcShowX.py" line="95"/>
+        <location filename="lrcShowX/lrcShowX.py" line="46"/>
+        <source>No music is playing</source>
+        <translation>播放器静默中</translation>
+    </message>
+    <message>
+        <location filename="lrcShowX/lrcShowX.py" line="211"/>
+        <location filename="lrcShowX/lrcShowX.py" line="133"/>
+        <source>Cancel getting lrc by user</source>
+        <translation>用户取消了歌词获取</translation>
+    </message>
+    <message>
+        <location filename="lrcShowX/lrcShowX.py" line="172"/>
+        <source>No lrc found</source>
+        <translation>没有找到歌词</translation>
+    </message>
+    <message>
+        <location filename="lrcShowX/lrcShowX.py" line="254"/>
+        <source>lrc error</source>
+        <translation>歌词错误</translation>
+    </message>
+    <message>
+        <location filename="lrcShowX/lrcShowX.py" line="410"/>
+        <source>Can not parse the LRC file</source>
+        <translation>无法解析当前的歌词文件</translation>
+    </message>
+    <message>
         <location filename="lrcShowX/lrcShowX.py" line="447"/>
         <source>Offset</source>
         <translation>微调</translation>
@@ -456,6 +341,11 @@ Are you sure?</source>
         <translation>简转繁</translation>
     </message>
     <message>
+        <location filename="lrcShowX/lrcShowX.py" line="511"/>
+        <source>Current lrc was closed</source>
+        <translation>当前歌词被放弃</translation>
+    </message>
+    <message>
         <location filename="lrcShowX/lrcShowX.py" line="518"/>
         <source>Waring</source>
         <translation>警告</translation>
@@ -508,14 +398,14 @@ Are you sure?</source>
         <translation>暂停</translation>
     </message>
     <message>
-        <location filename="mainWindow.py" line="315"/>
         <location filename="mainWindow.py" line="313"/>
         <location filename="mainWindow.py" line="311"/>
+        <location filename="mainWindow.py" line="309"/>
         <source>Status changed</source>
         <translation>状态切换</translation>
     </message>
     <message>
-        <location filename="mainWindow.py" line="318"/>
+        <location filename="mainWindow.py" line="316"/>
         <source>choose a music file</source>
         <translation>选择一个音乐文件</translation>
     </message>
@@ -745,6 +635,156 @@ Are you sure?</source>
         <location filename="lrcShowX/resultDialog.py" line="37"/>
         <source>OK</source>
         <translation>确认</translation>
+    </message>
+</context>
+<context>
+    <name>mainWindow</name>
+    <message>
+        <location filename="windowUI.py" line="37"/>
+        <source>File</source>
+        <translation>文件</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="38"/>
+        <source>Open...</source>
+        <translation>打开...</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="39"/>
+        <source>Quit</source>
+        <translation>退出</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="45"/>
+        <source>Playback</source>
+        <translation>玩乐</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="46"/>
+        <source>Previous</source>
+        <translation>上一曲</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="48"/>
+        <source>Play</source>
+        <translation>播放</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="50"/>
+        <source>Stop</source>
+        <translation>停止</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="52"/>
+        <source>Next</source>
+        <translation>下一曲</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="54"/>
+        <source>Repeat</source>
+        <translation>重播</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="146"/>
+        <location filename="windowUI.py" line="66"/>
+        <location filename="windowUI.py" line="62"/>
+        <source>Playlist</source>
+        <translation>播放列表</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="63"/>
+        <source>Loop</source>
+        <translation>循环</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="64"/>
+        <source>Track</source>
+        <translation>单曲循环</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="68"/>
+        <source>No loop</source>
+        <translation>无循环</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="77"/>
+        <source>Sequence</source>
+        <translation>播放次序</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="78"/>
+        <source>Random</source>
+        <translation>随机播放</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="80"/>
+        <source>Order</source>
+        <translation>顺序播放</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="82"/>
+        <source>Reverse order</source>
+        <translation>倒序播放</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="92"/>
+        <source>View</source>
+        <translation>查看</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="99"/>
+        <source>Audio</source>
+        <translation>音频</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="100"/>
+        <source>Device</source>
+        <translation>设备</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="115"/>
+        <source>Setting</source>
+        <translation>设置</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="116"/>
+        <source>Configurate...</source>
+        <translation>配置...</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="119"/>
+        <source>Help</source>
+        <translation>帮助</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="120"/>
+        <source>About xting...</source>
+        <translation>关于xting...</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="121"/>
+        <source>About Qt...</source>
+        <translation>关于Qt...</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="137"/>
+        <source>lrcShow-X</source>
+        <translation>lrcShow-X</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="141"/>
+        <source>Lrc editor</source>
+        <translation>lrc歌词编辑器</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="150"/>
+        <source>Collection</source>
+        <translation>收藏</translation>
+    </message>
+    <message>
+        <location filename="windowUI.py" line="154"/>
+        <source>Album cover</source>
+        <translation>专辑封面</translation>
     </message>
 </context>
 </TS>

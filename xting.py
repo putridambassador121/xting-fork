@@ -13,10 +13,11 @@ import sys, os
 if __name__ == "__main__":
 
     __application__ = "xting"
-    __version__ = "1.0.0"
+    __version__ = "1.0.1"
     __author__ = "sanfanling"
     __license__ = "GPLV-3.0"
     __website__ = "https://github.com/sanfanling/xting"
+    __supportedAudioformat__ = ["mp3", "flac", "ogg"]
 
     appdir = os.path.join(os.path.expanduser("~"), ".xting")
     if not os.path.isdir(appdir):
@@ -24,7 +25,7 @@ if __name__ == "__main__":
     if not os.path.isdir(os.path.join(appdir, "lrc")):
         os.mkdir(os.path.join(appdir, "lrc"))
 
-    args = [__application__, __version__, __author__, __license__, __website__]
+    args = [__application__, __version__, __author__, __license__, __website__, __supportedAudioformat__]
     app = QApplication(args)
 
     locale = QLocale.system().name()

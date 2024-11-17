@@ -2,15 +2,18 @@
 # -*- coding: utf-8 -*-
 # filename: track.py
 
-import sys, os
+import sys, os, mutagen
 
 from mutagen.mp3 import MP3
+from mutagen.mp4 import MP4
 
 from mutagen.flac import FLAC
 
 from mutagen.oggvorbis import OggVorbis
 
 from mutagen.id3 import TIT2, TALB, TPE1, TDRC
+
+
 
 class track:
 
@@ -20,13 +23,58 @@ class track:
 
         if os.path.splitext(f)[1].lower() == ".mp3":
             self.loadMp3()
-
         elif os.path.splitext(f)[1].lower() == ".flac":
             self.loadFlac()
         elif os.path.splitext(f)[1].lower() == ".ogg":
             self.loadOgg()
+        elif os.path.splitext(f)[1].lower() == ".m4a":
+            self.loadM4a()
         else:
             self.loadUnkown()
+
+    def loadM4a(self):
+        self.trackType = "m4a"
+        self.audio = mutagen.File(self.trackFile, easy = True)
+        try:
+            self.trackTitle = self.audio["title"][0]
+        except:
+            self.trackTitle = "unknow"
+        try:
+            self.trackAlbum = self.audio["album"][0]
+        except:
+            self.trackAlbum = "unknow"
+        try:
+            self.trackArtist = self.audio["artist"][0]
+        except:
+            self.trackArtist = "unknow"
+        try:
+            self.trackDate = self.audio["date"][0]
+        except:
+            self.trackDate = "unknow"
+        try:
+            self.trackBitrate = int(self.audio.info.bitrate)
+        except:
+            self.trackBitrate = 0
+        try:
+            self.trackSamplerate = int(self.audio.info.sample_rate)
+        except:
+            self.trackSamplerate = 0
+        try:
+            self.trackLength = int(self.audio.info.length)
+        except:
+            self.trackLength = 0
+        try:
+            self.trackBitrate = int(self.audio.info.bitrate)
+        except:
+            self.trackBitrate = 0
+        try:
+            self.trackSamplerate = int(self.audio.info.sample_rate)
+        except:
+            self.trackSamplerate = 0
+        try:
+            self.trackLength = int(self.audio.info.length)
+        except:
+            self.trackLength = 0
 
     def loadOgg(self):
         self.trackType = "ogg"
@@ -127,7 +175,7 @@ class track:
         if self.trackType == "mp3":
             self.audio['TIT2'] = TIT2(encoding = 3, text = v)
             self.audio.save()
-        elif self.trackType == "flac":
+        elif self.trackType == "flac" or self.trackType == "m4a":
             self.audio["title"] = v
             self.audio.save()
         elif  self.trackType == "ogg":
@@ -140,7 +188,7 @@ class track:
         if self.trackType == "mp3":
             self.audio['TALB'] = TIT2(encoding = 3, text = v)
             self.audio.save()
-        elif self.trackType == "flac":
+        elif self.trackType == "flac" or self.trackType == "m4a":
             self.audio["album"] = v
             self.audio.save()
         elif  self.trackType == "ogg":
@@ -153,7 +201,7 @@ class track:
         if self.trackType == "mp3":
             self.audio['TPE1'] = TIT2(encoding = 3, text = v)
             self.audio.save()
-        elif self.trackType == "flac":
+        elif self.trackType == "flac" or self.trackType == "m4a":
             self.audio["artist"] = v
             self.audio.save()
         elif  self.trackType == "ogg":
@@ -166,7 +214,7 @@ class track:
         if self.trackType == "mp3":
             self.audio['TDRC'] = TIT2(encoding = 3, text = v)
             self.audio.save()
-        elif self.trackType == "flac":
+        elif self.trackType == "flac" or self.trackType == "m4a":
             self.audio["date"] = v
             self.audio.save()
         elif  self.trackType == "ogg":
