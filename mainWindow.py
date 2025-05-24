@@ -8,13 +8,17 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput, QMediaMetaData, QMediaDevices
-
+from pathlib import Path
 from configuration import configuration
 from windowUI import windowUI
 from engine import engine
 
 from track import track
 
+base_dir = Path(__file__).resolve().parent.as_posix()
+
+# print(base_dir)
+# print(Path(os.path.join(base_dir, "icon/play.png")).as_posix())
 
 
 class mainWindow(windowUI):
@@ -23,7 +27,7 @@ class mainWindow(windowUI):
         super().__init__(devices)
 
         self.setWindowTitle("xting")
-        self.setWindowIcon(QIcon("icon/logo.png"))
+        self.setWindowIcon(QIcon(Path(os.path.join(base_dir, "icon/logo.png")).as_posix()))
         self.timer = QTimer()
 
         self.musicEngine = engine()
@@ -41,7 +45,7 @@ class mainWindow(windowUI):
         self.setShortcuts()
 
         if not self.parameter.currentPlaylistName:
-            path = os.path.join(self.parameter.privatePath, "current.txt")
+            path = Path(os.path.join(self.parameter.privatePath, "current.txt")).as_posix()
             if os.path.exists(path):
                 with open(path, "r") as f:
                     self.playlistTmp = list(map(lambda x: x.strip(), f.readlines()))
@@ -50,12 +54,14 @@ class mainWindow(windowUI):
             else:
                 self.playlistTmp = []
         else:
-            with open(self.parameter.currentPlaylistName, "r") as f:
-                self.playlistTmp = list(map(lambda x: x.strip(), f.readlines()))
-                self.playlistTmp = list(filter(lambda x: os.path.exists(x), self.playlistTmp))
-            self.addToPlaylist(self.playlistTmp)
-
-        self.systemTray = QSystemTrayIcon(QIcon("icon/logo.png"), self)
+            try:
+                with open(self.parameter.currentPlaylistName, "r") as f:
+                    self.playlistTmp = list(map(lambda x: x.strip(), f.readlines()))
+                    self.playlistTmp = list(filter(lambda x: os.path.exists(x), self.playlistTmp))
+                self.addToPlaylist(self.playlistTmp)
+            except FileNotFoundError:
+                open(self.parameter.currentPlaylistName, "x").close()
+        self.systemTray = QSystemTrayIcon(QIcon(Path(os.path.join(base_dir, "icon/logo.png")).as_posix()), self)
         self.systemTray.setContextMenu(self.trayContextMenu)
         self.systemTray.setVisible(self.parameter.trayIcon)
 
@@ -179,7 +185,7 @@ class mainWindow(windowUI):
             self.playorpauseAction.setEnabled(True)
             self.playorpauseAction.setText(self.tr("Play"))
             self.centralWidget.playorpauseButton.setEnabled(True)
-            self.centralWidget.playorpauseButton.setIcon(QIcon("icon/play.png"))
+            self.centralWidget.playorpauseButton.setIcon(QIcon(os.path.join(base_dir, "icon/play.png")))
             self.stopAction.setEnabled(False)
             self.centralWidget.stopButton.setEnabled(False)
             self.previousAction.setEnabled(False)
@@ -195,7 +201,7 @@ class mainWindow(windowUI):
 
         elif status == 1:
             self.playorpauseAction.setText(self.tr("Pause"))
-            self.centralWidget.playorpauseButton.setIcon(QIcon("icon/pause.png"))
+            self.centralWidget.playorpauseButton.setIcon(QIcon(os.path.join(base_dir, "icon/pause.png")))
             self.playorpauseAction.setEnabled(True)
             self.centralWidget.playorpauseButton.setEnabled(True)
             self.stopAction.setEnabled(True)
@@ -207,7 +213,7 @@ class mainWindow(windowUI):
 
         elif status == 2:
             self.playorpauseAction.setText(self.tr("Play"))
-            self.centralWidget.playorpauseButton.setIcon(QIcon("icon/play.png"))
+            self.centralWidget.playorpauseButton.setIcon(QIcon(os.path.join(base_dir, "icon/play.png")))
 
     def addHistoryAction(self):
         if self.addToPlayHistory:
@@ -306,11 +312,11 @@ class mainWindow(windowUI):
     def showTrayInformation(self, v):
         if self.parameter.trayIcon and self.parameter.trayInfo:
             if v == 1:
-                self.systemTray.showMessage(self.tr("Status changed"), f"Now playing: {self.currentTrack.trackTitle} by {self.currentTrack.trackArtist}", QIcon("icon/logo.png"), 6000)
+                self.systemTray.showMessage(self.tr("Status changed"), f"Now playing: {self.currentTrack.trackTitle} by {self.currentTrack.trackArtist}", QIcon(Path(os.path.join(base_dir, "icon/logo.png")).as_posix()), 6000)
             elif v == 2:
-                self.systemTray.showMessage(self.tr("Status changed"), f"Paused: {self.currentTrack.trackTitle} by {self.currentTrack.trackArtist}", QIcon("icon/logo.png"), 6000)
+                self.systemTray.showMessage(self.tr("Status changed"), f"Paused: {self.currentTrack.trackTitle} by {self.currentTrack.trackArtist}", QIcon(Path(os.path.join(base_dir, "icon/logo.png")).as_posix()), 6000)
             else:
-                self.systemTray.showMessage(self.tr("Status changed"), "Stopped", QIcon("icon/logo.png"), 6000)
+                self.systemTray.showMessage(self.tr("Status changed"), "Stopped", QIcon(Path(os.path.join(base_dir, "icon/logo.png")).as_posix()), 6000)
 
     def openFileAction_(self):
         url, fil = QFileDialog.getOpenFileUrl(None, self.tr("choose a music file"), QUrl.fromLocalFile(self.parameter.collectionPath), "music files (*.mp3 *.flac *.ogg *.m4a)")
@@ -427,7 +433,7 @@ class mainWindow(windowUI):
 
     def aboutAppAction_(self):
         b = QMessageBox(self)
-        b.setIconPixmap(QPixmap('icon/logo.png'))
+        b.setIconPixmap(QPixmap(Path(os.path.join(base_dir, "icon/logo.png")).as_posix()))
         b.setWindowTitle(self.tr(f'About {QApplication.arguments()[0]}'))
         b.setText(f'Application: {QApplication.arguments()[0]}\n\nVersion: {QApplication.arguments()[1]}\n\nShort description: xting is a personal local music application, not special. Synced lyrics display is interesting\n\nAuthors: {QApplication.arguments()[2]}\n\nLicense: {QApplication.arguments()[3]}\n\nWebsite: {QApplication.arguments()[4]}')
         b.exec()

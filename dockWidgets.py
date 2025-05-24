@@ -12,7 +12,9 @@ from lrcShowX.lrcShowX import lrcShowX
 from mutagen.flac import FLAC, Picture
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, APIC, error
+from pathlib import Path
 
+basedir = Path(__file__).resolve().parent.as_posix()
 
 class lrcShowxDock(QDockWidget):
 
@@ -235,7 +237,7 @@ class albumCoverWidget(QLabel):
             pass
 
     def setBlankCover(self):
-        pix = QPixmap("icon/blankAlbum.png").scaled(270, 270)
+        pix = QPixmap(os.path.join(basedir, "icon/blankAlbum.png")).scaled(270, 270)
         self.setPixmap(pix)
 
     def searchMedia(self):

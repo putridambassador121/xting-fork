@@ -10,11 +10,12 @@
 * Navigate to source dir in console and type: `python xting.py` in console to run the application
 * or directly click `xting.py` to run
 
-### Author:
-* sanfanling (xujia19@outlook.com)
+### Authors:
+* sanfanling (xujia19@outlook.com) (the original author)
+* putridambassador121 (the maintainer of the fork)
 
 ### Note:
-* Developed in Linux environment, but could run in windows system theoretically, never tested, welcome report.
+* Originally developed in the Linux environment, but could run in windows system theoretically, never tested, welcome report.
 
 ### Next todo list:
 * [x] finish all lrcShow-X context menu function

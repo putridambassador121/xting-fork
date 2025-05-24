@@ -7,7 +7,7 @@ from PyQt6.QtMultimedia import QMediaDevices
 from PyQt6.QtCore import QLocale, QTranslator
 from mainWindow import mainWindow
 import sys, os
-
+from pathlib import Path
 
 
 if __name__ == "__main__":
@@ -19,11 +19,13 @@ if __name__ == "__main__":
     __website__ = "https://github.com/sanfanling/xting"
     __supportedAudioformat__ = ["mp3", "flac", "ogg"]
 
-    appdir = os.path.join(os.path.expanduser("~"), ".xting")
+    
+
+    appdir = Path(os.path.join(os.path.expanduser("~"), ".xting")).as_posix()
     if not os.path.isdir(appdir):
         os.mkdir(appdir)
-    if not os.path.isdir(os.path.join(appdir, "lrc")):
-        os.mkdir(os.path.join(appdir, "lrc"))
+    if not os.path.isdir(Path(os.path.join(appdir, "lrc")).as_posix()):
+        os.mkdir(Path(os.path.join(appdir, "lrc")).as_posix())
 
     args = [__application__, __version__, __author__, __license__, __website__, __supportedAudioformat__]
     app = QApplication(args)
