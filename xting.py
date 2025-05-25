@@ -19,7 +19,7 @@ if __name__ == "__main__":
     __website__ = "https://github.com/sanfanling/xting"
     __supportedAudioformat__ = ["mp3", "flac", "ogg"]
 
-    
+    base_dir = Path(__file__).resolve().parent.as_posix()
 
     appdir = Path(os.path.join(os.path.expanduser("~"), ".xting")).as_posix()
     if not os.path.isdir(appdir):
@@ -32,7 +32,8 @@ if __name__ == "__main__":
 
     locale = QLocale.system().name()
     translator = QTranslator()
-    if translator.load(f'translations/{locale}/xting.qm'):
+    translator_Folder = Path(base_dir) / f'translations/{locale}/xting.qm'
+    if translator.load(Path(translator_Folder).as_posix()):
         app.installTranslator(translator)
     # else:
     #     print(f'No translation file found for {locale}')
