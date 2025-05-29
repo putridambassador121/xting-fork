@@ -19,7 +19,7 @@
 * Originally developed in the Linux environment by the original author, now it runs on Windows 10 and is being developed by me there.
 
 ### Next todo list:
-* [x] make it search for cover art on the file itself (as of this version, only mp3 and flac are supported for this functionality, more are planned)
+* [x] make it search for cover art on the file itself, all 4 file extensions are supported: ".mp3", ".flac", ".m4a" and ".ogg". (more file extension support are planned)
 * [] make it search for cover art online if the cover is not available on the file
-* [] add a sound driver watcher on the gui (make it detect automatically if a sound device like a headphone got disconnected, without needing to restart the app just to use it)
+* [x] add a sound driver watcher on the gui (make it detect automatically if a sound device like a headphone got disconnected, without needing to restart the app just to use it)
 
