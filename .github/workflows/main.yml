@@ -14,7 +14,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: '3.13.3'
 
     - name: Install dependencies
       run: |
@@ -43,14 +43,7 @@ jobs:
 
         # Create .desktop file
         
-        cat > AppDir/usr/share/applications/xting.desktop <<EOF
-        [Desktop Entry]
-        Name=Xting Music Player
-        Exec=xting
-        Icon=xting
-        Type=Application
-        Categories=Audio;Player;
-        EOF
+        printf "[Desktop Entry]\nName=Xting Music Player\nExec=xting\nIcon=xting\nType=Application\nCategories=Audio;Player;\n" > AppDir/usr/share/applications/xting.desktop
 
         # Copy icon from repo
         cp icon/logo.png AppDir/usr/share/icons/hicolor/256x256/apps/xting.png
