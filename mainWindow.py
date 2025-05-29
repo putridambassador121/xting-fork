@@ -3,7 +3,7 @@
 # filename: mainWindow.py
 
 
-import os, sys, glob, mutagen, random
+import os, sys, random
 import traceback
 
 from PyQt6.QtCore import (
@@ -27,12 +27,13 @@ from PyQt6.QtGui import (
     QIcon,
     QKeySequence,
     QPixmap,
-    QFont  
+    QFont,
+    QAction
 )
 
-from dockWidgets import albumCoverWidget
+# from dockWidgets import albumCoverWidget
 
-# from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput, QMediaMetaData, QMediaDevices
+from PyQt6.QtMultimedia import QMediaDevices
 from pathlib import Path
 from configuration import configuration
 from windowUI import windowUI
@@ -101,52 +102,33 @@ class Worker(QRunnable):
 
 class mainWindow(windowUI):
 
-    def __init__(self, devices):
-        super().__init__(devices)
-
+    def __init__(self, media_devices):
+        super().__init__(media_devices)
+        self.mediaDevices = media_devices
+        # self.devices = self.mediaDevices.audioOutputs()
+        
         self.threadpool = QThreadPool()
         self.setWindowTitle("xting")
         self.setWindowIcon(QIcon(Path(os.path.join(base_dir, "icon/logo.png")).as_posix()))
         self.timer = QTimer()
-
+        self.deviceActions = []
         self.musicEngine = engine()
         self.playHistory = []
         self.addToPlayHistory = True
         self.currentTrack = None
         self.virtualStop = True
         self.currentIndex = 0
-
         self.initCentralWidget()
         self.initDockwidget()
         self.initMenuBar()
         self.initStatusBar()
 
         self.setShortcuts()
-
-        path = Path(os.path.join(self.parameter.privatePath, "current.txt")).as_posix()
-        if not self.parameter.currentPlaylistName:
-            path = Path(os.path.join(self.parameter.privatePath, "current.txt")).as_posix()
-            if os.path.exists(path):
-                with open(path, "r", encoding="utf-8") as f:
-                # self.threadpool.start(worker)
-                    self.playlistTmp = list(map(lambda x: x.strip(), f.readlines()))
-                    self.playlistTmp = list(filter(lambda x: os.path.exists(x), self.playlistTmp))
-                self.addToPlaylist(self.playlistTmp)
-            else:
-                self.playlistTmp = []
-        else:
-            # self.threadpool.start(worker)
-            try:
-                with open(self.parameter.currentPlaylistName, "r", encoding="utf-8") as f:
-                    self.playlistTmp = list(map(lambda x: x.strip(), f.readlines()))
-                    self.playlistTmp = list(filter(lambda x: os.path.exists(x), self.playlistTmp))
-                self.addToPlaylist(self.playlistTmp)
-            except FileNotFoundError:
-                open(self.parameter.currentPlaylistName, "x").close()
+        self.loadPlaylist()
+        # QMediaDevices.audioOutputsChanged()
         self.systemTray = QSystemTrayIcon(QIcon(Path(os.path.join(base_dir, "icon/logo.png")).as_posix()), self)
         self.systemTray.setContextMenu(self.trayContextMenu)
         self.systemTray.setVisible(self.parameter.trayIcon)
-
         if self.parameter.loop == "playlist":
             self.loopPlaylistAction.setChecked(True)
         elif self.parameter.loop == "track":
@@ -163,20 +145,24 @@ class mainWindow(windowUI):
 
 
 
-        k = 0
-        for de in self.devices:
-            if de.description() == self.musicEngine.audioOutput.device().description():
-                break
-            else:
-                k += 1
-        try:
-            exec(f"self.device{k}Action.setChecked(True)")
-        except AttributeError:
-            pass
+        # k = 0
+        # for de in self.devices:
+        #     if de.description() == self.musicEngine.audioOutput.device().description():
+        #         break
+        #     else:
+        #         k += 1
+        # try:
+        #     exec(f"self.device{k}Action.setChecked(True)")
+        # except AttributeError:
+        #     pass
+        # self.updateAudioDevices()
+        self.setupAudioDeviceMonitoring()
+
+        # QMediaDevices.audioOutputsChanged.connect(self.updateAudioDevices)
         self.musicEngine.setVolume(0.8)
         self.centralWidget.volumeSlider.setValue(8)
 
-
+        # teste = QMediaDevices.audioOutputsChanged
 
         self.openFileAction.triggered.connect(self.openFileAction_)
         self.centralWidget.playorpauseButton.clicked.connect(self.playorpause_)
@@ -191,8 +177,8 @@ class mainWindow(windowUI):
         self.centralWidget.repeatButton.clicked.connect(self.repeat_)
         self.configurationAction.triggered.connect(self.configurationAction_)
 
-        for q in self.deviceGroup.actions():
-            exec(f"q.triggered.connect(self.changeDevice)")
+        # for q in self.deviceGroup.actions():
+        #     exec(f"q.triggered.connect(self.changeDevice)")
 
         self.restoreWidgetState()
 
@@ -219,15 +205,93 @@ class mainWindow(windowUI):
         self.aboutAppAction.triggered.connect(self.aboutAppAction_)
         self.aboutQtAction.triggered.connect(QApplication.aboutQt)
         self.quitAction.triggered.connect(self.quit_)
+    
+    def setupAudioDeviceMonitoring(self):
+        """Initialize device monitoring."""
+        self.updateAudioDevices()  # First load
 
-    def addFileAlbum(self, file: str):
-        album = albumCoverWidget(self)
+        self.mediaDevices.audioOutputsChanged.connect(self.updateAudioDevices)
+
+    def setAudioDevice(self, device):
+        """Set the selected audio output device."""
+        self.musicEngine.audioOutput.setDevice(device)
+        self.updateAudioDevices()  # Refresh checkmarks
+
+    def updateAudioDevices(self):
+        """Update device list and UI."""
+        # print("Audio devices updated")
+
+        self.devices = self.mediaDevices.audioOutputs()
+        # print(self.devices)
+        if hasattr(self, "deviceActions"):
+            for action in self.deviceActions:
+                self.deviceMenu.removeAction(action)
+        self.deviceActions = []
+
+        current_device = self.musicEngine.audioOutput.device()
+
+        for device in self.devices:
+            action = QAction(device.description(), self)
+            action.setCheckable(True)
+
+            is_current = device == current_device
+            action.setChecked(is_current)
+
+            action.triggered.connect(lambda _, d=device: self.setAudioDevice(d))
+
+            self.deviceMenu.addAction(action)
+            self.deviceActions.append(action)
+
+
+
+
+
+
+    def loadPlaylist(self):
+        if not self.parameter.currentPlaylistName:
+            path = Path(os.path.join(self.parameter.privatePath, "current.txt")).as_posix()
+        else:
+            path = self.parameter.currentPlaylistName
+
+        if not os.path.exists(path):
+            open(path, "x").close()  # Create empty file
+            self.playlistTmp = []
+            return
+
+        worker = Worker(self.readPlaylist, path)
+        worker.signals.result.connect(self.handlePlaylistLoaded)
+        worker.signals.error.connect(self.handleWorkerError)
+        worker.signals.finished.connect(self.handleWorkerFinished)
+
+        self.threadpool.start(worker)
+
+    def readPlaylist(self, filepath):
+        playlist = []
+        try:
+            with open(filepath, "r", encoding="utf-8") as f:
+                lines = f.readlines()
+                playlist = [
+                    line.strip() for line in lines
+                    if os.path.exists(line.strip()) and line.strip() != ""
+                ]
+        except Exception as e:
+            print(f"Error reading playlist: {e}")
+        return playlist  
+
+    def handlePlaylistLoaded(self, playlist):
+        self.playlistTmp = playlist
+        self.addToPlaylist(self.playlistTmp)  
+    
+    def handleWorkerError(self, error):
+        exctype, value, traceback_str = error
+        print(f"Error occurred: {value}\n{traceback_str}")
+    
+    def handleWorkerFinished(self):
+        pass
+
+
+
         
-        
-
-
-        
-
     def restoreWidgetState(self):
         try:
             self.lrcShowxDock.restoreGeometry(self.parameter.lrcShowxDockGeometry)
@@ -322,7 +386,6 @@ class mainWindow(windowUI):
 
         if status.value == 0: # stoped status
             self.addHistoryAction()
-
             self.timer.stop()
             if self.virtualStop:   # True: handle track to track automatically, feel like playing by playing without stop, it's default
                 self.scheduleNextTrack()
@@ -471,7 +534,6 @@ class mainWindow(windowUI):
             self.albumCoverDock.albumCoverWidget.searchMedia
         )
         self.threadpool.start(worker)
-        # self.albumCoverDock.albumCoverWidget.searchMedia()
         self.musicEngine.play()
 
 
@@ -615,7 +677,7 @@ class mainWindow(windowUI):
 
     def saveCurrentPlaylist(self):
         t = "\n".join(self.playlistTmp) + "\n"
-        with open(os.path.join(self.parameter.privatePath, "current.txt"), "w") as f:
+        with open(os.path.join(self.parameter.privatePath, "current.txt"), "w", encoding="utf-8") as f:
             f.write(t)
 
     def setShortcuts(self):

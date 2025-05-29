@@ -13,10 +13,10 @@ from pathlib import Path
 if __name__ == "__main__":
 
     __application__ = "xting"
-    __version__ = "1.0.1"
-    __author__ = "sanfanling"
+    __version__ = "1.0.2"
+    __author__ = "putridambassador121"
     __license__ = "GPLV-3.0"
-    __website__ = "https://github.com/sanfanling/xting"
+    __website__ = "https://github.com/putridambassador121/xting-fork"
     __supportedAudioformat__ = ["mp3", "flac", "ogg"]
 
     base_dir = Path(__file__).resolve().parent.as_posix()
@@ -38,7 +38,7 @@ if __name__ == "__main__":
     # else:
     #     print(f'No translation file found for {locale}')
 
-    devices = QMediaDevices.audioOutputs()
+    devices = QMediaDevices()
 
     w = mainWindow(devices)
     w.show()

@@ -4,15 +4,16 @@
 
 import sys, os, mutagen
 
-from mutagen.mp3 import MP3
-from mutagen.mp4 import MP4
+from mutagen.mp3 import MP3, HeaderNotFoundError
+# from mutagen.mp4 import MP4
+from mutagen.id3 import ID3, ID3NoHeaderError
 
-from mutagen.flac import FLAC
+from mutagen.flac import FLAC, FLACNoHeaderError
 
 from mutagen.oggvorbis import OggVorbis
 
-from mutagen.id3 import TIT2, TALB, TPE1, TDRC
-
+from mutagen.id3 import TIT2
+from mutagen.mp4 import MP4
 
 
 class track:
@@ -32,71 +33,140 @@ class track:
         else:
             self.loadUnkown()
 
+    """
+    Changed the way these audio loader functions worked, because it seems kinda strange and
+    counter intuitive to write 'unknown' as metadata values to the file itself, and also it just makes it
+    hard to use multithreading (because, race conditions, apparently), and so it's read only for 
+    metadata and returns of the 'unknown' in cases where the value is None
+    
+    """
+
     def loadM4a(self):
         self.trackType = "m4a"
-        self.audio = mutagen.File(self.trackFile, easy = True)
         try:
-            self.trackTitle = self.audio["title"][0]
-        except:
-            self.trackTitle = "unknow"
-        try:
-            self.trackAlbum = self.audio["album"][0]
-        except:
-            self.trackAlbum = "unknow"
-        try:
-            self.trackArtist = self.audio["artist"][0]
-        except:
-            self.trackArtist = "unknow"
-        try:
-            self.trackDate = self.audio["date"][0]
-        except:
-            self.trackDate = "unknow"
-        try:
-            self.trackBitrate = int(self.audio.info.bitrate)
-        except:
-            self.trackBitrate = 0
-        try:
-            self.trackSamplerate = int(self.audio.info.sample_rate)
-        except:
-            self.trackSamplerate = 0
-        try:
-            self.trackLength = int(self.audio.info.length)
-        except:
-            self.trackLength = 0
-        try:
-            self.trackBitrate = int(self.audio.info.bitrate)
-        except:
-            self.trackBitrate = 0
-        try:
-            self.trackSamplerate = int(self.audio.info.sample_rate)
-        except:
-            self.trackSamplerate = 0
-        try:
-            self.trackLength = int(self.audio.info.length)
-        except:
-            self.trackLength = 0
+            self.audio = MP4(self.trackFile)
+        except Exception:
+            print(f"Invalid or not an M4A/MP4 file: {self.trackFile}")
+            self.audio = None
+            return
+
+        def safe_get(tag):
+            return self.audio.tags.get(tag, ["Unknown"])[0] if self.audio and self.audio.tags else "Unknown"
+
+        self.trackTitle = safe_get("\xa9nam")
+        self.trackAlbum = safe_get("\xa9alb")
+        self.trackArtist = safe_get("\xa9ART")
+        self.trackDate = safe_get("\xa9day")
+
+        if self.audio and self.audio.info:
+            self.trackBitrate = int(getattr(self.audio.info, 'bitrate', 0))
+            self.trackSamplerate = int(getattr(self.audio.info, 'sample_rate', 0))
+            self.trackLength = int(getattr(self.audio.info, 'length', 0))
+        else:
+            self.trackBitrate = int(getattr(self.audio.info, 'bitrate', 0))
+            self.trackSamplerate = int(getattr(self.audio.info, 'sample_rate', 0))
+            self.trackLength = int(getattr(self.audio.info, 'length', 0))
+
+
+
+
+    # def loadM4a(self):
+    #     self.trackType = "m4a"
+    #     self.audio = mutagen.File(self.trackFile, easy = True)
+    #     try:
+    #         self.trackTitle = self.audio["title"][0]
+    #     except:
+    #         self.trackTitle = "unknow"
+    #     try:
+    #         self.trackAlbum = self.audio["album"][0]
+    #     except:
+    #         self.trackAlbum = "unknow"
+    #     try:
+    #         self.trackArtist = self.audio["artist"][0]
+    #     except:
+    #         self.trackArtist = "unknow"
+    #     try:
+    #         self.trackDate = self.audio["date"][0]
+    #     except:
+    #         self.trackDate = "unknow"
+    #     try:
+    #         self.trackBitrate = int(self.audio.info.bitrate)
+    #     except:
+    #         self.trackBitrate = 0
+    #     try:
+    #         self.trackSamplerate = int(self.audio.info.sample_rate)
+    #     except:
+    #         self.trackSamplerate = 0
+    #     try:
+    #         self.trackLength = int(self.audio.info.length)
+    #     except:
+    #         self.trackLength = 0
+    #     try:
+    #         self.trackBitrate = int(self.audio.info.bitrate)
+    #     except:
+    #         self.trackBitrate = 0
+    #     try:
+    #         self.trackSamplerate = int(self.audio.info.sample_rate)
+    #     except:
+    #         self.trackSamplerate = 0
+    #     try:
+    #         self.trackLength = int(self.audio.info.length)
+    #     except:
+    #         self.trackLength = 0
 
     def loadOgg(self):
         self.trackType = "ogg"
-        self.audio = OggVorbis(self.trackFile)
-        self.trackTitle = self.audio.tags.get(("TITLE"), ["unknow"])[0]
-        self.trackAlbum = self.audio.tags.get(("ALBUM"), ["unknow"])[0]
-        self.trackArtist = self.audio.tags.get(("ARTIST"), ["unknow"])[0]
-        self.trackDate = self.audio.tags.get(("DATE"), ["unknow"])[0]
         try:
-            self.trackBitrate = int(self.audio.info.bitrate)
-        except:
-            self.trackBitrate = 0
-        try:
-            self.trackSamplerate = int(self.audio.info.sample_rate)
-        except:
-            self.trackSamplerate = 0
-        try:
-            self.trackLength = int(self.audio.info.length)
-        except:
-            self.trackLength = 0
+            self.audio = OggVorbis(self.trackFile)
+        except Exception:
+            print(f"Invalid or not an OGG file: {self.trackFile}")
+            self.audio = None
+            return
 
-    def loadUnkown(self):
+        def safe_get(tag):
+            return self.audio.get(tag, ["Unknown"])[0] if self.audio else "Unknown"
+
+        self.trackTitle = safe_get("title")
+        self.trackAlbum = safe_get("album")
+        self.trackArtist = safe_get("artist")
+        self.trackDate = safe_get("date")
+
+        if self.audio and self.audio.info:
+            self.trackBitrate = int(getattr(self.audio.info, 'bitrate', 0))
+            self.trackSamplerate = int(getattr(self.audio.info, 'sample_rate', 0))
+            self.trackLength = int(getattr(self.audio.info, 'length', 0))
+        else:
+            self.trackBitrate = int(getattr(self.audio.info, 'bitrate', 0))
+            self.trackSamplerate = int(getattr(self.audio.info, 'sample_rate', 0))
+            self.trackLength = int(getattr(self.audio.info, 'length', 0))
+
+
+
+
+
+
+
+    # def loadOgg(self):
+    #     self.trackType = "ogg"
+    #     self.audio = OggVorbis(self.trackFile)
+    #     self.trackTitle = self.audio.tags.get(("TITLE"), ["unknow"])[0]
+    #     self.trackAlbum = self.audio.tags.get(("ALBUM"), ["unknow"])[0]
+    #     self.trackArtist = self.audio.tags.get(("ARTIST"), ["unknow"])[0]
+    #     self.trackDate = self.audio.tags.get(("DATE"), ["unknow"])[0]
+    #     try:
+    #         self.trackBitrate = int(self.audio.info.bitrate)
+    #     except:
+    #         self.trackBitrate = 0
+    #     try:
+    #         self.trackSamplerate = int(self.audio.info.sample_rate)
+    #     except:
+    #         self.trackSamplerate = 0
+    #     try:
+    #         self.trackLength = int(self.audio.info.length)
+    #     except:
+    #         self.trackLength = 0
+
+    def loadUnknown(self):
         self.trackType = "unknown"
         self.audio = None
         self.trackTitle = "unknown"
@@ -107,69 +177,104 @@ class track:
         self.trackSamplerate = 0
         self.trackLength = 0
 
+
+
     def loadFlac(self):
         self.trackType = "flac"
-        self.audio = FLAC(self.trackFile)
         try:
-            self.trackTitle = self.audio["title"][0]
-        except:
-            self.trackTitle = "unknown"
-        try:
-            self.trackAlbum = self.audio["album"][0]
-        except:
-            self.trackAlbum = "unknown"
-        try:
-            self.trackArtist = self.audio["artist"][0]
-        except:
-            self.trackArtist = "unknown"
-        try:
-            self.trackDate = self.audio["date"][0]
-        except:
-            self.trackDate = "unknown"
-        try:
-            self.trackBitrate = int(self.audio.info.bitrate)
-        except:
-            self.trackBitrate = 0
-        try:
-            self.trackSamplerate = int(self.audio.info.sample_rate)
-        except:
-            self.trackSamplerate = 0
-        try:
-            self.trackLength = int(self.audio.info.length)
-        except:
-            self.trackLength = 0
+            self.audio = FLAC(self.trackFile)
+        except Exception:
+            print(f"Invalid or not a FLAC file: {self.trackFile}")
+            self.audio = None
+            return
 
+        def safe_get(tag):
+            return self.audio.get(tag, ["Unknown"])[0] if self.audio else "Unknown"
+
+        self.trackTitle = safe_get("title")
+        self.trackAlbum = safe_get("album")
+        self.trackArtist = safe_get("artist")
+        self.trackDate = safe_get("date")
+
+        if self.audio and self.audio.info:
+            self.trackBitrate = int(getattr(self.audio.info, 'bitrate', 0))
+            self.trackSamplerate = int(getattr(self.audio.info, 'sample_rate', 0))
+            self.trackLength = int(getattr(self.audio.info, 'length', 0))
+        else:
+            self.trackBitrate = int(getattr(self.audio.info, 'bitrate', 0)) if self.audio else 0  
+            self.trackSamplerate = int(getattr(self.audio.info, 'sample_rate', 0)) if self.audio else 0
+            self.trackLength = int(getattr(self.audio.info, 'length', 0)) if self.audio else 0
+
+
+
+
+
+
+
+
+    # def loadFlac(self):
+    #     self.trackType = "flac"
+    #     try:
+    #         self.audio = FLAC(self.trackFile)
+    #     except FLACNoHeaderError:
+    #         print(f"Arquivo inválido ou não é um FLAC: {self.trackFile}")
+    #         self.audio = None
+    #         return
+
+    #     # Função segura pra pegar tags
+    #     def safe_get(tag):
+    #         return self.audio.get(tag, None)[0] if self.audio else "Unknown"
+
+        
+    #     self.trackTitle = safe_get("title")
+    #     self.trackAlbum = safe_get("album")
+    #     self.trackArtist = safe_get("artist")
+    #     self.trackDate = str(safe_get("date"))
+
+    #     # print(self.trackTitle)
+    #     # print(self.trackAlbum)
+    #     # print(self.trackArtist)
+    #     # print(self.trackDate)
+    #     # print(round(1.6))
+    #     self.trackBitrate = int(getattr(self.audio.info, 'bitrate', 0)) if self.audio else 0  
+    #     self.trackSamplerate = int(getattr(self.audio.info, 'sample_rate', 0)) if self.audio else 0
+    #     self.trackLength = int(getattr(self.audio.info, 'length', 0)) if self.audio else 0
+
+    
     def loadMp3(self):
         self.trackType = "mp3"
-        self.audio = MP3(self.trackFile)
         try:
-            self.trackTitle = str(self.audio["TIT2"].text[0])        
-        except:
-            self.trackTitle = "unknown"
+            self.audio = MP3(self.trackFile)
+        except HeaderNotFoundError:
+            print(f"Invalid or not an MP3: {self.trackFile}")
+            self.audio = None
+            return
+
         try:
-            self.trackAlbum = str(self.audio["TALB"].text[0])
-        except:
-            self.trackAlbum = "unknown"
-        try:
-            self.trackArtist = str(self.audio["TPE1"].text[0])
-        except:
-            self.trackArtist = "unknown"
-        try:
-            self.trackDate = str(self.audio["TDRC"].text[0])
-        except:
-            self.trackDate = "unknown"
-        try:
-            self.trackBitrate = int(self.audio.info.bitrate)
-        except:
-            self.trackBitrate = 0
-        try:
-            self.trackSamplerate = int(self.audio.info.sample_rate)
-        except:
-            self.trackSamplerate = 0
-        try:
-            self.trackLength = int(self.audio.info.length)
-        except:
-            self.trackLength = 0
+            tags = ID3(self.trackFile)
+        except ID3NoHeaderError:
+            tags = None
+
+        def safe_get(tag):
+            return tags.get(tag).text[0] if tags and tags.get(tag) else "Unknown"
+
+        self.trackTitle = safe_get("TIT2")
+        self.trackAlbum = safe_get("TALB")
+        self.trackArtist = safe_get("TPE1")
+        self.trackDate = str(safe_get("TDRC"))
+
+ 
+        if self.audio and self.audio.info:
+            self.trackBitrate = int(getattr(self.audio.info, 'bitrate', 0))
+            self.trackSamplerate = int(getattr(self.audio.info, 'sample_rate', 0))
+            self.trackLength = int(getattr(self.audio.info, 'length', 0))
+        else:
+            self.trackBitrate = int(getattr(self.audio.info, 'bitrate', 0))
+            self.trackSamplerate = int(getattr(self.audio.info, 'sample_rate', 0))
+            self.trackLength = int(getattr(self.audio.info, 'length', 0))
+
+        # print(f"Loaded: {self.trackTitle} | Length: {self.trackLength}s")
+
 
     def setTitleTag(self, v):
         if self.trackType == "mp3":
@@ -223,3 +328,5 @@ class track:
         else:
             print("Unsupported file type")
 
+    def searchOnline(self):
+        pass

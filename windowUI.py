@@ -2,12 +2,39 @@
 # -*- coding: utf-8 -*-
 # filename: windowUI.py
 
-import os, sys
-from PyQt6.QtWidgets import *
-from PyQt6.QtCore import *
-from PyQt6.QtGui import *
+import sys
+from PyQt6.QtCore import (
+    pyqtSignal,
+    QSize
+)
+from PyQt6.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QLabel,
+    QPushButton,
+    QSlider
+)
+from PyQt6.QtGui import (
+    QIcon,
+    QAction,
+    QActionGroup   
+)
+
+from dockWidgets import (
+    lrcEditorDock,
+    albumCoverDock,
+    lrcShowxDock,
+    collectionDock,
+    Qt,
+    QMenu,
+    playlistDock,
+    QHBoxLayout,
+    QWidget,
+    QVBoxLayout
+)
+
+from PyQt6.QtMultimedia import QMediaDevices
 from pathlib import Path
-from dockWidgets import *
 from parameterData import parameterData
 
 base_dir = Path(__file__).resolve().parent.as_posix()
@@ -101,19 +128,6 @@ class windowUI(QMainWindow):
 
         self.audioMenu = self.menuBar().addMenu(self.tr("Audio"))
         self.deviceMenu = self.audioMenu.addMenu(QIcon(Path(Path(base_dir) / "icon/device.png").as_posix()), self.tr("Device"))
-        self.deviceGroup = QActionGroup(self)
-        n = 0
-        for d in self.devices:
-            exec(f"self.device{n}Action = QAction(d.description())")
-            exec(f"self.device{n}Action.setObjectName('{n}')")
-            exec(f"self.device{n}Action.setCheckable(True)")
-            exec(f"self.deviceGroup.addAction(self.device{n}Action)")
-            exec(f"self.deviceMenu.addAction(self.device{n}Action)")
-            n += 1
-
-        # self.toolsMenu = self.menuBar().addMenu(self.tr("Tools"))
-        # self.scanAction = QAction(self.tr("Scan collection"))
-        # self.toolsMenu.addAction(self.scanAction)
 
         self.settingMenu = self.menuBar().addMenu(self.tr("Setting"))
         self.configurationAction = QAction(QIcon(Path(Path(base_dir) / "icon/configurate.png").as_posix()), self.tr("Configurate..."))

@@ -50,7 +50,10 @@ from PyQt6.QtGui import (
 from lrcShowX.lrcShowX import lrcShowX
 from mutagen.flac import FLAC, Picture
 from mutagen.mp3 import MP3
-from mutagen.id3 import ID3, APIC, error
+from mutagen.id3 import ID3, APIC
+from mutagen.mp4 import MP4
+from mutagen.oggvorbis import OggVorbis
+import base64
 from pathlib import Path
 
 basedir = Path(__file__).resolve().parent.as_posix()
@@ -284,14 +287,17 @@ class albumCoverWidget(QLabel):
         
         if Path(f).suffix.lower() == ".mp3":
             audio = MP3(f, ID3=ID3)
-            for tag in audio.tags.values():
-                if isinstance(tag, APIC) and tag.type == 3:
-                    pix = QPixmap()
-                    pix.loadFromData(tag.data)
-                    pix = pix.scaled(270, 270)
-                    self.setPixmap(pix)
-                else:
-                    self.searchOnline()
+            try:
+                for tag in audio.tags.values():
+                    if (isinstance(tag, APIC) and tag.type == 3) or (isinstance(tag, APIC) and tag.type == 1) or (isinstance(tag, APIC) and tag.type == 2):
+                        pix = QPixmap()
+                        pix.loadFromData(tag.data)
+                        pix = pix.scaled(270, 270)
+                        self.setPixmap(pix)
+                    else:
+                        self.searchOnline()
+            except AttributeError:
+                pass
         elif Path(f).suffix.lower() == ".flac":  
             audio = FLAC(f)
             if audio.pictures:
@@ -302,7 +308,31 @@ class albumCoverWidget(QLabel):
                 self.setPixmap(pix)
             else:
                 self.searchOnline()
-
+        elif Path(f).suffix.lower() == ".m4a":
+            audio = MP4(f)
+            if 'covr' in audio.tags:
+                p = audio.tags["covr"][0]
+                pix = QPixmap()
+                pix.loadFromData(p)
+                pix = pix.scaled(270, 270)
+                self.setPixmap(pix)
+                # for cover in audio.tags['covr']:
+            else:
+                self.searchOnline()
+        elif Path(f).suffix.lower() == ".ogg":
+            audio = OggVorbis(f)
+            if 'metadata_block_picture' in audio:
+                for b64_data in audio['metadata_block_picture']:
+                    pic_data = base64.b64decode(b64_data)
+                    pic = Picture(pic_data)
+                    if pic.type in (1, 2, 3):
+                        pix = QPixmap()
+                        pix.loadFromData(pic.data)
+                        pix = pix.scaled(270, 270)
+                        self.setPixmap(pix)
+            else:
+                self.searchOnline()
+    
     def searchOnline(self):
         pass
 
@@ -515,7 +545,7 @@ class playlistWidget(QWidget):
         f, r = QFileDialog.getOpenFileName(self, self.tr("Select a playlist"), self.parent.parent.parameter.privatePath, "plain text files (*.txt)")
         if f:
 
-            with open(f, "r") as ff:
+            with open(f, "r", encoding="utf-8") as ff:
                 pl = ff.readlines()
             pl = list(map(lambda x: x.strip(), pl))
             pl = list(filter(lambda x: os.path.exists(x), pl))
