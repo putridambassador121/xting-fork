@@ -1,0 +1,65 @@
+name: Build Linux AppImage
+
+on:
+  workflow_dispatch:  # Manually triggered
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libfuse2
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        pip install -r requirements.txt
+
+    - name: Build executable with PyInstaller
+      run: |
+        pyinstaller --windowed --onefile --icon=icon/logo.png xting.py --add-data 	"lrcShowX/dict;lrcShowX/dict" --add-data "icon;icon" --add-data "translations;translations"
+
+    - name: Download appimagetool
+      run: |
+        wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+        chmod +x appimagetool-x86_64.AppImage
+
+    - name: Create AppDir structure
+      run: |
+        mkdir -p AppDir/usr/bin
+        cp dist/xting AppDir/usr/bin/
+
+        mkdir -p AppDir/usr/share/applications
+        mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
+
+        # Create .desktop file
+        cat > AppDir/usr/share/applications/xting.desktop <<EOF
+        [Desktop Entry]
+        Name=Xting Music Player
+        Exec=xting
+        Icon=xting
+        Type=Application
+        Categories=Audio;Player;
+        EOF
+
+        # Copy icon from repo
+        cp icon/logo.png AppDir/usr/share/icons/hicolor/256x256/apps/xting.png
+
+    - name: Build AppImage
+      run: |
+        ./appimagetool-x86_64.AppImage AppDir xting-x86_64.AppImage --no-appstream
+
+    - name: Upload AppImage as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: xting-AppImage
+        path: xting-x86_64.AppImage
